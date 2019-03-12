@@ -21,10 +21,10 @@ let body = JSON.stringify({
 let prehash = timestamp + method + requestpath + body;
 
 // decode the base64 secret.
-let key = Buffer(secret, 'base64');
+let decodedsecret = Buffer(secret, 'base64');
 
 // create sha256 hmac with the secret.
-let hmac = crypto.createHmac('sha256', key);
+let hmac = crypto.createHmac('sha256',decodedsecret);
 
 // sign the require message with the hmac
 // and finally base64 encode the result

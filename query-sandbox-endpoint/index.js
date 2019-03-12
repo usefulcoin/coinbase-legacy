@@ -53,8 +53,5 @@ async function makerequest(){
   }
 }
 
-main(){
   response = makerequest();
-  // output response.
-  console.log(json);
-}
+  console.log(response);

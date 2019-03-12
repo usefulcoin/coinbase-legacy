@@ -1,11 +1,6 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
-// get sensitive data from the enviroment.
-let key = process.env.apikey;
-let secret = process.env.apisecret;
-let passphrase = process.env.apipassphrase;
-
 async function makerequest(){
   // define request and make 41@a timestamp.
   let method = 'POST';
@@ -45,7 +40,7 @@ async function makerequest(){
   // define url and send request.
   try {
     let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
-    response = await fetch(url, requestOptions);
+    response = await fetch(url, requestoptions);
     json = await response.json();
     return json;
   } catch (e) {
@@ -53,5 +48,16 @@ async function makerequest(){
   }
 }
 
-  response = makerequest();
-  console.log(response);
+async function main({
+  // get sensitive data from the enviroment.
+  let key = process.env.apikey;
+  let secret = process.env.apisecret;
+  let passphrase = process.env.apipassphrase;
+
+  if ( secret == '' || key == '' || passphrase == '' ) {
+    console.log('Unable to gather credential data from the environment...');
+  } else {
+    response = await makerequest();
+    console.log(response);
+  }
+})();

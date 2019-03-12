@@ -1,6 +1,11 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
+// get sensitive data from the enviroment.
+let key = process.env.apikey;
+let secret = process.env.apisecret;
+let passphrase = process.env.apipassphrase;
+
 async function makerequest(){
   // define request and make 41@a timestamp.
   let method = 'POST';
@@ -48,16 +53,5 @@ async function makerequest(){
   }
 }
 
-async function main({
-  // get sensitive data from the enviroment.
-  let key = process.env.apikey;
-  let secret = process.env.apisecret;
-  let passphrase = process.env.apipassphrase;
-
-  if ( secret == '' || key == '' || passphrase == '' ) {
-    console.log('Unable to gather credential data from the environment...');
-  } else {
-    response = await makerequest();
-    console.log(response);
-  }
-})();
+  response = makerequest();
+  console.log(response);

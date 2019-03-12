@@ -44,8 +44,8 @@ async function makerequest(){
   
   // define url and send request.
     let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
-    response = await fetch(url, requestoptions);
-    json = await response.json();
+    response = fetch(url, requestoptions);
+    json = response.json();
     return json;
 }
 

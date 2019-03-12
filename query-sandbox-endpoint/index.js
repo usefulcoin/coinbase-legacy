@@ -43,14 +43,10 @@ async function makerequest(){
   let requestoptions = { 'method': method.toUpperCase(), headers };
   
   // define url and send request.
-  try {
     let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
     response = await fetch(url, requestoptions);
     json = await response.json();
     return json;
-  } catch (e) {
-    console.error('[ ' + Date() + ' ] ', e);
-  }
 }
 
   response = makerequest();

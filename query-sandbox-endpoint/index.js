@@ -8,18 +8,12 @@ async function makerequest(){
   let passphrase = process.env.apipassphrase;
 
   // define request and make a timestamp.
-  let method = 'POST';
+  let method = 'GET';
   let timestamp = Date.now() / 1000;
-  let requestpath = '/orders';
-  let body = JSON.stringify({
-      price: '1.0',
-      size: '1.0',
-      side: 'buy',
-      product_id: 'BTC-USD'
-  });
+  let requestpath = '/accounts';
   
   // create the prehash string by concatenating required parts of request.
-  let prehash = timestamp + method + requestpath + body;
+  let prehash = timestamp + method + requestpath;
   
   // decode the base64 secret.
   let decodedsecret = Buffer(secret, 'base64');

@@ -1,13 +1,13 @@
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 
-// get sensitive data from the enviroment.
-let key = process.env.apikey;
-let secret = process.env.apisecret;
-let passphrase = process.env.apipassphrase;
-
 async function makerequest(){
-  // define request and make 41@a timestamp.
+  // get sensitive data from the enviroment.
+  let key = process.env.apikey;
+  let secret = process.env.apisecret;
+  let passphrase = process.env.apipassphrase;
+
+  // define request and make a timestamp.
   let method = 'POST';
   let timestamp = Date.now() / 1000;
   let requestpath = '/orders';
@@ -43,11 +43,11 @@ async function makerequest(){
   let requestoptions = { 'method': method.toUpperCase(), headers };
   
   // define url and send request.
-    let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
-    let response = await fetch(url,requestoptions);
-    let json = await response.json();
-    return json;
+  let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
+  let response = await fetch(url,requestoptions);
+  let json = await response.json();
+  return json;
+  console.log(json);
 }
 
-  response = makerequest();
-  console.log(response);
+makerequest();

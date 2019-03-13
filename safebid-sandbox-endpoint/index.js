@@ -80,6 +80,7 @@ async function getaccountinformation(){
     let accountinformation = await getaccountinformation();
     let usdaccountinformation = filter(accountinformation, usdcurrencyfilter);
     let usdavailablebalance = usdaccountinformation[0].available;
+    console.log('usdavailablebalance: ' + usdavailablebalance);
     console.log('The safe bid amount is: $' + usdavailablebalance.toFixed(2));
     console.log('exiting...');
   } catch (e) {

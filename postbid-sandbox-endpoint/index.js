@@ -1,5 +1,4 @@
 const fetch = require('node-fetch');
-const crypto = require('crypto');
 
 async function makerequest(){
   // get sensitive data from the enviroment.

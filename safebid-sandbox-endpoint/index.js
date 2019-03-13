@@ -16,7 +16,7 @@ async function postbid(){
   let requestpath = '/accounts';
   
   // create the prehash string by concatenating required parts of request.
-  let prehash = timestamp + method + requestpath + body;
+  let prehash = timestamp + method + requestpath;
   
   // base64 decode the secret.
   let base64decodedsecret = Buffer(secret, 'base64');

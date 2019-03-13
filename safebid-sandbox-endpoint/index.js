@@ -77,7 +77,7 @@ async function getrequest(endpoint){
 (async function main() {
   try{
     let usdcurrencyfilter = { currency: ['USD'] };
-    let accountinformation = await getrequest(accounts);
+    let accountinformation = await getrequest('accounts');
     let usdaccountinformation = filter(accountinformation, usdcurrencyfilter);
     let usdavailablebalance = usdaccountinformation[0].available;
     console.log('The safe bid amount is: $' + (usdavailablebalance/100).toFixed(2));

@@ -1,3 +1,18 @@
+/*
+ * index.js
+ *
+ * Copyright (c) 2019 Useful Coin LLC. All Rights Reserved.
+ *
+ * This file is licensed. You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ * https://raw.githubusercontent.com/usefulcoin/bitmex/master/LICENSE
+ *
+ * This script is supposed to order BitMex contracts with a delta server. Please read the
+ * README.md file for further information.
+ *
+ */
+
 // load modules...
 const fetch = require('node-fetch');
 const crypto = require('crypto');
@@ -9,7 +24,15 @@ const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;
 // importing of sensitive authentication data complete.
 
-async function getavailablebalance(){
+// filter an array of objects...
+function filter(array, filters) {
+  let itemstoinclude = Object.keys(filters);
+  return array.filter((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
+}
+// filtered array.
+
+// retrieve available balance...
+async function getaccountinformation(){
 
   let method = 'GET';
   let timestamp = Date.now() / 1000;
@@ -48,15 +71,19 @@ async function getavailablebalance(){
   console.log(json);
   return json;
 }
+// retrieved balance.
 
-
-// main function
+// start main function...
 (async function main() {
   try{
-    let availablebalance = await getavailablebalance();
-    console.log('The safe bid amount is: ' + availablebalance[2].available/100);
+    let usdcurrencyfilter = { currency: ['USD'] };
+    let accountinformation = await getaccountinformation();
+    let usdaccountinformation = filter(accountinformation, usdcurrencyfilter);
+    let usdavailablebalance = usdaccountinformation[0].available;
+    console.log('The safe bid amount is: $' + usdavailablebalance.toFixed(2));
     console.log('exiting...');
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);
   };
 }());
+// ending main function.

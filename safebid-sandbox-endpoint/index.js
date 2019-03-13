@@ -129,7 +129,7 @@ async function getrequest(endpoint){
     console.log('exiting...');
 
     // make bid...
-    if ( baseminimum < quanitity < basemaximum ) { } else { console.log('bid quantity is out of bounds.'); }
+    if ( baseminimum < quantity < basemaximum ) { } else { console.log('bid quantity is out of bounds.'); }
     // made bid.
 
   } catch (e) {

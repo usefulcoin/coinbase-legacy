@@ -13,16 +13,25 @@
  *
  */
 
+
+
+
 // load modules...
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 // loading complete.
+
+
+
 
 // import sensitive data...
 const key = process.env.apikey;
 const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;
 // importing of sensitive authentication data complete.
+
+
+
 
 // filter an array of objects...
 function filter(array, filters) {
@@ -31,7 +40,10 @@ function filter(array, filters) {
 }
 // filtered array.
 
-// retrieve available balance...
+
+
+
+// make GET request...
 async function getrequest(endpoint){
 
   let method = 'GET';
@@ -71,16 +83,47 @@ async function getrequest(endpoint){
   console.log(json);
   return json;
 }
-// retrieved balance.
+// made GET request.
+
+
+
 
 // start main function...
 (async function main() {
   try{
-    let usdcurrencyfilter = { currency: ['USD'] };
+    // define risk ratio and product id...
+    let riskratio = 0.01;
+    let productid = 'BTC-USD';
+    // defined risk ratio and product id.
+
+    // retrieve product information...
+    let productidfilter = { id: [productid] };
+    let productinformation = await getrequest('products');
+    let filteredproductinformation = filter(productinformation, productidfilter);
+    let quotecurrency = filteredproductinformation[0].quote_currency;
+    let quoteincrement = filteredproductinformation[0].quote_increment;
+    // retrieved product information.
+
+    // retrieve available balance information...
+    let quotecurrencyfilter = { currency: [quotecurrency] };
     let accountinformation = await getrequest('accounts');
-    let usdaccountinformation = filter(accountinformation, usdcurrencyfilter);
-    let usdavailablebalance = usdaccountinformation[0].available;
-    console.log('The safe bid amount is: $' + (usdavailablebalance/100).toFixed(2));
+    let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+    let quoteavailablebalance = quoteaccountinformation[0].available;
+    let quoteriskableavailable = (quoteavailablebalance*riskratio).toFixed(quoteincrement.countDecimals());
+    // retrieved account balance information.
+
+    // retrieve product ticker information...
+    let producttickerinformation = await getrequest('/products/' + productid + '/ticker');
+    let bid = producttickerinformation.bid;
+    // retrieved product ticker information.
+
+
+    // define safe (riskable) bid quantity...
+    let quantity = quoteriskableavailable / bid; 
+    // defined safe (riskable) bid quantity...
+
+    console.log('bid: ' + bid);
+    console.log('quantity: ' + quantity);
     console.log('exiting...');
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);

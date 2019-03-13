@@ -109,7 +109,7 @@ async function getrequest(endpoint){
     let accountinformation = await getrequest('accounts');
     let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
     let quoteavailablebalance = quoteaccountinformation[0].available;
-    let quoteriskableavailable = (quoteavailablebalance*riskratio).toFixed(quoteincrement.countDecimals());
+    let quoteriskableavailable = (quoteavailablebalance*riskratio).toFixed((quoteincrement).countDecimals());
     // retrieved account balance information.
 
     // retrieve product ticker information...

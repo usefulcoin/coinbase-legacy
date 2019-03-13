@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const crypto = require('crypto');
 
 async function makerequest(){
   // get sensitive data from the enviroment.
@@ -24,7 +25,7 @@ async function makerequest(){
   let decodedsecret = Buffer(secret, 'base64');
   
   // create sha256 hmac with the secret.
-  let hmac = createHmac('sha256',decodedsecret);
+  let hmac = crypto.createHmac('sha256',decodedsecret);
   
   // sign the require message with the hmac
   // and finally base64 encode the result

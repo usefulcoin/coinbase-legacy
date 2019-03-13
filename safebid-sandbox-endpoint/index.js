@@ -32,11 +32,11 @@ function filter(array, filters) {
 // filtered array.
 
 // retrieve available balance...
-async function getaccountinformation(){
+async function getrequest(endpoint){
 
   let method = 'GET';
   let timestamp = Date.now() / 1000;
-  let requestpath = '/accounts';
+  let requestpath = '/' + endpoint;
   
   // create the prehash string by concatenating required parts of request.
   let prehash = timestamp + method + requestpath;
@@ -77,10 +77,9 @@ async function getaccountinformation(){
 (async function main() {
   try{
     let usdcurrencyfilter = { currency: ['USD'] };
-    let accountinformation = await getaccountinformation();
+    let accountinformation = await getrequest(accounts);
     let usdaccountinformation = filter(accountinformation, usdcurrencyfilter);
     let usdavailablebalance = usdaccountinformation[0].available;
-    console.log('usdavailablebalance: ' + usdavailablebalance);
     console.log('The safe bid amount is: $' + (usdavailablebalance/100).toFixed(2));
     console.log('exiting...');
   } catch (e) {

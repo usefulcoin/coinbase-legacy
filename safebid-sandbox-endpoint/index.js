@@ -14,7 +14,6 @@ async function postbid(){
   let method = 'GET';
   let timestamp = Date.now() / 1000;
   let requestpath = '/accounts';
-  let body = JSON.stringify({});
   
   // create the prehash string by concatenating required parts of request.
   let prehash = timestamp + method + requestpath + body;
@@ -40,7 +39,7 @@ async function postbid(){
   };
   
   // define request options for http request.
-  let requestoptions = { 'method': method.toUpperCase(), 'body': body, headers };
+  let requestoptions = { 'method': method.toUpperCase(), headers };
   
   // define url and send request.
   let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;

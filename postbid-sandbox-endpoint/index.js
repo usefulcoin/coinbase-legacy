@@ -12,20 +12,21 @@ async function makerequest(){
   let timestamp = Date.now() / 1000;
   let requestpath = '/orders';
   let body = JSON.stringify({
-      price: '1.0',
-      size: '1.0',
-      side: 'buy',
-      product_id: 'BTC-USD'
+      'price': '27.75',
+      'size': '0.036',
+      'side': 'buy',
+      'post_only': true,
+      'product_id': 'BTC-USD'
   });
   
   // create the prehash string by concatenating required parts of request.
   let prehash = timestamp + method + requestpath + body;
   
-  // decode the base64 secret.
-  let decodedsecret = Buffer(secret, 'base64');
+  // base64 decode the secret.
+  let base64decodedsecret = Buffer(secret, 'base64');
   
   // create sha256 hmac with the secret.
-  let hmac = crypto.createHmac('sha256',decodedsecret);
+  let hmac = crypto.createHmac('sha256',base64decodedsecret);
   
   // sign the require message with the hmac
   // and finally base64 encode the result

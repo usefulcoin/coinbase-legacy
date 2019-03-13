@@ -100,6 +100,8 @@ async function getrequest(endpoint){
     let productidfilter = { id: [productid] };
     let productinformation = await getrequest('products');
     let filteredproductinformation = filter(productinformation, productidfilter);
+    let baseminimum = filteredproductinformation[0].base_min_size;
+    let basemaximum = filteredproductinformation[0].base_max_size;
     let quotecurrency = filteredproductinformation[0].quote_currency;
     let quoteincrement = filteredproductinformation[0].quote_increment;
     // retrieved product information.
@@ -109,7 +111,7 @@ async function getrequest(endpoint){
     let accountinformation = await getrequest('accounts');
     let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
     let quoteavailablebalance = quoteaccountinformation[0].available;
-    let quoteriskableavailable = (quoteavailablebalance*riskratio).toFixed(2);
+    let quoteriskableavailable = quoteavailablebalance*riskratio;
     // retrieved account balance information.
 
     // retrieve product ticker information...
@@ -125,6 +127,11 @@ async function getrequest(endpoint){
     console.log('bid: ' + bid);
     console.log('quantity: ' + quantity);
     console.log('exiting...');
+
+    // make bid...
+    if ( baseminimum < quanitity < basemaximum ) { } else { console.log('bid quantity is out of bounds.'); }
+    // made bid.
+
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);
   };

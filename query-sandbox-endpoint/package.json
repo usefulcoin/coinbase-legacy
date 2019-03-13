@@ -8,6 +8,6 @@
   "license": "MIT",
   "homepage": "http://usefulcoin.com",
   "dependencies": {
-    "node-fetch": "latest",
+    "node-fetch": "latest"
   }
 }

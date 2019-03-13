@@ -9,7 +9,7 @@ const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;
 // importing of sensitive authentication data complete.
 
-async function postbid(){
+async function getavailablebalance(){
 
   let method = 'GET';
   let timestamp = Date.now() / 1000;
@@ -49,4 +49,14 @@ async function postbid(){
   return json;
 }
 
-postbid();
+
+// main function
+(async function main() {
+  try{
+    let availablebalance = await getavailablebalance();
+    console.log('The safe bid amount is: ' + availablebalance[2].available/100);
+    console.log('exiting...');
+  } catch (e) {
+    console.error('[ ' + Date() + ' ] ', e);
+  };
+}());

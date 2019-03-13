@@ -1,13 +1,16 @@
+// load modules...
 const fetch = require('node-fetch');
 const crypto = require('crypto');
+// loading complete.
 
-async function makerequest(){
-  // get sensitive data from the enviroment.
-  let key = process.env.apikey;
-  let secret = process.env.apisecret;
-  let passphrase = process.env.apipassphrase;
+// import sensitive data...
+const key = process.env.apikey;
+const secret = process.env.apisecret;
+const passphrase = process.env.apipassphrase;
+// importing of sensitive authentication data complete.
 
-  // define request and make a timestamp.
+async function postbid(){
+
   let method = 'POST';
   let timestamp = Date.now() / 1000;
   let requestpath = '/orders';
@@ -34,6 +37,8 @@ async function makerequest(){
   
   // define coinbase required headers.
   let headers = {
+    'ACCEPT': 'application/json',
+    'CONTENT-TYPE': 'application/json',
     'CB-ACCESS-KEY': key,
     'CB-ACCESS-SIGN': signedmessage,
     'CB-ACCESS-TIMESTAMP': timestamp,
@@ -51,4 +56,4 @@ async function makerequest(){
   return json;
 }
 
-makerequest();
+postbid();

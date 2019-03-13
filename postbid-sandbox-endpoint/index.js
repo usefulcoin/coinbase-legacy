@@ -40,7 +40,7 @@ async function makerequest(){
   };
   
   // define request options for http request.
-  let requestoptions = { 'method': method.toUpperCase(), headers };
+  let requestoptions = { 'method': method.toUpperCase(), 'body': body, headers };
   
   // define url and send request.
   let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;

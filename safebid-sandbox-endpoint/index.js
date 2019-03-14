@@ -218,7 +218,7 @@ async function sendmessage(message, phonenumber) {
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      sendmessage(postedbid, recipient);
+      sendmessage('bid posted for : ' + postedbid.size + '@' + postedbid.price, recipient);
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

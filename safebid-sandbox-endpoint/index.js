@@ -159,32 +159,25 @@ async function getrequest(endpoint){
 
 
 
-// create sendmessage function to be called from main
-//
-// function name: sendmessage
-// parameter 1: message
-// parameter 2: recipient
-// adapted from: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code/sns/sns_publishsms.js
-function sendmessage(alert, number) {
-  // create publish parameters
-  var params = {
-    Message: alert,
-    PhoneNumber: number,
+// send a message...
+async function sendmessage(message, phonenumber) {
+  // create publish parameters...
+      console.log(message);
+      console.log(phonenumber);
+  let parameters = { 'Message': message, 'PhoneNumber': phonenumber };
+  // created publish parameters.
+
+  try{
+    let publishedtext = await new aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
+    let data = await publishedtext.data;
+    console.log(data);
+    let messageid = data.MessageId;
+    console.log('sent message with id: ' + messageid);
+  } catch (e) {
+    console.error('[ ' + Date() + ' ] ', e.stack);
   };
-
-  // create promise and SNS service object
-  var publishtextpromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-
-  // handle promise's fulfilled/rejected states
-  publishtextpromise.then(
-    function(data) {
-      console.log("Sent SNS message with ID:" + data.MessageId);
-    }).catch(
-      function(err) {
-      console.error(err, err.stack);
-    });
 }
-
+// sent a message.
 
 
 
@@ -228,7 +221,7 @@ function sendmessage(alert, number) {
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      sendmessage('posted bid on ' + productid + ' : ' + postedbid + '@' + postedbid.price, recipient);
+      sendmessage('posted bid on ' + productid + ' : ' + postedbid.size + '@' + postedbid.price, recipient);
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

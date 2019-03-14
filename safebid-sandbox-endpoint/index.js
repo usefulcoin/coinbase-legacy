@@ -35,6 +35,13 @@ const passphrase = process.env.apipassphrase;
 
 
 
+// configure aws region (use ap-northeast-1 or us-west-2)...
+aws.config.update({region: 'ap-northeast-1'});
+// configured aws.
+
+
+
+
 // filter an array of objects...
 function filter(array, filters) {
   let itemstoinclude = Object.keys(filters);
@@ -159,7 +166,7 @@ async function sendmessage(message, phonenumber) {
   // created publish parameters.
 
   try{
-    let publishedtext = await aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
+    let publishedtext = await new aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
     let messageid = publishedtext.MessageId;
     console.log('sent message with id: ' + messageid);
   } catch (e) {

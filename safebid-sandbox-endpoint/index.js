@@ -160,7 +160,7 @@ async function getrequest(endpoint){
 
 
 // send a message...
-function sendmessage(alert, number) {
+async function sendmessage(alert, number) {
   // create publish parameters
   let params = { Message: alert, PhoneNumber: number };
 

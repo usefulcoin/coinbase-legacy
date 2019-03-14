@@ -74,7 +74,6 @@ async function postbid(price,size,side,postonly,productid){
   // define coinbase required headers...
   let headers = {
     'ACCEPT': 'application/json',
-    'CONTENT-TYPE': 'application/json',
     'CB-ACCESS-KEY': key,
     'CB-ACCESS-SIGN': signedmessage,
     'CB-ACCESS-TIMESTAMP': timestamp,

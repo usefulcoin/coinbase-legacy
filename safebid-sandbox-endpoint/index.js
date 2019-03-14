@@ -42,8 +42,62 @@ function filter(array, filters) {
 
 
 
+// post a bid...
+async function postbid(price,size,side,postonly,productid){
 
-// make GET request...
+  // create the prehash string by concatenating required parts of request...
+  let method = 'POST';
+  let timestamp = Date.now() / 1000;
+  let requestpath = '/orders';
+  let body = JSON.stringify({
+      'price': price,
+      'size': size,
+      'side': size,
+      'post_only': postonly,
+      'product_id': productid
+  });
+  let prehash = timestamp + method + requestpath + body;
+  // created the prehash.
+
+  // base64 decode the secret...
+  let base64decodedsecret = Buffer(secret, 'base64');
+  // secret decoded.
+
+  // create sha256 hmac with the secret.
+  let hmac = crypto.createHmac('sha256',base64decodedsecret);
+  // created sha256 hmac.
+
+  // sign the require message with the hmac and base64 encode the result..
+  let signedmessage = hmac.update(prehash).digest('base64');
+  // signed message.
+
+  // define coinbase required headers...
+  let headers = {
+    'ACCEPT': 'application/json',
+    'CONTENT-TYPE': 'application/json',
+    'CB-ACCESS-KEY': key,
+    'CB-ACCESS-SIGN': signedmessage,
+    'CB-ACCESS-TIMESTAMP': timestamp,
+    'CB-ACCESS-PASSPHRASE': passphrase,
+  };
+  // defined coinbase required headers. yes... content-type is required.
+  
+
+  // define request options for http request...
+  let requestoptions = { 'method': method.toUpperCase(), 'body': body, headers };
+  // defined request options for http request.
+
+  // define url and send request...
+  let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
+  let response = await fetch(url,requestoptions);
+  let json = await response.json();
+  console.log(json);
+  // defined url and sent request.
+
+  return json;
+}
+
+// make a generic GET request...
 async function getrequest(endpoint){
   
   // create the prehash string by concatenating required parts of request...
@@ -76,7 +130,7 @@ async function getrequest(endpoint){
   };
   // defined coinbase required headers. yes... content-type is required.
   
-  // define request options for http request.
+  // define request options for http request...
   let requestoptions = { 'method': method.toUpperCase(), headers };
   // defined request options for http request.
   
@@ -131,12 +185,12 @@ async function getrequest(endpoint){
 
     console.log('bid: ' + bid);
     console.log('quantity: ' + quantity);
-    console.log('exiting...');
 
     // make bid...
-    if ( baseminimum < quantity < basemaximum ) { } else { console.log('bid quantity is out of bounds.'); }
+    if ( baseminimum < quantity < basemaximum ) { postbid(bid,quantity,'buy',true,productid) } else { console.log('bid quantity is out of bounds.'); }
     // made bid.
 
+    console.log('exiting...');
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);
   };

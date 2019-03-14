@@ -159,24 +159,32 @@ async function getrequest(endpoint){
 
 
 
-// send a message...
-async function sendmessage(message, phonenumber) {
-  // create publish parameters...
-      console.log(message);
-      console.log(phonenumber);
-  let parameters = { 'Message': message, 'PhoneNumber': phonenumber };
-  // created publish parameters.
-
-  try{
-    let publishedtext = await new aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
-    console.log(publishedtext.data);
-    let messageid = publishedtext.data.MessageId;
-    console.log('sent message with id: ' + messageid);
-  } catch (e) {
-    console.error('[ ' + Date() + ' ] ', e.stack);
+// create sendmessage function to be called from main
+//
+// function name: sendmessage
+// parameter 1: message
+// parameter 2: recipient
+// adapted from: https://github.com/awsdocs/aws-doc-sdk-examples/blob/master/javascript/example_code/sns/sns_publishsms.js
+function sendmessage(alert, number) {
+  // create publish parameters
+  var params = {
+    Message: alert,
+    PhoneNumber: number,
   };
+
+  // create promise and SNS service object
+  var publishtextpromise = new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+
+  // handle promise's fulfilled/rejected states
+  publishtextpromise.then(
+    function(data) {
+      console.log("Sent SNS message with ID:" + data.MessageId);
+    }).catch(
+      function(err) {
+      console.error(err, err.stack);
+    });
 }
-// sent a message.
+
 
 
 

@@ -26,6 +26,7 @@ const crypto = require('crypto');
 
 
 // import sensitive data...
+const recipient = +12062270634;
 const key = process.env.apikey;
 const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;
@@ -96,6 +97,10 @@ async function postbid(price,size,side,postonly,productid){
 
   return json;
 }
+// posted a bid.
+
+
+
 
 // make a generic GET request...
 async function getrequest(endpoint){
@@ -147,6 +152,25 @@ async function getrequest(endpoint){
 
 
 
+// send a message...
+async function sendmessage(message, phonenumber) {
+  // create publish parameters...
+  let parameters = { 'Message': message, 'PhoneNumber': phonenumber };
+  // created publish parameters.
+
+  try{
+    let publishedtext = await aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
+    let messageid = publishedtext.MessageId;
+    console.log('sent message with id: ' + messageid);
+  } catch (e) {
+    console.error('[ ' + Date() + ' ] ', e.stack);
+  };
+}
+// sent a message.
+
+
+
+
 // start main function...
 (async function main() {
   try{
@@ -186,7 +210,7 @@ async function getrequest(endpoint){
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      console.log(postedbid);
+      sendmessage(postedbid, recipient);
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

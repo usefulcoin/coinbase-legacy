@@ -167,15 +167,11 @@ async function sendmessage(message, phonenumber) {
   let parameters = { 'Message': message, 'PhoneNumber': phonenumber };
   // created publish parameters.
 
-  try{
-    let publishedtext = new aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
+    let publishedtext = await new aws.SNS({'apiVersion': '2010-03-31'}).publish(parameters);
     let json = await publishedtext;
     console.log(json);
     let messageid = json.MessageId;
     console.log('sent message with id: ' + messageid);
-  } catch (e) {
-    console.error('[ ' + Date() + ' ] ', e.stack);
-  };
 }
 // sent a message.
 

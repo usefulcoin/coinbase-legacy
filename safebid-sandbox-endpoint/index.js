@@ -162,6 +162,8 @@ async function getrequest(endpoint){
 // send a message...
 async function sendmessage(message, phonenumber) {
   // create publish parameters...
+      console.log(message);
+      console.log(phonenumber);
   let parameters = { 'Message': message, 'PhoneNumber': phonenumber };
   // created publish parameters.
 
@@ -218,8 +220,6 @@ async function sendmessage(message, phonenumber) {
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      console.log(postedbid.size);
-      console.log(postedbid.price);
       sendmessage('bid posted for : ' + postedbid.size + '@' + postedbid.price, recipient);
     } else { 
       console.log('bid quantity is out of bounds.'); 

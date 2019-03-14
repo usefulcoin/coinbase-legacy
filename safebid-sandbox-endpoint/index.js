@@ -121,7 +121,7 @@ async function getrequest(endpoint){
 
 
     // define safe (riskable) bid quantity...
-    let quantity = quoteriskableavailable / bid; 
+    let quantity = Math.round( (quoteriskableavailable/bid) / quoteincrement ) * quoteincrement;
     // defined safe (riskable) bid quantity...
 
     console.log('bid: ' + bid);

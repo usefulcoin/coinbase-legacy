@@ -186,7 +186,7 @@ async function getrequest(endpoint){
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      if ( postedbid.ok ) { console.log('bid posted.'); } else { throw Error(`request rejected with status ${postedbid.status}`); }
+      if ( postedbid.status === 'pending' ) { console.log('bid posted.'); } else { throw error(`request rejected with status ${postedbid.status}`); }
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

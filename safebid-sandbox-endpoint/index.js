@@ -74,6 +74,7 @@ async function postbid(price,size,side,postonly,productid){
   // define coinbase required headers...
   let headers = {
     'ACCEPT': 'application/json',
+    'CONTENT-TYPE': 'application/json',
     'CB-ACCESS-KEY': key,
     'CB-ACCESS-SIGN': signedmessage,
     'CB-ACCESS-TIMESTAMP': timestamp,
@@ -90,7 +91,6 @@ async function postbid(price,size,side,postonly,productid){
   let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
   let response = await fetch(url,requestoptions);
   let json = await response.json();
-  console.log(json);
   // defined url and sent request.
 
   return json;
@@ -185,7 +185,7 @@ async function getrequest(endpoint){
     // make bid...
     if ( baseminimum < quantity < basemaximum ) { 
       let postedbid = await postbid(bid,quantity,'buy',true,productid);
-      if ( postedbid.status === 'pending' ) { console.log('bid posted.'); } else { throw error(`request rejected with status ${postedbid.status}`); }
+      console.log(postedbid);
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

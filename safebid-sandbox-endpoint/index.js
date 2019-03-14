@@ -166,7 +166,8 @@ async function sendmessage(alert, number) {
 
   // create promise and SNS service object
   try{
-    let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
+    let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(params);
+    let json = await publishedtext.json();
     console.log(publishedtext);
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);

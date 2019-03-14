@@ -17,6 +17,7 @@
 
 
 // load modules...
+const aws = require('aws-sdk');
 const fetch = require('node-fetch');
 const crypto = require('crypto');
 // loading complete.

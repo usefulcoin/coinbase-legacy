@@ -183,14 +183,14 @@ async function getrequest(endpoint){
     let quantity = Math.round( (quoteriskableavailable/bid) / baseminimum ) * baseminimum;
     // defined safe (riskable) bid quantity...
 
-    console.log('bid: ' + bid);
-    console.log('quantity: ' + quantity);
-
     // make bid...
-    if ( baseminimum < quantity < basemaximum ) { postbid(bid,quantity,'buy',true,productid) } else { console.log('bid quantity is out of bounds.'); }
+    if ( baseminimum < quantity < basemaximum ) { 
+      let postedbid = await postbid(bid,quantity,'buy',true,productid);
+      if ( postedbid.ok ) { console.log('bid posted.'); } else { throw Error(`request rejected with status ${postedbid.status}`); }
+    } else { 
+      console.log('bid quantity is out of bounds.'); 
+    }
     // made bid.
-
-    console.log('exiting...');
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);
   };

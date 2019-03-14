@@ -26,7 +26,7 @@ const crypto = require('crypto');
 
 
 // import sensitive data...
-const recipient = +12062270634;
+const recipient = '+12062270634';
 const key = process.env.apikey;
 const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;

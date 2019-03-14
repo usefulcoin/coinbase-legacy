@@ -52,7 +52,7 @@ async function postbid(price,size,side,postonly,productid){
   let body = JSON.stringify({
       'price': price,
       'size': size,
-      'side': size,
+      'side': side,
       'post_only': postonly,
       'product_id': productid
   });

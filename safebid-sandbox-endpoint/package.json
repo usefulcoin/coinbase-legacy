@@ -8,6 +8,7 @@
   "license": "MIT",
   "homepage": "http://usefulcoin.com",
   "dependencies": {
+    "aws-sdk": "latest",
     "node-fetch": "latest"
   }
 }

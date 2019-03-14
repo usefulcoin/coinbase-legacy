@@ -160,20 +160,20 @@ async function getrequest(endpoint){
 
 
 // send a message...
-async function sendmessage(alert, number) {
-  // create publish parameters
-  let params = { Message: alert, PhoneNumber: number };
+async function sendmessage(message, phonenumber) {
+  // create publish parameters...
+  let parameters = { Message: message, PhoneNumber: phonenumber };
+  // create publish parameters.
 
-  // create promise and SNS service object
   try{
-    let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
-    let messageid = publishedtext.MessageId;
-    console.log('sent message with id: ' + messageid);
+    // create promise and SNS service object...
+    let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(parameters).promise();
+    console.log('sent message with id: ' + publishedtext.MessageId);
+    // created promise and SNS service object
   } catch (e) {
     console.error('[ ' + Date() + ' ] ', e);
   };
 }
-
 
 
 

@@ -1,7 +1,7 @@
 {
-  "name": "postbid-sandbox-endpoint",
-  "version": "0.0.1",
-  "description": "Place a bid in the sandbox on Coinbase Prime.",
+  "name": "safebid-sandbox-endpoint",
+  "version": "1.0.0",
+  "description": "Place a safe bid to the sandbox on Coinbase Prime.",
   "main": "index.js",
   "private": true,
   "author": "usefulcoin",

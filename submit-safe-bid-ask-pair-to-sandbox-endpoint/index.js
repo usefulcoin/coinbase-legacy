@@ -26,7 +26,7 @@ const crypto = require('crypto');
 
 
 // define consts...
-const riskratio = 0.001;
+const riskratio = 0.0001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
 const recipient = '+12062270634';

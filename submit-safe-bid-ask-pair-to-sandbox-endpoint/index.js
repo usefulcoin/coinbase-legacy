@@ -199,8 +199,8 @@ async function sendmessage(message, phonenumber) {
 
       // make ask...
       askquantity = bidquantity;
-      askprice = Math.round( bidprice * ( 1 + 2*percentreturn ) / quoteincrement ) * quoteincrement;
-      askstop = Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+      askprice = Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+      askstop = Math.round( bidprice * ( 1 + 2*percentreturn ) / quoteincrement ) * quoteincrement;
       stop = 'loss';
       console.log(askprice,askquantity,'buy',true,productid,stop,askstop);
       let postedask = await postorder(askprice,askquantity,'buy',true,productid,stop,askstop);

@@ -1,0 +1,14 @@
+{
+  "name": "submit-safe-bid-ask-pair-to-sandbox-endpoint",
+  "version": "0.0.1",
+  "description": "Submit a safe bid and ask pair to the sandbox on Coinbase Prime.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "aws-sdk": "latest",
+    "node-fetch": "latest"
+  }
+}

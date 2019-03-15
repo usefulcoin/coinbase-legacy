@@ -62,11 +62,10 @@ function filter(array, filters) {
 
 
 // make rest api request...
-async function restapirequest(method,endpoint,body){
+async function restapirequest(method,requestpath,body){
   
   // create the prehash string by concatenating required parts of request...
   let timestamp = Date.now() / 1000;
-  let requestpath = '/' + endpoint;
   let prehash = timestamp + method + requestpath;
   if ( body !== undefined ) { prehash = prehash + body; }
   // created the prehash.
@@ -93,14 +92,11 @@ async function restapirequest(method,endpoint,body){
     'CB-ACCESS-PASSPHRASE': passphrase,
   };
   // defined coinbase required headers. yes... content-type is required.
+  // see https://docs.prime.coinbase.com/#requests for more information.
   
   // define request options for http request...
-  let requestoptions;
-  if ( body === undefined ) {
-    requestoptions = { 'method': method, headers };
-  } else {
-    requestoptions = { 'method': method, 'body': body, headers };
-  }
+  let requestoptions = { 'method': method, headers };
+  if ( body !== undefined ) { requestoptions['body'] = body; }
   // defined request options for http request.
   
   // define url and send request...
@@ -203,7 +199,7 @@ async function sendmessage(message, phonenumber) {
 
     // retrieve product information...
     let productidfilter = { id: [productid] };
-    let productinformation = await restapirequest('GET','products');
+    let productinformation = await restapirequest('GET','/products');
     let filteredproductinformation = filter(productinformation, productidfilter);
     let baseminimum = filteredproductinformation[0].base_min_size;
     let basemaximum = filteredproductinformation[0].base_max_size;
@@ -213,14 +209,14 @@ async function sendmessage(message, phonenumber) {
 
     // retrieve available balance information...
     let quotecurrencyfilter = { currency: [quotecurrency] };
-    let accountinformation = await restapirequest('GET','accounts');
+    let accountinformation = await restapirequest('GET','/accounts');
     let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
     let quoteavailablebalance = quoteaccountinformation[0].available;
     let quoteriskableavailable = quoteavailablebalance*riskratio;
     // retrieved account balance information.
 
     // retrieve product ticker information...
-    let producttickerinformation = await restapirequest('GET','products/' + productid + '/ticker');
+    let producttickerinformation = await restapirequest('GET','/products/' + productid + '/ticker');
     let bid = producttickerinformation.bid;
     // retrieved product ticker information.
 

@@ -1,6 +1,6 @@
 {
   "name": "submit-safe-bid-ask-pair-to-sandbox-endpoint",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Submit a safe bid and ask pair to the sandbox on Coinbase Prime.",
   "main": "index.js",
   "private": true,

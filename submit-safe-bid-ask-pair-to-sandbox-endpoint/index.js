@@ -201,9 +201,7 @@ async function sendmessage(message, phonenumber) {
       // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
       askprice = Number(quoteincrement) + Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
       let askquantity = bidquantity;
-      console.log(askprice,askquantity,'sell',true,productid);
       let postedask = await postorder(askprice,askquantity,'sell',true,productid);
-      console.log(postedask);
       sendmessage(productid + '\nbid: ' + Math.round(postedbid.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                             + ' @ ' + Math.round(postedbid.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
                             + ' ask: ' + Math.round(postedask.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 

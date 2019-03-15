@@ -67,7 +67,8 @@ async function restapirequest(method,endpoint,body){
   // create the prehash string by concatenating required parts of request...
   let timestamp = Date.now() / 1000;
   let requestpath = '/' + endpoint;
-  let prehash = timestamp + method + requestpath + body;
+  let prehash = timestamp + method + requestpath;
+  if ( body !== undefined ) { prehash = prehash + body; }
   // created the prehash.
   
   // base64 decode the secret...

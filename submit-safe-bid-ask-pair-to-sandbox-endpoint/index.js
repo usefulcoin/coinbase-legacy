@@ -191,11 +191,10 @@ async function sendmessage(message, phonenumber) {
     let quantity = Math.round( (quoteriskableavailable/bid) / baseminimum ) * baseminimum;
     // defined safe (riskable) bid quantity...
 
-    if ( baseminimum < quantity < basemaximum ) { 
+    if ( baseminimum <= quantity && quantity <= basemaximum ) { 
       // make bid...
       let postedbid = await postorder(bid,quantity,'buy',true,productid);
-      console.log(postedbid);
-      // sendmessage('posted bid on ' + productid + ' : ' + postedbid.size + '@' + postedbid.price, recipient);
+      sendmessage('posted bid on ' + productid + ' : ' + postedbid.size + '@' + postedbid.price, recipient);
       // made bid.
     } else { 
       console.log('bid quantity is out of bounds.'); 

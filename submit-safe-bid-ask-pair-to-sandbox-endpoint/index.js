@@ -201,11 +201,12 @@ async function sendmessage(message, phonenumber) {
       askquantity = bidquantity;
       askprice = bidprice * ( 1 + percentreturn );
       askstop = bidprice * ( 1 + percentreturn*0.75 );
-      stop = 'loss';
+      stop = 'entry';
+      console.log(askprice,askquantity,'buy',true,productid,stop,askstop);
       let postedask = await postorder(askprice,askquantity,'buy',true,productid,stop,askstop);
       console.log(postedask);
-      sendmessage(productid + ' : bid ' + postedbid.size + ' ' + quotecurrency + ' @ ' + postedbid.price + ' ' + basecurrency 
-                              + ' asking ' + postedask.size + ' ' + quotecurrency + ' @ ' + postedask.price + ' ' + basecurrency, recipient);
+      sendmessage(productid + '\n bid: ' + postedbid.size + ' ' + quotecurrency + ' @ ' + postedbid.price + ' ' + basecurrency + '/' + quotecurrency
+                              + ' ask: ' + postedask.size + ' ' + quotecurrency + ' @ ' + postedask.price + ' ' + basecurrency + '/' + quotecurrency, recipient);
       // made ask.
     } else { 
       console.log('bid quantity is out of bounds.'); 

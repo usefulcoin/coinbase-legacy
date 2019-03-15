@@ -94,7 +94,7 @@ async function restapirequest(method,endpoint,body){
   // defined coinbase required headers. yes... content-type is required.
   
   // define request options for http request...
-  let requestoptions,
+  let requestoptions;
   if ( body === undefined ) {
     requestoptions = { 'method': method, headers };
   } else {

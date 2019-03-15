@@ -169,6 +169,7 @@ async function sendmessage(message, phonenumber) {
     let filteredproductinformation = filter(productinformation, productidfilter);
     let baseminimum = filteredproductinformation[0].base_min_size;
     let basemaximum = filteredproductinformation[0].base_max_size;
+    let basecurrency = filteredproductinformation[0].base_currency;
     let quotecurrency = filteredproductinformation[0].quote_currency;
     let quoteincrement = filteredproductinformation[0].quote_increment;
     // retrieved product information.
@@ -183,19 +184,28 @@ async function sendmessage(message, phonenumber) {
 
     // retrieve product ticker information...
     let producttickerinformation = await restapirequest('GET','/products/' + productid + '/ticker');
-    let bid = producttickerinformation.bid;
+    bidprice = producttickerinformation.bid;
     // retrieved product ticker information.
 
 
     // define safe (riskable) bid quantity...
-    let quantity = Math.round( (quoteriskableavailable/bid) / baseminimum ) * baseminimum;
+    let bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum;
     // defined safe (riskable) bid quantity...
 
-    if ( baseminimum <= quantity && quantity <= basemaximum ) { 
+    if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
       // make bid...
-      let postedbid = await postorder(bid,quantity,'buy',true,productid);
-      sendmessage('posted bid on ' + productid + ' : ' + postedbid.size + '@' + postedbid.price, recipient);
+      let postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
       // made bid.
+
+      // make ask...
+      askquantity = bidquantity;
+      askprice = bidprice * ( 1 + percentreturn );
+      askstop = bidprice * ( 1 + percentreturn*0.75 );
+      stop = 'loss';
+      let postedask = await postorder(askprice,askquantity,'buy',true,productid,stop,askstop);
+      sendmessage(productid + ' : bid ' + postedbid.size + ' ' + quotecurrency + ' @ ' + postedbid.price + ' ' + basecurrency + \
+                                ' asking ' + postedask.size + ' ' + quotecurrency + ' @ ' + postedask.price + ' ' + basecurrency, recipient);
+      // made ask.
     } else { 
       console.log('bid quantity is out of bounds.'); 
     }

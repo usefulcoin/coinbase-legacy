@@ -62,23 +62,20 @@ ws.on('close', function close() {
 
 
 // on open connection and send subscribe request...
-async openconnection(){
-  ws.on('open', function open() {
-    console.log('connected');
-    try {
-      let response = await ws.send(JSON.stringify(subscriptionrequest));
-      console.log(response);
-    } catch (e) {
-      console.error(e);
-    }
-  });
-}
+ws.on('open', async function open() {
+  console.log('connected');
+  try {
+    let response = await ws.send(JSON.stringify(subscriptionrequest));
+    console.log(response);
+  } catch (e) {
+    console.error(e);
+  }
+});
 // opened connection and sent subscribe request.
 
 
 
 
-openconnection();
 let count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...

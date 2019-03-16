@@ -93,10 +93,3 @@ ws.on('message', function incoming(data) {
     }
   }
 });
-
-try {
-  ws.close();
-  console.log('disconnected');
-} catch (e) {
-  console.error(e);
-}

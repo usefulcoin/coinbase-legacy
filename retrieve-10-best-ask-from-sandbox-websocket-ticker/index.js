@@ -91,9 +91,9 @@ ws.on('message', function incoming(data) {
       try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
       // discontinued subscription.
 
-      // close connection...
-      try { ws.close() ; done(); } catch (e) { console.error(e); }
-      // closed connection.
     }
   }
 });
+      // close connection...
+      try { ws.close() ; done(); } catch (e) { console.error(e); }
+      // closed connection.

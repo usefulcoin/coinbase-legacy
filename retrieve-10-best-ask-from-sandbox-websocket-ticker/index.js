@@ -85,7 +85,7 @@ ws.on('message', function incoming(data) {
   } 
   if ( subscribed && jsondata.type === 'ticker' ) {
     if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
-    if ( jsondata.sequence + count => initialsequencenumber ) { console.log('best ask [' + jsondata.sequence + '] : ' + jsondata.best_ask); count = count + 1; }
+    if ( jsondata.sequence + count >= initialsequencenumber ) { console.log('best ask [' + jsondata.sequence + '] : ' + jsondata.best_ask); count = count + 1; }
     if ( count === 9 ) {
       // discontinue subscription if the console is updated 10 times...
       try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }

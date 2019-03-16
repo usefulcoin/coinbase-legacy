@@ -74,33 +74,22 @@ ws.on('open', function open() {
 
 
 
-
+let count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
   let jsondata = JSON.parse(data);
   if ( jsondata.type === 'subscriptions' ) {
     console.log(data);
-    let count = 0;
-    ws.on('message', async function incoming(tickerdata) {
-      let tickerjson = JSON.parse(tickerdata);
-      console.log('best ask [' + count + '] : ' + tickerjson.best_ask + '\r');
-      // update the console when the ticker changes...
-    
-      count = count + 1;
-      if ( count === 9 ) { 
-        try {
-          // discontinue subscription if the console is updated 10 times...
-          ws.send(JSON.stringify(discontinuesubscriptionrequest)); 
-          // discontinued subscription.
-        } catch (e) {
-          console.error(e);
-        }
-        ws.on('message', function unsubscriberesponse(response) {
-          let jsonresponse = JSON.parse(response);
-          console.log(jsonresponse);
-          ws.close();
-        });
-      }
-    });
+  if ( jsondata.type === 'ticker' ) {
+    if ( jsondata.sequence + 1 === jsondata.sequence ) { console.log('best ask [' + jsondata.sequence + '] : " + jsondata.best_ask); count = count + 1; }
+    else if ( count === 9 ) {
+      // discontinue subscription if the console is updated 10 times...
+      try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
+      // discontinued subscription.
+      
+      // close websocket...
+      try { ws.close(); console.log('disconnected'); } catch (e) { console.error(e); }
+      // closed websocket.
+    }
   }
 });

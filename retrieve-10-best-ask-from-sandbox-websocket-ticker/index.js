@@ -78,7 +78,7 @@ ws.on('open', function open() {
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
   let jsondata = JSON.parse(data);
-  if ( jsondata.type === 'subscriptions' } {
+  if ( jsondata.type === 'subscriptions' ) {
     console.log(data);
     let count = 0;
     ws.on('message', async function incoming(tickerdata) {

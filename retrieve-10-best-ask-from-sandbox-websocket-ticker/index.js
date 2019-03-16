@@ -66,8 +66,7 @@ ws.on('open', function open() {
   console.log('connected');
   try {
     ws.send(JSON.stringify(subscriptionrequest), function subscribed(response) {
-      let jsonresponse = JSON.parse(response);
-      console.log(jsonresponse);
+      console.log(response);
     });
   } catch (e) {
     console.error(e);

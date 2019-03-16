@@ -1,6 +1,6 @@
 {
   "name": "privately-retrieve-10-best-ask-from-sandbox-websocket-ticker",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Receive 10 best ask updates via an authenticated ticker channel websocket from the sandbox on Coinbase Prime.",
   "main": "index.js",
   "private": true,

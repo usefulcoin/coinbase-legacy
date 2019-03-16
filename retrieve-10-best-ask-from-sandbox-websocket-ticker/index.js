@@ -88,7 +88,7 @@ ws.on('message', function incoming(data) {
     if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
     if ( count === 10 ) {
       // discontinue subscription if the console is updated 10 times...
-      try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
+      try { ws.send(JSON.stringify(discontinuesubscriptionrequest), function log(data) { console.log(data); }); } catch (e) { console.error(e); }
       // discontinued subscription.
 
       // close connection...

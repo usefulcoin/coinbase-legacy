@@ -65,14 +65,13 @@ ws.on('close', function close() {
 ws.on('open', function open() {
   console.log('connected');
   try {
-    ws.send(JSON.stringify(subscriptionrequest));
+    ws.send(JSON.stringify(subscriptionrequest), function subscribed(response) {
+      let jsonresponse = JSON.parse(response);
+      console.log(jsonresponse);
+    });
   } catch (e) {
     console.error(e);
   }
-  ws.on('message', function subscriberesponse(response) {
-    let jsonresponse = JSON.parse(response);
-    console.log(jsonresponse);
-  });
 });
 // opened connection and sent subscribe request.
 

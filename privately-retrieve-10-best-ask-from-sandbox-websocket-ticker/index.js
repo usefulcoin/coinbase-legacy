@@ -93,10 +93,10 @@ let discontinuesubscriptionrequest = {
     'type': 'unsubscribe',
     'product_ids': ['BTC-USD'],
     'channels': ['ticker'],
-    'signature': signature,
+    'signature': signature.signedmessage,
     'key': key,
     'passphrase': passphrase,
-    'timestamp': timestamp
+    'timestamp': signature.timestamp
 }
 // created discontinue subscription request.
 

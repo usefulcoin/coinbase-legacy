@@ -80,7 +80,7 @@ ws.on('message', function incoming(data) {
   let jsondata = JSON.parse(data);
   if ( jsondata.type === 'subscriptions' ) {
     console.log(data);
-  if ( jsondata.type === 'ticker' ) {
+  } else if ( jsondata.type === 'ticker' ) {
     if ( jsondata.sequence + 1 === jsondata.sequence ) { console.log('best ask [' + jsondata.sequence + '] : ' + jsondata.best_ask); count = count + 1; }
     else if ( count === 9 ) {
       // discontinue subscription if the console is updated 10 times...

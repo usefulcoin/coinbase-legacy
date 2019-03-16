@@ -31,7 +31,7 @@ const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 
 
 // create subscription request...
-subscriptionrequest = {
+let subscriptionrequest = {
     "type": "subscribe",
     "product_ids": ["BTC-USD"],
     "channels": ["ticker"]
@@ -42,7 +42,7 @@ subscriptionrequest = {
 
 
 // create discontinue subscription request...
-discontinuesubscriptionrequest = {
+let discontinuesubscriptionrequest = {
     "type": "unsubscribe",
     "product_ids": ["BTC-USD"],
     "channels": ["ticker"]
@@ -63,11 +63,16 @@ ws.on('close', function close() {
 
 // on open connection and send subscribe request...
 ws.on('open', function open() {
+  console.log('connected');
   try {
     ws.send(JSON.stringify(subscriptionrequest));
   } catch (e) {
     console.error(e);
   }
+  ws.on('message', function subscriberesponse(response) {
+    let jsonresponse = JSON.parse(response);
+    console.log(jsonresponse);
+  });
 });
 // opened connection and sent subscribe request.
 
@@ -77,11 +82,11 @@ ws.on('open', function open() {
 count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
-  jsondata = JSON.parse(data);
+  let jsondata = JSON.parse(data);
   console.log("best ask : " + jsondata.best_ask + "\r");
   // update the console when the ticker changes...
 
-  count = count + 1;
+  let count = count + 1;
   if ( count === 9 ) { 
     try {
       // discontinue subscription if the console is updated 10 times...
@@ -91,7 +96,7 @@ ws.on('message', function incoming(data) {
       console.error(e);
     }
     ws.on('message', function unsubscriberesponse(response) {
-      jsonresponse = JSON.parse(response);
+      let jsonresponse = JSON.parse(response);
       console.log(jsonresponse);
       ws.close();
     });

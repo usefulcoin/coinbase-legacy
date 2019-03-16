@@ -69,36 +69,10 @@ ws.on('open', async function open() {
     ws.once('message', async function unsubscriberesponse(response) {
       let jsonresponse = await JSON.parse(response);
       console.log(jsonresponse);
+      ws.close();
     });
   } catch (e) {
     console.error(e);
   }
 });
 // opened connection and sent subscribe request.
-
-
-
-
-let count = 0;
-ws.on('message', async function incoming(data) {
-  // update the console when the ticker changes...
-  let jsondata = await JSON.parse(data);
-  console.log('best ask [' + count + '] : ' + jsondata.best_ask + '\r');
-  // update the console when the ticker changes...
-
-  count = count + 1;
-  if ( count === 9 ) { 
-    try {
-      // discontinue subscription if the console is updated 10 times...
-      ws.send(JSON.stringify(discontinuesubscriptionrequest)); 
-      // discontinued subscription.
-    } catch (e) {
-      console.error(e);
-    }
-    ws.on('message', async function unsubscriberesponse(response) {
-      let jsonresponse = await JSON.parse(response);
-      console.log(jsonresponse);
-      ws.close();
-    });
-  }
-});

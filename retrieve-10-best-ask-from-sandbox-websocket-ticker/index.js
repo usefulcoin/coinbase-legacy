@@ -65,12 +65,14 @@ ws.on('close', function close() {
 ws.on('open', function open() {
   console.log('connected');
   try {
-    ws.send(JSON.stringify(subscriptionrequest), function subscribed(response) {
-      console.log(response);
-    });
+    ws.send(JSON.stringify(subscriptionrequest));
   } catch (e) {
     console.error(e);
   }
+});
+ws.once('message', function subscriberesponse(response) {
+  let jsonresponse = JSON.parse(response);
+  console.log(jsonresponse);
 });
 // opened connection and sent subscribe request.
 
@@ -88,12 +90,15 @@ ws.on('message', function incoming(data) {
   if ( count === 9 ) { 
     try {
       // discontinue subscription if the console is updated 10 times...
-      ws.send(JSON.stringify(discontinuesubscriptionrequest), function unsubscribed(response) {
-        console.log(response);
-      });
+      ws.send(JSON.stringify(discontinuesubscriptionrequest)); 
       // discontinued subscription.
     } catch (e) {
       console.error(e);
     }
+    ws.on('message', function unsubscriberesponse(response) {
+      let jsonresponse = JSON.parse(response);
+      console.log(jsonresponse);
+      ws.close();
+    });
   }
 });

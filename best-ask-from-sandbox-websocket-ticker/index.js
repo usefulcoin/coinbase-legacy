@@ -43,7 +43,7 @@ subscriptionrequest = {
 
 // on open connection and send subscribe request...
 ws.on('open', function open() {
-  ws.send(subscriptionrequest);
+  ws.send(JSON.stringify(subscriptionrequest));
 });
 // opened connection and sent subscribe request...
 

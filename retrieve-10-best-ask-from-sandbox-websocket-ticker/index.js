@@ -62,18 +62,17 @@ ws.on('close', function close() {
 
 
 // on open connection and send subscribe request...
-ws.on('open', function open() {
-  console.log('connected');
-  try {
-    ws.send(JSON.stringify(subscriptionrequest));
-  } catch (e) {
-    console.error(e);
-  }
-});
-ws.once('message', function subscriberesponse(response) {
-  let jsonresponse = JSON.parse(response);
-  console.log(jsonresponse);
-});
+async function(){
+  ws.on('open', function open() {
+    console.log('connected');
+    try {
+      let response = await ws.send(JSON.stringify(subscriptionrequest));
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+}
 // opened connection and sent subscribe request.
 
 

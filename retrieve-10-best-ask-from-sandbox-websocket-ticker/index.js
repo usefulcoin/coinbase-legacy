@@ -92,7 +92,7 @@ ws.on('message', function incoming(data) {
       // discontinued subscription.
 
       // close connection...
-      try { ws.close } catch (e) { console.error(e); }
+      try { ws.close() } catch (e) { console.error(e); }
       // closed connection.
     }
   }

@@ -80,9 +80,9 @@ ws.on('open', async function open() {
 
 
 let count = 0;
-ws.on('message', function incoming(data) {
+ws.on('message', async function incoming(data) {
   // update the console when the ticker changes...
-  let jsondata = JSON.parse(data);
+  let jsondata = await JSON.parse(data);
   console.log('best ask [' + count + '] : ' + jsondata.best_ask + '\r');
   // update the console when the ticker changes...
 
@@ -95,8 +95,8 @@ ws.on('message', function incoming(data) {
     } catch (e) {
       console.error(e);
     }
-    ws.on('message', function unsubscriberesponse(response) {
-      let jsonresponse = JSON.parse(response);
+    ws.on('message', async function unsubscriberesponse(response) {
+      let jsonresponse = await JSON.parse(response);
       console.log(jsonresponse);
       ws.close();
     });

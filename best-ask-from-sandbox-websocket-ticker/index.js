@@ -52,7 +52,7 @@ ws.on('open', function open() {
 
 // update the console when the ticker changes...
 ws.on('message', function incoming(data) {
-  json = data.json();
+  json = JSON.parse(data);
   console.log('\r' + json.best_ask);
 });
 // updated the console.

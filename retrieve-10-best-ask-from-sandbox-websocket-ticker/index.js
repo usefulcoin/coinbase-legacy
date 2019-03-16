@@ -36,7 +36,7 @@ subscriptionrequest = {
     "product_ids": ["BTC-USD"],
     "channels": ["ticker"]
 }
-// created subscription request...
+// created subscription request.
 
 
 
@@ -47,7 +47,16 @@ discontinuesubscriptionrequest = {
     "product_ids": ["BTC-USD"],
     "channels": ["ticker"]
 }
-// created discontinue subscription request...
+// created discontinue subscription request.
+
+
+
+
+// update console on close connection...
+ws.on('close', function close() {
+  console.log('disconnected');
+});
+// updated console on close connection.
 
 
 
@@ -60,20 +69,24 @@ ws.on('open', function open() {
     console.error(e);
   }
 });
-// opened connection and sent subscribe request...
+// opened connection and sent subscribe request.
 
 
 
 
-// update the console when the ticker changes...
 count = 0;
 ws.on('message', function incoming(data) {
+  // update the console when the ticker changes...
   jsondata = JSON.parse(data);
   console.log("best ask : " + jsondata.best_ask + "\r");
+  // update the console when the ticker changes...
+
   count = count + 1;
   if ( count === 9 ) { 
     try {
+      // discontinue subscription if the console is updated 10 times...
       ws.send(JSON.stringify(discontinuesubscriptionrequest)); 
+      // discontinued subscription.
     } catch (e) {
       console.error(e);
     }
@@ -81,8 +94,6 @@ ws.on('message', function incoming(data) {
       jsonresponse = JSON.parse(response);
       console.log(jsonresponse);
       ws.close();
-    }
+    });
   }
-  
 });
-// updated the console.

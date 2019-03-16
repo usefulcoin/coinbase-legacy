@@ -18,6 +18,7 @@
 
 // load modules...
 const websocket = require('ws');
+const crypto = require('crypto');
 // loading complete.
 
 
@@ -30,11 +31,57 @@ const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 
 
 
+// import sensitive data...
+const key = process.env.apikey;
+const secret = process.env.apisecret;
+const passphrase = process.env.apipassphrase;
+// importing of sensitive authentication data complete.
+
+
+
+
+// sign request...
+async function signrequest(method,requestpath,body){
+
+  // create the prehash string by concatenating required parts of request...
+  let timestamp = Date.now() / 1000;
+  let prehash = timestamp + method + requestpath;
+  if ( body !== undefined ) { prehash = prehash + body; }
+  // created the prehash.
+
+  // base64 decode the secret...
+  let base64decodedsecret = Buffer(secret, 'base64');
+  // secret decoded.
+
+  // create sha256 hmac with the secret...
+  let hmac = crypto.createHmac('sha256',base64decodedsecret);
+  // created sha256 hmac.
+
+  // sign the require message with the hmac and base64 encode the result..
+  let signedmessage = hmac.update(prehash).digest('base64');
+  // signed message.
+
+  return { 'signedmessage': signedmessage, 'timestamp': timestamp };
+}
+// signed request.
+
+
+
+
+let signature = signrequest('GET','/users/self/verify');
+
+
+
+
 // create subscription request...
 let subscriptionrequest = {
     'type': 'subscribe',
     'product_ids': ['BTC-USD'],
-    'channels': ['ticker']
+    'channels': ['ticker'],
+    'signature': signature.signedmessage,
+    'key': key,
+    'passphrase': passphrase,
+    'timestamp': signature.timestamp
 }
 // created subscription request.
 
@@ -45,7 +92,11 @@ let subscriptionrequest = {
 let discontinuesubscriptionrequest = {
     'type': 'unsubscribe',
     'product_ids': ['BTC-USD'],
-    'channels': ['ticker']
+    'channels': ['ticker'],
+    'signature': signature,
+    'key': key,
+    'passphrase': passphrase,
+    'timestamp': timestamp
 }
 // created discontinue subscription request.
 

@@ -32,9 +32,9 @@ const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 
 // create subscription request...
 let subscriptionrequest = {
-    "type": "subscribe",
-    "product_ids": ["BTC-USD"],
-    "channels": ["ticker"]
+    'type': 'subscribe',
+    'product_ids': ['BTC-USD'],
+    'channels': ['ticker']
 }
 // created subscription request.
 
@@ -43,9 +43,9 @@ let subscriptionrequest = {
 
 // create discontinue subscription request...
 let discontinuesubscriptionrequest = {
-    "type": "unsubscribe",
-    "product_ids": ["BTC-USD"],
-    "channels": ["ticker"]
+    'type': 'unsubscribe',
+    'product_ids': ['BTC-USD'],
+    'channels': ['ticker']
 }
 // created discontinue subscription request.
 
@@ -82,9 +82,8 @@ ws.on('open', function open() {
 let count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
-  console.log(data);
   let jsondata = JSON.parse(data);
-  console.log("best ask : " + jsondata.best_ask + "\r");
+  console.log('best ask [' + count + '] : ' + jsondata.best_ask + '\r');
   // update the console when the ticker changes...
 
   count = count + 1;

@@ -82,6 +82,7 @@ ws.on('open', function open() {
 let count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
+  console.log(data);
   let jsondata = JSON.parse(data);
   console.log("best ask : " + jsondata.best_ask + "\r");
   // update the console when the ticker changes...

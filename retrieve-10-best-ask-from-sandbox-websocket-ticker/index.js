@@ -76,6 +76,7 @@ ws.on('open', function open() {
 
 let count = 0;
 let subscribed = false;
+let tickerreceived = false;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
   let jsondata = JSON.parse(data);
@@ -88,12 +89,14 @@ ws.on('message', function incoming(data) {
     if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
     if ( count === 10 ) {
       // discontinue subscription if the console is updated 10 times...
-      try { ws.send(JSON.stringify(discontinuesubscriptionrequest), function log(data) { console.log(data); }); } catch (e) { console.error(e); }
+      tickerreceived = true;
+      try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
       // discontinued subscription.
-
-      // close connection...
-      try { ws.close(); } catch (e) { console.error(e); }
-      // closed connection.
     }
   }
+  if ( tickerreceived ) {
+    // close connection...
+    try { ws.close(); } catch (e) { console.error(e); }
+    // closed connection.
+  } 
 });

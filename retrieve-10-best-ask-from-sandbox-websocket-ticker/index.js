@@ -79,14 +79,14 @@ ws.on('open', function open() {
 
 
 
-count = 0;
+let count = 0;
 ws.on('message', function incoming(data) {
   // update the console when the ticker changes...
   let jsondata = JSON.parse(data);
   console.log("best ask : " + jsondata.best_ask + "\r");
   // update the console when the ticker changes...
 
-  let count = count + 1;
+  count = count + 1;
   if ( count === 9 ) { 
     try {
       // discontinue subscription if the console is updated 10 times...

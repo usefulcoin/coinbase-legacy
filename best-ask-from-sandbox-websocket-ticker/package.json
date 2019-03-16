@@ -1,6 +1,6 @@
 {
   "name": "best-ask-from-sandbox-websocket-ticker",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Receive the best ask via ticker channel websocket from the sandbox on Coinbase Prime.",
   "main": "index.js",
   "private": true,

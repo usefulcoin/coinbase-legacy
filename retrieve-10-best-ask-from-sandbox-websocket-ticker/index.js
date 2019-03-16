@@ -65,8 +65,11 @@ ws.on('close', function close() {
 ws.on('open', async function open() {
   console.log('connected');
   try {
-    let response = await ws.send(JSON.stringify(subscriptionrequest));
-    console.log(response);
+    await ws.send(JSON.stringify(subscriptionrequest));
+    ws.once('message', function unsubscriberesponse(response) {
+      let jsonresponse = JSON.parse(response);
+      console.log(jsonresponse);
+    });
   } catch (e) {
     console.error(e);
   }

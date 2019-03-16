@@ -94,5 +94,9 @@ ws.on('message', function incoming(data) {
   }
 });
 
-ws.close();
-console.log('disconnected');
+try {
+  ws.close();
+  console.log('disconnected');
+} catch (e) {
+  console.error(e);
+}

@@ -268,10 +268,11 @@ async function sendmessage(message, phonenumber) {
           // make bid...
           console.log(bidprice,bidquantity,'buy',true,productid);
           let postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
+          console.log(postedbid);
           // made bid.
         }
       }
-      if ( count === 1 ) {
+      if ( count === 2 ) {
         subscriptionreceived = true;
         // discontinue subscription if the channel is updated 1 time...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);

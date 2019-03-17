@@ -208,5 +208,5 @@ async function sendmessage(message, phonenumber) {
 
 
 (async function main() {
-await restapirequest('DELETE','/orders/');
+let deleteall = await restapirequest('DELETE','/orders/');
 }());

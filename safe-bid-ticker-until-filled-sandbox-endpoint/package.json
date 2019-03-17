@@ -1,0 +1,16 @@
+{
+  "name": "safe-bid-ticker-until-filled-sandbox-endpoint",
+  "version": "0.0.1",
+  "description": "Submit safe bid after 1st authenticated ticker channel websocket message from the sandbox on Coinbase Prime.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "ws": "latest",
+    "crypto": "latest",
+    "aws-sdk": "latest",
+    "node-fetch": "latest"
+  }
+}

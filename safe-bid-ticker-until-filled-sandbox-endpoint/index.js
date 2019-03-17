@@ -247,6 +247,9 @@ async function sendmessage(message, phonenumber) {
 
   let bidprice;
   let count = 0;
+  let postedbid;
+  let bidfilled = false;
+  let quantityfilled = 0;
   let subscribed = false;
   let subscriptionreceived = false;
   ws.on('message', async function incoming(data) {
@@ -260,24 +263,35 @@ async function sendmessage(message, phonenumber) {
         count = count + 1; 
         bidprice = jsondata.best_bid; 
 
-        // define safe (riskable) bid quantity...
-        let bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum;
-        // defined safe (riskable) bid quantity...
-    
-        if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
-          // make bid...
-          console.log(bidprice,bidquantity,'buy',true,productid);
-          let postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
-          console.log(postedbid);
-          // made bid.
+        if ( postedbid !== undefined ) {
+          let bidfilter = { id: [postedbid] };
+          let orderinformation = await restapirequest('GET','/orders');
+          let bidinformation = filter(orderinformation, bidfilter);
+
+          bidfilled = bidinformation[0].settled;
+          quantityfilled = bidinformation[0].filled_size;
+          if ( bidfilled === false ) { await restapirequest('DELETE','/orders/' + postedbid); }
+
+          subscriptionreceived = true;
+
+          // discontinue subscription if the channel is updated 1 time...
+          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+          // discontinued subscription.
+        } 
+        if ( bidfilled === false ) {
+          // define safe (riskable) bid quantity...
+          let bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
+          // defined safe (riskable) bid quantity...
+      
+          if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+            // make bid...
+            console.log(bidprice,bidquantity,'buy',true,productid);
+            postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
+            console.log(postedbid);
+            // made bid.
+          }
         }
-      }
-      if ( count === 2 ) {
-        subscriptionreceived = true;
-        // discontinue subscription if the channel is updated 1 time...
-        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-        // discontinued subscription.
       }
     }
     if ( subscriptionreceived ) {

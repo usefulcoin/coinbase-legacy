@@ -249,7 +249,7 @@ async function sendmessage(message, phonenumber) {
   let count = 0;
   let subscribed = false;
   let subscriptionreceived = false;
-  ws.on('message', function incoming(data) {
+  ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
     if ( jsondata.type === 'subscriptions' ) {
       subscribed = true;

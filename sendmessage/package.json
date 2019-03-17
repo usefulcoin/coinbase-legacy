@@ -1,0 +1,13 @@
+{
+  "name": "sendmessage",
+  "version": "0.1.0",
+  "description": "Send an Amazon SNS message.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "aws-sdk": "latest"
+  }
+}

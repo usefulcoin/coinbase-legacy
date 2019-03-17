@@ -208,5 +208,98 @@ async function sendmessage(message, phonenumber) {
 
 
 (async function main() {
-let deleteall = await restapirequest('DELETE','/orders/');
+
+  // retrieve product information...
+  let productidfilter = { id: [productid] };
+  let productinformation = await restapirequest('GET','/products');
+  let filteredproductinformation = filter(productinformation, productidfilter);
+  let baseminimum = filteredproductinformation[0].base_min_size;
+  let basemaximum = filteredproductinformation[0].base_max_size;
+  let basecurrency = filteredproductinformation[0].base_currency;
+  let quotecurrency = filteredproductinformation[0].quote_currency;
+  let quoteincrement = filteredproductinformation[0].quote_increment;
+  // retrieved product information.
+
+  // retrieve available balance information...
+  let quotecurrencyfilter = { currency: [quotecurrency] };
+  let accountinformation = await restapirequest('GET','/accounts');
+  let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+  let quoteavailablebalance = quoteaccountinformation[0].available;
+  let quoteriskableavailable = quoteavailablebalance*riskratio;
+  // retrieved account balance information.
+
+
+  // create signature required to subscribe to ticker...
+  let signature = signrequest('GET','/users/self/verify');
+  // created signature required to subscribe to ticker.
+
+  // update console on close connection...
+  ws.on('close', function close() { console.log('disconnected'); });
+  // updated console on close connection.
+
+  // on open connection and send subscribe request...
+  ws.on('open', function open() {
+    console.log('connected');
+    let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
+    try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+  });
+  // opened connection and sent subscribe request.
+
+  let bidprice;
+  let count = 0;
+  let postedbid;
+  let bidfilled = false;
+  let quantityfilled = 0;
+  let subscribed = false;
+  let subscriptionreceived = false;
+  ws.on('message', async function incoming(data) {
+    let jsondata = JSON.parse(data);
+    if ( jsondata.type === 'subscriptions' ) {
+      subscribed = true;
+    } 
+    if ( subscribed && jsondata.type === channel ) {
+      if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
+      if ( jsondata.sequence + count >= initialsequencenumber ) { 
+        count = count + 1; 
+        bidprice = jsondata.best_bid; 
+
+        if ( postedbid !== undefined ) {
+          let bidfilter = { id: [postedbid] };
+          let orderinformation = await restapirequest('GET','/orders');
+          let bidinformation = filter(orderinformation, bidfilter);
+
+          bidfilled = bidinformation[0].settled;
+          quantityfilled = bidinformation[0].filled_size;
+          if ( bidfilled === false ) { await restapirequest('DELETE','/orders/' + postedbid); }
+
+          subscriptionreceived = true;
+
+          // discontinue subscription if the channel is updated 1 time...
+          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+          // discontinued subscription.
+        } 
+        if ( bidfilled === false ) {
+          // define safe (riskable) bid quantity...
+          let bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
+          // defined safe (riskable) bid quantity...
+      
+          if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+            // make bid...
+            console.log(bidprice,bidquantity,'buy',true,productid);
+            postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
+            console.log(postedbid);
+            // made bid.
+          } else { 
+            console.log('bid quantity is out of bounds.'); 
+          }
+        }
+      }
+    }
+    if ( subscriptionreceived ) {
+      // close connection...
+      try { ws.close(); } catch (e) { console.error(e); }
+      // closed connection.
+    } 
+  });
 }());

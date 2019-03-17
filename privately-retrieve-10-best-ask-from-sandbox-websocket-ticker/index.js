@@ -25,6 +25,7 @@ const crypto = require('crypto');
 
 
 // define consts...
+const channel = 'ticker';
 const productid = 'BTC-USD';
 const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
@@ -70,11 +71,11 @@ function signrequest(method,requestpath,body){
 
 
 // create or discontinue subscription request...
-function tickersubscription(type, productid, signature, key, passphrase) {
+function channelsubscription(type, productid, channel, signature, key, passphrase) {
   let subscriptionrequest = {
       'type': type,
       'product_ids': [productid],
-      'channels': ['ticker'],
+      'channels': [channel],
       'signature': signature.signedmessage,
       'key': key,
       'passphrase': passphrase,
@@ -100,33 +101,33 @@ function tickersubscription(type, productid, signature, key, passphrase) {
   // on open connection and send subscribe request...
   ws.on('open', function open() {
     console.log('connected');
-    let subscriptionrequest = tickersubscription('subscribe', productid, signature, key, passphrase);
+    let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
   });
   // opened connection and sent subscribe request.
 
   let count = 0;
   let subscribed = false;
-  let tickerreceived = false;
+  let subscriptionreceived = false;
   ws.on('message', function incoming(data) {
     let jsondata = JSON.parse(data);
     if ( jsondata.type === 'subscriptions' ) {
-      // update the console when the ticker changes...
       console.log(data);
       subscribed = true;
     } 
-    if ( subscribed && jsondata.type === 'ticker' ) {
+    if ( subscribed && jsondata.type === channel ) {
+      // update the console when the ticker changes...
       if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
       if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
       if ( count === 10 ) {
+        subscriptionreceived = true;
         // discontinue subscription if the console is updated 10 times...
-        tickerreceived = true;
-        let subscriptionrequest = tickersubscription('unsubscribe', productid, signature, key, passphrase);
+        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
       }
     }
-    if ( tickerreceived ) {
+    if ( subscriptionreceived ) {
       // close connection...
       try { ws.close(); } catch (e) { console.error(e); }
       // closed connection.

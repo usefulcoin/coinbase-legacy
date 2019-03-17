@@ -25,6 +25,7 @@ const crypto = require('crypto');
 
 
 // define consts...
+const productid = 'BTC-USD';
 const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
 
@@ -41,7 +42,7 @@ const passphrase = process.env.apipassphrase;
 
 
 // sign request...
-async function signrequest(method,requestpath,body){
+function signrequest(method,requestpath,body){
 
   // create the prehash string by concatenating required parts of request...
   let timestamp = Date.now() / 1000;
@@ -68,86 +69,67 @@ async function signrequest(method,requestpath,body){
 
 
 
-let signature = signrequest('GET','/users/self/verify');
-
-
-
-
-// create subscription request...
-let subscriptionrequest = {
-    'type': 'subscribe',
-    'product_ids': ['BTC-USD'],
-    'channels': ['ticker'],
-    'signature': signature.signedmessage,
-    'key': key,
-    'passphrase': passphrase,
-    'timestamp': signature.timestamp
-}
-// created subscription request.
-
-
-
-
-// create discontinue subscription request...
-let discontinuesubscriptionrequest = {
-    'type': 'unsubscribe',
-    'product_ids': ['BTC-USD'],
-    'channels': ['ticker'],
-    'signature': signature.signedmessage,
-    'key': key,
-    'passphrase': passphrase,
-    'timestamp': signature.timestamp
-}
-// created discontinue subscription request.
-
-
-
-
-// update console on close connection...
-ws.on('close', function close() {
-  console.log('disconnected');
-});
-// updated console on close connection.
-
-
-
-
-// on open connection and send subscribe request...
-ws.on('open', function open() {
-  console.log('connected');
-  try {
-    ws.send(JSON.stringify(subscriptionrequest));
-  } catch (e) {
-    console.error(e);
+// create or discontinue subscription request...
+function tickersubscription(type, productid, signature, key, passphrase) {
+  let subscriptionrequest = {
+      'type': type,
+      'product_ids': [productid],
+      'channels': ['ticker'],
+      'signature': signature.signedmessage,
+      'key': key,
+      'passphrase': passphrase,
+      'timestamp': signature.timestamp
   }
-});
-// opened connection and sent subscribe request.
+  return subscriptionrequest;
+}
+// created or discontinued subscription request.
 
 
 
-let count = 0;
-let subscribed = false;
-let tickerreceived = false;
-ws.on('message', function incoming(data) {
-  // update the console when the ticker changes...
-  let jsondata = JSON.parse(data);
-  if ( jsondata.type === 'subscriptions' ) {
-    console.log(data);
-    subscribed = true;
-  } 
-  if ( subscribed && jsondata.type === 'ticker' ) {
-    if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
-    if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
-    if ( count === 10 ) {
-      // discontinue subscription if the console is updated 10 times...
-      tickerreceived = true;
-      try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
-      // discontinued subscription.
+
+(async function main() {
+
+  // create signature required to subscribe to ticker...
+  let signature = signrequest('GET','/users/self/verify');
+  // created signature required to subscribe to ticker.
+
+  // update console on close connection...
+  ws.on('close', function close() { console.log('disconnected'); });
+  // updated console on close connection.
+
+  // on open connection and send subscribe request...
+  ws.on('open', function open() {
+    console.log('connected');
+    let subscriptionrequest = tickersubscription('subscribe', productid, signature, key, passphrase);
+    try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+  });
+  // opened connection and sent subscribe request.
+
+  ws.on('message', function incoming(data) {
+    let jsondata = JSON.parse(data);
+    let count = 0;
+    let subscribed = false;
+    let tickerreceived = false;
+    if ( jsondata.type === 'subscriptions' ) {
+      // update the console when the ticker changes...
+      console.log(data);
+      subscribed = true;
+    } 
+    if ( subscribed && jsondata.type === 'ticker' ) {
+      if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
+      if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
+      if ( count === 10 ) {
+        // discontinue subscription if the console is updated 10 times...
+        tickerreceived = true;
+        let subscriptionrequest = tickersubscription('unsubscribe', productid, signature, key, passphrase);
+        try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
+        // discontinued subscription.
+      }
     }
-  }
-  if ( tickerreceived ) {
-    // close connection...
-    try { ws.close(); } catch (e) { console.error(e); }
-    // closed connection.
-  } 
-});
+    if ( tickerreceived ) {
+      // close connection...
+      try { ws.close(); } catch (e) { console.error(e); }
+      // closed connection.
+    } 
+  });
+}());

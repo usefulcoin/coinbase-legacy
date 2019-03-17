@@ -266,6 +266,7 @@ async function sendmessage(message, phonenumber) {
     
         if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
           // make bid...
+          console.log(bidprice,bidquantity,'buy',true,productid);
           let postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
           // made bid.
         }

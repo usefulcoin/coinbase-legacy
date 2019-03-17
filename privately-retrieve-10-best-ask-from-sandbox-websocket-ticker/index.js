@@ -122,7 +122,7 @@ function tickersubscription(type, productid, signature, key, passphrase) {
         // discontinue subscription if the console is updated 10 times...
         tickerreceived = true;
         let subscriptionrequest = tickersubscription('unsubscribe', productid, signature, key, passphrase);
-        try { ws.send(JSON.stringify(discontinuesubscriptionrequest)); } catch (e) { console.error(e); }
+        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
       }
     }

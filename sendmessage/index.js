@@ -46,7 +46,8 @@ async function sendmessage(message, phonenumber) {
   try{
     // create promise and SNS service object...
     // let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(parameters).promise();
-    let publishedtext = new aws.SNS({apiVersion: '2010-03-31'}).publish(parameters);
+    let publisher = new aws.SNS({apiVersion: '2010-03-31'});
+    let publishedtext = await publisher.publish(parameters);
     let id = await publishedtext.MessageId;
     console.log('sent message with id: ' + id);
     // console.log('sent message with id: ' + publishedtext.MessageId);

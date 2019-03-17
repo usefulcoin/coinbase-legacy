@@ -105,11 +105,11 @@ function tickersubscription(type, productid, signature, key, passphrase) {
   });
   // opened connection and sent subscribe request.
 
+  let count = 0;
+  let subscribed = false;
+  let tickerreceived = false;
   ws.on('message', function incoming(data) {
     let jsondata = JSON.parse(data);
-    let count = 0;
-    let subscribed = false;
-    let tickerreceived = false;
     if ( jsondata.type === 'subscriptions' ) {
       // update the console when the ticker changes...
       console.log(data);

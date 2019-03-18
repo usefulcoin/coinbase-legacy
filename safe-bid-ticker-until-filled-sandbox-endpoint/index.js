@@ -47,16 +47,6 @@ const passphrase = process.env.apipassphrase;
 
 
 
-// filter an array of objects...
-function filter(array, filters) {
-  let itemstoinclude = Object.keys(filters);
-  return array.filter((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
-}
-// filtered array.
-
-
-
-
 // sign request...
 function signrequest(method,requestpath,body){
 

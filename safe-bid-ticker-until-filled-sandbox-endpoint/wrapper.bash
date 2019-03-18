@@ -76,7 +76,7 @@ fi
 
 # step 2: run index.js.
 echo [ $(date) ] starting step 2...
-node index.js
+node inspect index.js
 errorexit $? "critical error encountered trying to execute node script." 2
 echo [ $(date) ] node code successfully executed.
 

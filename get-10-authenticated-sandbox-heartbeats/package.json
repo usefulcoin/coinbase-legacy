@@ -1,6 +1,6 @@
 {
   "name": "get-10-authenticated-sandbox-heartbeats",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Receive 10 authenticated websocket messages from the heartbeat channel on the Coinbase Prime sandbox.",
   "main": "index.js",
   "private": true,

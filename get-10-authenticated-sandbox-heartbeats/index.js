@@ -107,6 +107,7 @@ function channelsubscription(type, productid, channel, signature, key, passphras
   // opened connection and sent subscribe request.
 
   let count = 0;
+  let sequencezero;
   let subscribed = false;
   ws.on('message', function incoming(data) {
     let jsondata = JSON.parse(data);
@@ -120,17 +121,23 @@ function channelsubscription(type, productid, channel, signature, key, passphras
       subscribed = true;
     } 
     if ( subscribed && jsondata.type === channel ) {
-      // update the console with subsequent messages...
-      if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
-      if ( count === 9 ) {
-        // discontinue subscription if 10 (i.e. 0 to 9) messages were received...
-        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-        // discontinued subscription.
-      }
-      if ( jsondata.sequence - initialsequencenumber >= count ) { 
+      // initialize sequencezero with the first sequence number after subscription...
+      if ( sequencezero === undefined ) { sequencezero = jsondata.sequence; }
+      // initialized sequencezero.
+
+      if ( jsondata.sequence < sequencezero + count ) { /* data arrived too late */ } 
+      else { 
+        // update the console with messages messages subsequent to subscription...
         console.log(channel + '[' + jsondata.sequence + '] (' + count + ') : ' + jsondata.last_trade_id); 
         count = count + 1;
+        // updated console and increased count by 1.
+
+        if ( count === 10 ) {
+          // discontinue subscription if 10 (i.e. 0 to 9) messages were received...
+          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+          // discontinued subscription.
+        }
       }
     }
   });

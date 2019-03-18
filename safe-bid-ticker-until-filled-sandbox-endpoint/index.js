@@ -298,8 +298,7 @@ async function sendmessage(message, phonenumber) {
         } 
         if ( bidfilled === false ) {
           // define safe (riskable) bid quantity...
-          // bidquantity = Math.round( (quoteriskableavailable/bidprice - quantityfilled) / baseminimum ) * baseminimum;
-          bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
+          bidquantity = Math.round( (quoteriskableavailable/bidprice - quantityfilled) / baseminimum ) * baseminimum;
           // defined safe (riskable) bid quantity...
       
           if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 

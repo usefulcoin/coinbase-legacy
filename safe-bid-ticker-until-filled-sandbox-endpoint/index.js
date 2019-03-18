@@ -322,4 +322,6 @@ async function sendmessage(message, phonenumber) {
   // update console on close connection...
   ws.on('close', function close() { console.log('disconnected'); });
   // updated console on close connection.
+
+  try { ws.open(); } catch (e) { console.error(e); }
 }());

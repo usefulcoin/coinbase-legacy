@@ -25,7 +25,7 @@ const crypto = require('crypto');
 
 
 // define consts...
-const channel = 'ticker';
+const channel = 'heartbeat';
 const productid = 'BTC-USD';
 const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
@@ -118,7 +118,7 @@ function channelsubscription(type, productid, channel, signature, key, passphras
     if ( subscribed && jsondata.type === channel ) {
       // update the console when the ticker changes...
       if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
-      if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.best_ask); }
+      if ( jsondata.sequence + count >= initialsequencenumber ) { count = count + 1; console.log('[' + jsondata.sequence + '] best ask (' + count + ') : ' + jsondata.last_trade_id); }
       if ( count === 10 ) {
         subscriptionreceived = true;
         // discontinue subscription if the console is updated 10 times...

@@ -242,16 +242,14 @@ async function sendmessage(message, phonenumber) {
   // created signature required to subscribe to ticker.
 
   // on open connection and send subscribe request...
-  console.log('introduce logic to handle the opening of the websocket...');
-  ws.on('open', function open() {
-    console.log('connected');
+  ws.on('open', function open(data) {
+    console.log(data);
     let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
   });
   // opened connection and sent subscribe request.
 
   ws.on('message', async function incoming(data) {
-    console.log(data);
     let jsondata = JSON.parse(data);
     if ( jsondata.type === 'subscriptions' ) {
       subscribed = true;

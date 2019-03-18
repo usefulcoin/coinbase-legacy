@@ -241,6 +241,10 @@ async function sendmessage(message, phonenumber) {
   let signature = signrequest('GET','/users/self/verify');
   // created signature required to subscribe to ticker.
 
+  // update console on close connection...
+  ws.on('close', function closeconnection() { console.log('disconnected'); });
+  // updated console on close connection.
+
   // update console on error...
   ws.on('error', function reporterror(data) {
     if (data.message === 'unexpected server response (429)') { console.error( 'Connecting too fast... Coinbase Prime is mad.'); }
@@ -249,7 +253,7 @@ async function sendmessage(message, phonenumber) {
   // updated console on error.
 
   // on open connection and send subscribe request...
-  ws.on('open', function open() {
+  ws.on('open', function sendsubscriptionrequest() {
     console.log('connected');
     let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
@@ -326,8 +330,4 @@ async function sendmessage(message, phonenumber) {
       // closed connection.
     } 
   });
-
-  // update console on close connection...
-  ws.on('close', function closeconnection() { console.log('disconnected'); });
-  // updated console on close connection.
 }());

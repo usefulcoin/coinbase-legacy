@@ -248,13 +248,15 @@ async function sendmessage(message, phonenumber) {
   });
   // updated console on error.
 
-  // on open connection and send subscribe request...
-  ws.on('open', function open() {
-    console.log('connected');
-    let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
-    try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-  });
-  // opened connection and sent subscribe request.
+  try {
+    // on open connection and send subscribe request...
+    ws.on('open', function sendsubscriptionrequest() {
+      console.log('connected');
+      let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
+      try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+    });
+    // opened connection and sent subscribe request.
+  } catch (e) { console.error(e); }
 
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);

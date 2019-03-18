@@ -298,15 +298,17 @@ async function sendmessage(message, phonenumber) {
         } 
         if ( bidfilled === false ) {
           // define safe (riskable) bid quantity...
-          bidquantity = Math.round( (quoteriskableavailable/bidprice - quantityfilled) / baseminimum ) * baseminimum;
+          bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum;
           // defined safe (riskable) bid quantity...
       
           if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
-            // make bid...
-            console.log(bidprice,bidquantity,'buy',true,productid);
-            postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
-            console.log(postedbid);
-            // made bid.
+            try {
+              // make bid...
+              console.log(bidprice,bidquantity,'buy',true,productid);
+              postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
+              console.log(postedbid);
+              // made bid.
+            } catch (e) { console.error(e); }
           } else { 
             console.log('bid quantity is out of bounds.'); 
           }

@@ -28,7 +28,10 @@ const fetch = require('node-fetch');
 
 // define consts...
 const channel = 'ticker';
+const riskratio = 0.0001;
+const percentreturn = 0.01;
 const productid = 'BTC-USD';
+const recipient = '+12062270634';
 const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
 

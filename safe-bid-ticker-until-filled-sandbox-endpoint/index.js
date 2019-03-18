@@ -242,6 +242,7 @@ async function sendmessage(message, phonenumber) {
   // created signature required to subscribe to ticker.
 
   // on open connection and send subscribe request...
+  console.log('introduce logic to handle the opening of the websocket...');
   ws.on('open', function open() {
     console.log('connected');
     let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);

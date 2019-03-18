@@ -108,6 +108,32 @@ async function restapirequest(method,requestpath,body){
 
 
 
+// post a order...
+async function postorder(price,size,side,postonly,productid,stop,stopprice){
+
+  // define parameters...
+  let method = 'POST';
+  let requestpath = '/orders';
+  let body = JSON.stringify({
+      'price': price,
+      'size': size,
+      'side': side,
+      'post_only': postonly,
+      'product_id': productid,
+      'stop': stop,
+      'stop_price': stopprice
+  });
+  // defined parameters.
+
+  let order = await restapirequest(method,requestpath,body);
+
+  return order;
+}
+// posted a order.
+
+
+
+
 // sign request...
 function signrequest(method,requestpath,body){
 

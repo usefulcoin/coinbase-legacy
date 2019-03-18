@@ -27,8 +27,11 @@ const fetch = require('node-fetch');
 
 
 // define consts...
-const channel = 'heartbeat';
+const channel = 'ticker';
+const riskratio = 0.0001;
+const percentreturn = 0.01;
 const productid = 'BTC-USD';
+const recipient = '+12062270634';
 const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
 
@@ -40,6 +43,16 @@ const key = process.env.apikey;
 const secret = process.env.apisecret;
 const passphrase = process.env.apipassphrase;
 // importing of sensitive authentication data complete.
+
+
+
+
+// filter an array of objects...
+function filter(array, filters) {
+  let itemstoinclude = Object.keys(filters);
+  return array.filter((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
+}
+// filtered array.
 
 
 
@@ -130,7 +143,7 @@ function channelsubscription(type, productid, channel, signature, key, passphras
       if ( jsondata.sequence < sequencezero + count ) { /* data arrived too late */ } 
       else { 
         // update the console with messages messages subsequent to subscription...
-        console.log(channel + '[' + jsondata.sequence + '] (' + count + ') : ' + jsondata.last_trade_id); 
+        console.log(channel + '[' + jsondata.sequence + '] (' + count + ') : ' + jsondata.best_bid); 
         count = count + 1;
         // updated console and increased count by 1.
 

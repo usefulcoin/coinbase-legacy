@@ -245,7 +245,6 @@ async function sendmessage(message, phonenumber) {
   });
   // opened connection and sent subscribe request.
 
-  let bidprice;
   let count = 0;
   let postedbid;
   let bidfilled = false;
@@ -261,7 +260,8 @@ async function sendmessage(message, phonenumber) {
       if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
       if ( jsondata.sequence + count >= initialsequencenumber ) { 
         count = count + 1; 
-        bidprice = jsondata.best_bid; 
+        let bidquantity;
+        let bidprice = jsondata.best_bid; 
 
         if ( postedbid !== undefined ) {
           let bidfilter = { id: [postedbid] };
@@ -271,6 +271,18 @@ async function sendmessage(message, phonenumber) {
           bidfilled = bidinformation[0].settled;
           quantityfilled = bidinformation[0].filled_size;
           if ( bidfilled === false ) { await restapirequest('DELETE','/orders/' + postedbid); }
+          else {
+            // make ask...
+            // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
+            askprice = Number(quoteincrement) + Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+            let askquantity = bidquantity;
+            let postedask = await postorder(askprice,askquantity,'sell',true,productid);
+            sendmessage(productid + '\nbid: ' + Math.round(postedbid.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                                  + ' @ ' + Math.round(postedbid.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
+                                  + ' ask: ' + Math.round(postedask.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                                  + ' @ ' + Math.round(postedask.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
+            // made ask.
+          }
 
           subscriptionreceived = true;
 
@@ -281,7 +293,7 @@ async function sendmessage(message, phonenumber) {
         } 
         if ( bidfilled === false ) {
           // define safe (riskable) bid quantity...
-          let bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
+          bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
           // defined safe (riskable) bid quantity...
       
           if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 

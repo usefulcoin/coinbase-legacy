@@ -228,14 +228,18 @@ async function sendmessage(message, phonenumber) {
   let quoteriskableavailable = quoteavailablebalance*riskratio;
   // retrieved account balance information.
 
+  // define variables needed for making/deleting bids/asks...
+  let count = 0;
+  let postedbid;
+  let bidfilled = false;
+  let quantityfilled = 0;
+  let subscribed = false;
+  let subscriptionreceived = false;
+  // defined variables needed for making/deleting bids/asks.
 
   // create signature required to subscribe to ticker...
   let signature = signrequest('GET','/users/self/verify');
   // created signature required to subscribe to ticker.
-
-  // update console on close connection...
-  ws.on('close', function close() { console.log('disconnected'); });
-  // updated console on close connection.
 
   // on open connection and send subscribe request...
   ws.on('open', function open() {
@@ -245,12 +249,6 @@ async function sendmessage(message, phonenumber) {
   });
   // opened connection and sent subscribe request.
 
-  let count = 0;
-  let postedbid;
-  let bidfilled = false;
-  let quantityfilled = 0;
-  let subscribed = false;
-  let subscriptionreceived = false;
   ws.on('message', async function incoming(data) {
     console.log(data);
     let jsondata = JSON.parse(data);
@@ -322,4 +320,7 @@ async function sendmessage(message, phonenumber) {
       // closed connection.
     } 
   });
+  // update console on close connection...
+  ws.on('close', function close() { console.log('disconnected'); });
+  // updated console on close connection.
 }());

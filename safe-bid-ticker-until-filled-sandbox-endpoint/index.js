@@ -260,16 +260,20 @@ async function sendmessage(message, phonenumber) {
       if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
       if ( jsondata.sequence + count >= initialsequencenumber ) { 
         count = count + 1; 
+
         let bidquantity;
         let bidprice = jsondata.best_bid; 
 
         if ( postedbid !== undefined ) {
-          let bidfilter = { id: [postedbid] };
-          let orderinformation = await restapirequest('GET','/orders');
-          let bidinformation = filter(orderinformation, bidfilter);
+          try {
+            let bidfilter = { id: [postedbid.id] };
+            let orderinformation = await restapirequest('GET','/orders');
+            let bidinformation = filter(orderinformation, bidfilter);
+          } catch (e) { console.error(e); }
 
           bidfilled = bidinformation[0].settled;
           quantityfilled = bidinformation[0].filled_size;
+
           if ( bidfilled === false ) { await restapirequest('DELETE','/orders/' + postedbid); }
           else {
             // make ask...

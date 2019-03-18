@@ -265,10 +265,11 @@ async function sendmessage(message, phonenumber) {
         let bidprice = jsondata.best_bid; 
 
         if ( postedbid !== undefined ) {
+          let bidinformation;
           try {
             let bidfilter = { id: [postedbid.id] };
             let orderinformation = await restapirequest('GET','/orders');
-            let bidinformation = filter(orderinformation, bidfilter);
+            bidinformation = filter(orderinformation, bidfilter);
           } catch (e) { console.error(e); }
 
           bidfilled = bidinformation[0].settled;
@@ -297,7 +298,7 @@ async function sendmessage(message, phonenumber) {
         } 
         if ( bidfilled === false ) {
           // define safe (riskable) bid quantity...
-          bidquantity = Math.round( (quoteriskableavailable/bidprice) / baseminimum ) * baseminimum - quantityfilled;
+          bidquantity = Math.round( (quoteriskableavailable/bidprice - quantityfilled) / baseminimum ) * baseminimum;
           // defined safe (riskable) bid quantity...
       
           if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 

@@ -1,0 +1,15 @@
+{
+  "name": "get-10-authenticated-sandbox-heartbeats",
+  "version": "0.0.1",
+  "description": "Receive 10 authenticated websocket messages from the heartbeat channel on the Coinbase Prime sandbox.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "ws": "latest",
+    "aws-sdk": "latest",
+    "node-fetch": "latest"
+  }
+}

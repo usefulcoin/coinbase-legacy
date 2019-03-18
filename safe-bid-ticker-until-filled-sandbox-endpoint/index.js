@@ -253,7 +253,7 @@ async function sendmessage(message, phonenumber) {
   // updated console on error.
 
   // on open connection and send subscribe request...
-  ws.on('open', function sendsubscriptionrequest() {
+  ws.on('open', async function sendsubscriptionrequest() {
     console.log('connected');
     let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
@@ -265,6 +265,65 @@ async function sendmessage(message, phonenumber) {
     if ( jsondata.type === 'subscriptions' ) {
       subscribed = true;
     } 
+    if ( subscribed && jsondata.type === channel ) {
+      if ( count === 0 ) { initialsequencenumber = jsondata.sequence; }
+      if ( jsondata.sequence + count >= initialsequencenumber ) { 
+        count = count + 1; 
+
+        let bidquantity;
+        let bidprice = jsondata.best_bid; 
+
+        if ( postedbid !== undefined ) {
+          let bidinformation;
+          try {
+            let bidfilter = { id: [postedbid.id] };
+            let orderinformation = await restapirequest('GET','/orders');
+            bidinformation = filter(orderinformation, bidfilter);
+          } catch (e) { console.error(e); }
+
+          bidfilled = bidinformation[0].settled;
+          quantityfilled = bidinformation[0].filled_size;
+
+          if ( bidfilled === false ) { await restapirequest('DELETE','/orders/' + postedbid); }
+          else {
+            // make ask...
+            // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
+            askprice = Number(quoteincrement) + Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+            let askquantity = bidquantity;
+            let postedask = await postorder(askprice,askquantity,'sell',true,productid);
+            sendmessage(productid + '\nbid: ' + Math.round(postedbid.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                                  + ' @ ' + Math.round(postedbid.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
+                                  + ' ask: ' + Math.round(postedask.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                                  + ' @ ' + Math.round(postedask.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
+            // made ask.
+          }
+
+          subscriptionreceived = true;
+
+          // discontinue subscription if the channel is updated 1 time...
+          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+          // discontinued subscription.
+        } 
+        if ( bidfilled === false ) {
+          // define safe (riskable) bid quantity...
+          bidquantity = Math.round( (quoteriskableavailable/bidprice - quantityfilled) / baseminimum ) * baseminimum;
+          // defined safe (riskable) bid quantity...
+      
+          if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+            try {
+              // make bid...
+              console.log(bidprice,bidquantity,'buy',true,productid);
+              postedbid = await postorder(bidprice,bidquantity,'buy',true,productid);
+              console.log(postedbid);
+              // made bid.
+            } catch (e) { console.error(e); }
+          } else { 
+            console.log('bid quantity is out of bounds.'); 
+          }
+        }
+      }
+    }
     if ( subscriptionreceived ) {
       // close connection...
       try { ws.close(); } catch (e) { console.error(e); }

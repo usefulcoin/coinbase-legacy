@@ -244,7 +244,7 @@ async function sendmessage(message, phonenumber) {
   // update console on error...
   ws.on('error', function error(errordata) {
     if (errordata.message === 'unexpected server response (429)') { console.error( 'Connecting too fast... Coinbase Prime is mad.'); }
-    else { console.error( errordata.message );
+    else { console.error( errordata.message ); }
   });
   // updated console on error.
 

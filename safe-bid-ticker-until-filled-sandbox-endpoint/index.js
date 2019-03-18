@@ -251,8 +251,8 @@ async function sendmessage(message, phonenumber) {
   let quantityfilled = 0;
   let subscribed = false;
   let subscriptionreceived = false;
-  console.log(subscriptionreceived);
   ws.on('message', async function incoming(data) {
+    console.log(data);
     let jsondata = JSON.parse(data);
     if ( jsondata.type === 'subscriptions' ) {
       subscribed = true;

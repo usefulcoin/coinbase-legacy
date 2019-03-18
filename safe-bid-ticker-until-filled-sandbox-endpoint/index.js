@@ -249,8 +249,8 @@ async function sendmessage(message, phonenumber) {
   // updated console on error.
 
   // on open connection and send subscribe request...
-    console.log('not yet connected');
-  ws.on('open', function sendsubscriptionrequest() {
+  ws.on('open', function sendsubscriptionrequest(data) {
+    console.log(data);
     console.log('connected');
     let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }

@@ -180,6 +180,33 @@ function channelsubscription(type, productid, channel, signature, key, passphras
 
 
 
+// configure aws region (use ap-northeast-1 or us-west-2)...
+aws.config.update({region: 'ap-northeast-1'});
+// configured aws.
+
+
+
+
+// send a message...
+async function sendmessage(message, phonenumber) {
+  // create publish parameters...
+  let parameters = { Message: message, PhoneNumber: phonenumber };
+  // create publish parameters.
+
+  try{
+    // create promise and SNS service object...
+    let publishedtext = await new aws.SNS({apiVersion: '2010-03-31'}).publish(parameters).promise();
+    console.log('sent message with id: ' + publishedtext.MessageId);
+    // created promise and SNS service object
+  } catch (e) {
+    console.error('[ ' + Date() + ' ] ', e);
+  };
+}
+// sent a message.
+
+
+
+
 (async function main() {
 
   // create signature required to subscribe to ticker...

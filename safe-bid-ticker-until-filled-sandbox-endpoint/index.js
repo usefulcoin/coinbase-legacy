@@ -256,8 +256,6 @@ async function sendmessage(message, phonenumber) {
   });
   // opened connection and sent subscribe request.
 
-  try { ws.connect(); } catch (e) { console.error(e); }
-
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
     if ( jsondata.type === 'subscriptions' ) {

@@ -239,11 +239,11 @@ async function sendmessage(message, phonenumber) {
   let orderid;
   let bidprice;
   let orderprice;
+  let orderstatus;
   let orderfilled;
   let bidquantity;
   let orderquantity;
   let subscribed = false;
-  let ordersettled = false;
   // declared websocket variables.
 
   ws.on('message', async function incoming(data) {
@@ -295,7 +295,7 @@ async function sendmessage(message, phonenumber) {
     // once subscribed, act on each level2 update...
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
-      if ( ordersettled ) {
+      if ( orderstatus === 'settled' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
@@ -329,12 +329,11 @@ async function sendmessage(message, phonenumber) {
             orderprice = orderinformation.price;
             orderfilled = orderinformation.filled_size;
             orderquantity = orderinformation.size;
-            ordersettled = orderinformation.settled;
+            orderstatus = orderinformation.status;
             console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
           } else { /* indicated that quantity is out of bounds */
             console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
           } /* made bid. */
-          ordersettled = true;
         }     
       }
     }

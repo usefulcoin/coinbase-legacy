@@ -336,7 +336,7 @@ async function sendmessage(message, phonenumber) {
               orderfilled = orderinformation.filled_size;
               // retrieved order information.
 
-              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid for ' + bidquantity + ']'); 
+              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
             } else {
               console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
             }
@@ -345,25 +345,27 @@ async function sendmessage(message, phonenumber) {
           } else {
             if ( bidprice !== orderprice ) {
               // delete stale bid...
-              cancellationinformation = await restapirequest('DELETE','/orders/' + orderinformation.id);
-              console.log('order cancellation submitted and the response from Coinbase is : ' + cancellationinformation);
+              let cancellationid; try { cancellationid = await restapirequest('DELETE','/orders/' + orderinformation.id); } catch (e) { console.error(e); }
+              console.log('order cancellation submitted and the response from Coinbase is : ' + cancellationid);
               // deleted stale bid.
 
-              // make new bid...
-              if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
-                try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-  
-                // retrieve order information...
-                orderprice = orderinformation.price;
-                ordersettled = orderinformation.settled;
-                orderfilled = orderinformation.filled_size;
-                // retrieved order information.
-  
-                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid for ' + bidquantity + ']'); 
-              } else {
-                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+              if ( cancellationid === orderinformation.id ) {
+                // make new bid...
+                if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+                  try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+    
+                  // retrieve order information...
+                  orderprice = orderinformation.price;
+                  ordersettled = orderinformation.settled;
+                  orderfilled = orderinformation.filled_size;
+                  // retrieved order information.
+    
+                  console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [updated bid for ' + bidquantity + ']'); 
+                } else {
+                  console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+                }
+                // made bid.
               }
-              // made bid.
             } else {
               // update the console...
               console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 

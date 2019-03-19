@@ -307,7 +307,7 @@ async function sendmessage(message, phonenumber) {
         let askquantity = orderquantity;
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
-        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + ']'); 
+        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + '@' + askprice + ']'); 
         // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
@@ -315,28 +315,27 @@ async function sendmessage(message, phonenumber) {
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
                               // made ask.
 
-      } else {
-        if ( jsondata.changes[0][0] === 'buy' ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
-        if ( jsondata.changes[0][0] === 'sell' ) {
-          bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
-          bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-        }
-        if ( jsondata.changes[0][0] === 'sell' && orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
-          orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
-          
-          if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
-            try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-            orderid = orderinformation.id;
-            orderprice = orderinformation.price;
-            orderfilled = orderinformation.filled_size;
-            orderquantity = orderinformation.size;
-            orderstatus = orderinformation.status;
-            console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
-          } else { /* indicated that quantity is out of bounds */
-            console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-          } /* made bid. */
-        }     
+      } 
+      if ( jsondata.changes[0][0] === 'buy' ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
+      if ( jsondata.changes[0][0] === 'sell' ) {
+        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
+        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
       }
+      if ( jsondata.changes[0][0] === 'sell' && orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
+        orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
+        
+        if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
+          try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+          orderid = orderinformation.id;
+          orderprice = orderinformation.price;
+          orderfilled = orderinformation.filled_size;
+          orderquantity = orderinformation.size;
+          orderstatus = orderinformation.status;
+          console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
+        } else { /* indicated that quantity is out of bounds */
+          console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+        } /* made bid. */
+      }     
     }
   });
 }());

@@ -225,14 +225,25 @@ async function sendmessage(message, phonenumber) {
   });
   // opened connection and sent subscribe request.
 
+  // declare rest api variables...
+  let baseminimum;
+  let basemaximum;
+  let basecurrency;
+  let quotecurrency;
+  let quoteincrement;
+  let quoteavailablebalance;
+  let quoteriskablebalance;
+  // declared rest api variables.
+
+  // declare websocket variables...
   let orderprice;
   let orderquantity;
   let orderfilled = 0;
   let orderinformation;
   let subscribed = false;
   let ordersettled = false;
-  let quoteavailablebalance;
-  let quoteriskablebalance;
+  // declared websocket variables.
+
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
 
@@ -259,11 +270,11 @@ async function sendmessage(message, phonenumber) {
         let productinformation;
         try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
         let filteredproductinformation = filter(productinformation, productidfilter);
-        const baseminimum = filteredproductinformation[0].base_min_size;
-        const basemaximum = filteredproductinformation[0].base_max_size;
-        const basecurrency = filteredproductinformation[0].base_currency;
-        const quotecurrency = filteredproductinformation[0].quote_currency;
-        const quoteincrement = filteredproductinformation[0].quote_increment;
+        baseminimum = filteredproductinformation[0].base_min_size;
+        basemaximum = filteredproductinformation[0].base_max_size;
+        basecurrency = filteredproductinformation[0].base_currency;
+        quotecurrency = filteredproductinformation[0].quote_currency;
+        quoteincrement = filteredproductinformation[0].quote_increment;
         // retrieved product information.
       
         // retrieve available balance information...

@@ -323,12 +323,10 @@ async function sendmessage(message, phonenumber) {
       
           if ( orderinformation === undefined ) {
             // make bid...
-            console.log(bidprice,bidquantity,'buy',true,productid);
             if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
               try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
 
               // retrieve order information...
-              console.log(orderinformation);
               orderquantity = bidquantity;
               orderprice = orderinformation.price;
               ordersettled = orderinformation.settled;
@@ -348,12 +346,10 @@ async function sendmessage(message, phonenumber) {
               // deleted stale bid.
 
               // make new bid...
-              console.log(bidprice,bidquantity,'buy',true,productid);
               if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
                 try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
   
                 // retrieve order information...
-                console.log(orderinformation);
                 orderprice = orderinformation.price;
                 ordersettled = orderinformation.settled;
                 orderfilled = orderinformation.filled_size;

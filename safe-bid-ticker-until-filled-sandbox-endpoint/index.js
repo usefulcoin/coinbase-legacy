@@ -225,55 +225,137 @@ async function sendmessage(message, phonenumber) {
   });
   // opened connection and sent subscribe request.
 
-  let count = 0;
+  let orderprice;
+  let orderquantity;
+  let orderfilled = 0;
+  let orderinformation;
   let subscribed = false;
+  let ordersettled = false;
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
+
+    // report any errors sent by the websocket server...
     if ( jsondata.type === 'error' ) {
       console.error(jsondata.message);
+      // reported errors.
     } 
+
+    // report the confirmation of subscription...
     if ( jsondata.type === 'subscriptions' ) {
       console.log(data);
+      // reported confirmation.
+
+      // close connection if flag set...
       if ( subscribed ) {
-        // close connection...
         try { ws.close(); } catch (e) { console.error(e); }
         // closed connection.
-      } 
-      subscribed = true;
-    } 
-    if ( subscribed && jsondata.type === 'l2update' ) {
-      if ( count === 0 ) { 
+
+      // retrieve essential REST API information once subscribed. only once...
+      } else {
         // retrieve product information...
-        let productidfilter = { id: [productid] };
-        let productinformation = await restapirequest('GET','/products');
-        let filteredproductinformation = filter(productinformation, productidfilter);
-        let baseminimum = filteredproductinformation[0].base_min_size;
-        let basemaximum = filteredproductinformation[0].base_max_size;
-        let basecurrency = filteredproductinformation[0].base_currency;
-        let quotecurrency = filteredproductinformation[0].quote_currency;
-        let quoteincrement = filteredproductinformation[0].quote_increment;
+        const productidfilter = { id: [productid] };
+        const productinformation = await restapirequest('GET','/products');
+        const filteredproductinformation = filter(productinformation, productidfilter);
+        const baseminimum = filteredproductinformation[0].base_min_size;
+        const basemaximum = filteredproductinformation[0].base_max_size;
+        const basecurrency = filteredproductinformation[0].base_currency;
+        const quotecurrency = filteredproductinformation[0].quote_currency;
+        const quoteincrement = filteredproductinformation[0].quote_increment;
         // retrieved product information.
       
         // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
-        let accountinformation = await restapirequest('GET','/accounts');
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        let quoteavailablebalance = quoteaccountinformation[0].available;
-        let quoteriskableavailable = quoteavailablebalance*riskratio;
+        const quotecurrencyfilter = { currency: [quotecurrency] };
+        const accountinformation = await restapirequest('GET','/accounts');
+        const quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        const quoteavailablebalance = quoteaccountinformation[0].available;
+        const quoteriskableavailable = quoteavailablebalance*riskratio;
         // retrieved account balance information.
       }
 
-      // update the console with messages subsequent to subscription...
-      console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-      // updated console.
+      subscribed = true; /* subscription request successful. set flag */
+    } 
 
-      count = count + 1; /* increment the counter */
-
-      if ( count === 10 ) {
-        // discontinue subscription if 10 (i.e. 0 to 9) messages were received...
+    // once subscribed, act on each level2 update...
+    if ( subscribed && jsondata.type === 'l2update' ) {
+      // discontinue subscription if bid filled...
+      if ( ordersettled ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
+
+        // make ask...
+        // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
+        askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+        let askquantity = orderquantity;
+        let askorderinformation = await postorder(askprice,askquantity,'sell',true,productid);
+        sendmessage(productid + '\nbid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                              + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
+                              + ' ask: ' + Math.round(askorderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                              + ' @ ' + Math.round(askorderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
+                              // made ask.
+
+      } else {
+        if ( jsondata.changes[0][0] === 'sell' ) {
+          // update the console with messages subsequent to subscription...
+          console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
+          // updated console.
+        } else {
+          let bidprice = jsondata.changes[0][1];
+
+          // define safe (riskable) bid quantity...
+          bidquantity = Math.round( (quoteriskableavailable/bidprice - orderfilled) / baseminimum ) * baseminimum;
+          // defined safe (riskable) bid quantity...
+      
+          if ( orderinformation === undefined ) {
+            // make bid...
+            console.log(bidprice,bidquantity,'buy',true,productid);
+            if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+              try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+
+              // retrieve order information...
+              console.log(orderinformation);
+              orderquantity = bidquantity;
+              orderprice = orderinformation.price;
+              ordersettled = orderinformation.settled;
+              orderfilled = orderinformation.filled_size;
+              // retrieved order information.
+
+              console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid placed]'); 
+            } else {
+              console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+            }
+            // made bid.
+
+          } else {
+            if ( bidprice !== orderprice ) {
+              // delete stale bid...
+              restapirequest('DELETE','/orders/' + orderinformation.id); /* await not needed because the server doesn't return a response */
+              // deleted stale bid.
+
+              // make new bid...
+              console.log(bidprice,bidquantity,'buy',true,productid);
+              if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+                try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+  
+                // retrieve order information...
+                console.log(orderinformation);
+                orderprice = orderinformation.price;
+                ordersettled = orderinformation.settled;
+                orderfilled = orderinformation.filled_size;
+                // retrieved order information.
+  
+                console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid placed]'); 
+              } else {
+                console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+              }
+              // made bid.
+            } else {
+              // update the console...
+              console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
+              // updated console.
+            }
+          }
+        }     
       }
     }
   });

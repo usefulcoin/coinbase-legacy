@@ -285,9 +285,9 @@ async function sendmessage(message, phonenumber) {
         quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
-      }
 
-      subscribed = true; /* subscription request successful. set flag */
+        subscribed = true; /* subscription request successful. set flag */
+      }
     } 
 
     // once subscribed, act on each level2 update...
@@ -343,7 +343,7 @@ async function sendmessage(message, phonenumber) {
             if ( bidprice !== orderprice ) {
               // delete stale bid...
               cancellationinformation = await restapirequest('DELETE','/orders/' + orderinformation.id);
-              console.log(cancellationinformation);
+              console.log('order cancellation submitted and the response from Coinbase is : ' + cancellationinformation);
               // deleted stale bid.
 
               // make new bid...

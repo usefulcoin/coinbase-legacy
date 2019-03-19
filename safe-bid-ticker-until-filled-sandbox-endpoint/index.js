@@ -342,7 +342,8 @@ async function sendmessage(message, phonenumber) {
           } else {
             if ( bidprice !== orderprice ) {
               // delete stale bid...
-              restapirequest('DELETE','/orders/' + orderinformation.id); /* await not needed because the server doesn't return a response */
+              cancellationinformation = await restapirequest('DELETE','/orders/' + orderinformation.id);
+              console.log(cancellationinformation);
               // deleted stale bid.
 
               // make new bid...

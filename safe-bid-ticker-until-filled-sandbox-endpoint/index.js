@@ -365,11 +365,11 @@ async function sendmessage(message, phonenumber) {
                   console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
                 }
                 // made bid.
+              } else {
+                // update the console...
+                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
+                // updated console.
               }
-            } else {
-              // update the console...
-              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-              // updated console.
             }
           }
         }     

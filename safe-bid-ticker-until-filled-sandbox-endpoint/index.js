@@ -27,7 +27,7 @@ const fetch = require('node-fetch');
 
 
 // define consts...
-const channel = 'ticker';
+const channel = 'level2';
 const riskratio = 0.0001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
@@ -209,9 +209,9 @@ async function sendmessage(message, phonenumber) {
 
 (async function main() {
 
-  // create signature required to subscribe to ticker...
+  // create signature required to subscribe to a channel...
   let signature = signrequest('GET','/users/self/verify');
-  // created signature required to subscribe to ticker.
+  // created signature required to subscribe to a channel.
 
   // update console on close connection...
   ws.on('close', function close() { console.log('disconnected'); });
@@ -226,7 +226,6 @@ async function sendmessage(message, phonenumber) {
   // opened connection and sent subscribe request.
 
   let count = 0;
-  let sequencezero;
   let subscribed = false;
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
@@ -242,12 +241,8 @@ async function sendmessage(message, phonenumber) {
       } 
       subscribed = true;
     } 
-    if ( subscribed && jsondata.type === channel ) {
-      if ( sequencezero === undefined ) { 
-        // initialize sequencezero with the first sequence number after subscription...
-        sequencezero = jsondata.sequence; 
-        // initialized sequencezero.
-
+    if ( subscribed && jsondata.type === 'snapshot' ) {
+      if ( count === 0 ) { 
         // retrieve product information...
         let productidfilter = { id: [productid] };
         let productinformation = await restapirequest('GET','/products');
@@ -268,19 +263,17 @@ async function sendmessage(message, phonenumber) {
         // retrieved account balance information.
       }
 
-      if ( jsondata.sequence < sequencezero + count ) { /* data arrived too late */ } 
-      else { 
-        // update the console with messages messages subsequent to subscription...
-        console.log(channel + '[' + jsondata.sequence + '] (' + count + ') : ' + jsondata.best_bid); 
-        count = count + 1;
-        // updated console and increased count by 1.
+      // update the console with messages subsequent to subscription...
+      console.log(channel + '[' + jsondata.product_id + '] (' + count + ') : ' + jsondata.bids); 
+      // updated console.
 
-        if ( count === 10 ) {
-          // discontinue subscription if 10 (i.e. 0 to 9) messages were received...
-          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-          // discontinued subscription.
-        }
+      count = count + 1; /* increment the counter */
+
+      if ( count === 10 ) {
+        // discontinue subscription if 10 (i.e. 0 to 9) messages were received...
+        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+        // discontinued subscription.
       }
     }
   });

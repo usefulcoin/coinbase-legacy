@@ -303,6 +303,9 @@ async function sendmessage(message, phonenumber) {
         askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
         let askorderinformation = await postorder(askprice,askquantity,'sell',true,productid);
+        // update the console with messages subsequent to subscription...
+        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + ']'); 
+        // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
                               + ' ask: ' + Math.round(askorderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
@@ -333,7 +336,7 @@ async function sendmessage(message, phonenumber) {
               orderfilled = orderinformation.filled_size;
               // retrieved order information.
 
-              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid placed]'); 
+              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid for ' + bidquantity + ']'); 
             } else {
               console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
             }
@@ -356,7 +359,7 @@ async function sendmessage(message, phonenumber) {
                 orderfilled = orderinformation.filled_size;
                 // retrieved order information.
   
-                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid placed]'); 
+                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [bid for ' + bidquantity + ']'); 
               } else {
                 console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
               }

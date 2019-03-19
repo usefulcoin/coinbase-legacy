@@ -296,11 +296,13 @@ async function sendmessage(message, phonenumber) {
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
       console.log(orderstatus);
-      if ( orderstatus === 'settled' ) {
+      if ( orderstatus === 'settled' || orderstatus === 'rejected' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
 
+      } 
+      if ( orderstatus === 'settled' ) {
         // make ask...
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;

@@ -209,6 +209,25 @@ async function sendmessage(message, phonenumber) {
 
 (async function main() {
 
+  // retrieve product information...
+  const productidfilter = { id: [productid] };
+  const productinformation = await restapirequest('GET','/products');
+  const filteredproductinformation = filter(productinformation, productidfilter);
+  const baseminimum = filteredproductinformation[0].base_min_size;
+  const basemaximum = filteredproductinformation[0].base_max_size;
+  const basecurrency = filteredproductinformation[0].base_currency;
+  const quotecurrency = filteredproductinformation[0].quote_currency;
+  const quoteincrement = filteredproductinformation[0].quote_increment;
+  // retrieved product information.
+
+  // retrieve available balance information...
+  const quotecurrencyfilter = { currency: [quotecurrency] };
+  const accountinformation = await restapirequest('GET','/accounts');
+  const quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+  const quoteavailablebalance = quoteaccountinformation[0].available;
+  const quoteriskableavailable = quoteavailablebalance*riskratio;
+  // retrieved account balance information.
+
   // define variables needed for making/deleting bids/asks...
   let count = 0;
   let postedbid;

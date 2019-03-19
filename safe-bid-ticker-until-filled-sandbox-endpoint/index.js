@@ -230,6 +230,9 @@ async function sendmessage(message, phonenumber) {
   let subscribed = false;
   ws.on('message', function incoming(data) {
     let jsondata = JSON.parse(data);
+    if ( jsondata.type === 'error' ) {
+      console.error(jsondata.message);
+    } 
     if ( jsondata.type === 'subscriptions' ) {
       console.log(data);
       if ( subscribed ) {
@@ -240,9 +243,30 @@ async function sendmessage(message, phonenumber) {
       subscribed = true;
     } 
     if ( subscribed && jsondata.type === channel ) {
-      // initialize sequencezero with the first sequence number after subscription...
-      if ( sequencezero === undefined ) { sequencezero = jsondata.sequence; }
-      // initialized sequencezero.
+      if ( sequencezero === undefined ) { 
+        // initialize sequencezero with the first sequence number after subscription...
+        sequencezero = jsondata.sequence; 
+        // initialized sequencezero.
+
+        // retrieve product information...
+        let productidfilter = { id: [productid] };
+        let productinformation = await restapirequest('GET','/products');
+        let filteredproductinformation = filter(productinformation, productidfilter);
+        let baseminimum = filteredproductinformation[0].base_min_size;
+        let basemaximum = filteredproductinformation[0].base_max_size;
+        let basecurrency = filteredproductinformation[0].base_currency;
+        let quotecurrency = filteredproductinformation[0].quote_currency;
+        let quoteincrement = filteredproductinformation[0].quote_increment;
+        // retrieved product information.
+      
+        // retrieve available balance information...
+        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let accountinformation = await restapirequest('GET','/accounts');
+        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        let quoteavailablebalance = quoteaccountinformation[0].available;
+        let quoteriskableavailable = quoteavailablebalance*riskratio;
+        // retrieved account balance information.
+      }
 
       if ( jsondata.sequence < sequencezero + count ) { /* data arrived too late */ } 
       else { 

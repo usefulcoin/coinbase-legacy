@@ -231,6 +231,8 @@ async function sendmessage(message, phonenumber) {
   let orderinformation;
   let subscribed = false;
   let ordersettled = false;
+  let quoteavailablebalance;
+  let quoteriskablebalance;
   ws.on('message', async function incoming(data) {
     let jsondata = JSON.parse(data);
 
@@ -269,8 +271,8 @@ async function sendmessage(message, phonenumber) {
         let accountinformation;
         try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        const quoteavailablebalance = quoteaccountinformation[0].available;
-        const quoteriskablebalance = quoteavailablebalance*riskratio;
+        quoteavailablebalance = quoteaccountinformation[0].available;
+        quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
       }
 

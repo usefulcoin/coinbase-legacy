@@ -334,38 +334,6 @@ async function sendmessage(message, phonenumber) {
           } else { /* indicated that quantity is out of bounds */
             console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
           } /* made bid. */
-
-        if ( jsondata.changes[0][0] === 'sell') { /* this is not the first non-subscribe message... */
-          if ( bidprice !== orderprice ) { /* orderprice should be defined. check for a change between the new price and the previous order price. */
-            try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
-            if ( !orderinformation ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [note: order not found]'); }
-            } else { 
-              // update ordersettled...
-              ordersettled = orderinformation.settled;
-              // updated ordersettled.
-              if ( ordersettled === false ) {
-                // delete stale bid...
-                try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
-                console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
-                // deleted stale bid.
-  
-                if ( orderinformation === orderid ) { /* order cancellation successful. make new bid... */
-                  bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
-                  if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
-                    try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-                    orderid = orderinformation.id;
-                    orderprice = orderinformation.price;
-                    orderfilled = orderinformation.filled_size;
-                    orderquantity = orderinformation.size;
-                    ordersettled = orderinformation.settled;
-                    console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [updated bid for ' + bidquantity + ']'); 
-                  } else {
-                    console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-                  } /* made bid. */
-                } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: unable to cancel previous bid.]'); }
-              } 
-            }
-          }
         }     
       }
     }

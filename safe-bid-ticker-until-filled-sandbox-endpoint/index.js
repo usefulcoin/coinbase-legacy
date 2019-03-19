@@ -295,6 +295,7 @@ async function sendmessage(message, phonenumber) {
     // once subscribed, act on each level2 update...
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
+      console.log(orderstatus);
       if ( orderstatus === 'settled' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }

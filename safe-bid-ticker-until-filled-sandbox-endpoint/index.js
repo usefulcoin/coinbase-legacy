@@ -241,7 +241,7 @@ async function sendmessage(message, phonenumber) {
       } 
       subscribed = true;
     } 
-    if ( subscribed && jsondata.type === 'snapshot' ) {
+    if ( subscribed && jsondata.type === 'l2update' ) {
       if ( count === 0 ) { 
         // retrieve product information...
         let productidfilter = { id: [productid] };
@@ -264,7 +264,7 @@ async function sendmessage(message, phonenumber) {
       }
 
       // update the console with messages subsequent to subscription...
-      console.log(channel + '[' + jsondata.product_id + '] (' + count + ') : ' + jsondata.bids); 
+      console.log(channel + '[' + jsondata.product_id + '] (' + count + ') : ' + jsondata.changes); 
       // updated console.
 
       count = count + 1; /* increment the counter */

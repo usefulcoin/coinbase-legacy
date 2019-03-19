@@ -296,7 +296,7 @@ async function sendmessage(message, phonenumber) {
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
       console.log(orderfilled);
-      if ( orderfilled === 0 || orderstatus === 'rejected' ) {
+      if ( orderfilled === 'filled' || orderstatus === 'rejected' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
@@ -330,7 +330,7 @@ async function sendmessage(message, phonenumber) {
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;
           orderprice = orderinformation.price;
-          orderfilled = orderinformation.filled_size;
+          orderfilled = orderinformation.done_reason;
           orderquantity = orderinformation.size;
           orderstatus = orderinformation.status;
           console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 

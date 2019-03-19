@@ -28,7 +28,7 @@ const fetch = require('node-fetch');
 
 // define consts...
 const channel = 'level2';
-const riskratio = 0.0001;
+const riskratio = 0.00001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
 const recipient = '+12062270634';
@@ -253,9 +253,10 @@ async function sendmessage(message, phonenumber) {
       // retrieve essential REST API information once subscribed. only once...
       } else {
         // retrieve product information...
-        const productidfilter = { id: [productid] };
-        const productinformation = await restapirequest('GET','/products');
-        const filteredproductinformation = filter(productinformation, productidfilter);
+        let productidfilter = { id: [productid] };
+        let productinformation;
+        try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
+        let filteredproductinformation = filter(productinformation, productidfilter);
         const baseminimum = filteredproductinformation[0].base_min_size;
         const basemaximum = filteredproductinformation[0].base_max_size;
         const basecurrency = filteredproductinformation[0].base_currency;
@@ -264,11 +265,12 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        const quotecurrencyfilter = { currency: [quotecurrency] };
-        const accountinformation = await restapirequest('GET','/accounts');
-        const quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let accountinformation;
+        try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
         const quoteavailablebalance = quoteaccountinformation[0].available;
-        const quoteriskableavailable = quoteavailablebalance*riskratio;
+        const quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
       }
 
@@ -303,7 +305,7 @@ async function sendmessage(message, phonenumber) {
           let bidprice = jsondata.changes[0][1];
 
           // define safe (riskable) bid quantity...
-          bidquantity = Math.round( (quoteriskableavailable/bidprice - orderfilled) / baseminimum ) * baseminimum;
+          bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
           // defined safe (riskable) bid quantity...
       
           if ( orderinformation === undefined ) {

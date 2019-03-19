@@ -237,8 +237,10 @@ async function sendmessage(message, phonenumber) {
 
   // declare websocket variables...
   let orderid;
+  let bidprice;
   let orderprice;
   let orderfilled;
+  let bidquantity;
   let orderquantity;
   let subscribed = false;
   let ordersettled = false;
@@ -300,7 +302,7 @@ async function sendmessage(message, phonenumber) {
 
         // make ask...
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
-        askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+        let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
@@ -313,44 +315,41 @@ async function sendmessage(message, phonenumber) {
                               // made ask.
 
       } else {
+        if ( jsondata.changes[0][0] === 'buy' ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
         if ( jsondata.changes[0][0] === 'sell' ) {
-          let bidprice = jsondata.changes[0][1] - Number(quoteincrement);
+          bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
+          bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        }
+        if ( jsondata.changes[0][0] === 'sell' && orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
+          orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
+          
+          if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
+            try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+            orderid = orderinformation.id;
+            orderprice = orderinformation.price;
+            orderfilled = orderinformation.filled_size;
+            orderquantity = orderinformation.size;
+            ordersettled = orderinformation.settled;
+            console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
+          } else { /* indicated that quantity is out of bounds */
+            console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+          } /* made bid. */
 
-          // define safe (riskable) bid quantity...
-          let bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum;
-          // defined safe (riskable) bid quantity...
-      
-          if ( orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
-            orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
-            
-            if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
-              try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-              orderid = orderinformation.id;
-              orderprice = orderinformation.price;
-              orderfilled = orderinformation.filled_size;
-              orderquantity = orderinformation.size;
-              ordersettled = orderinformation.settled;
-              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
-            } else { /* indicated that quantity is out of bounds */
-              console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-            } /* made bid. */
-
-          } else { /* this is not the first non-subscribe message. so there should be an orderid. if not, just print the message... */
-            if ( !orderid ) { 
-                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-            } else if ( bidprice !== orderprice ) { /* orderid was not falsey, so orderprice should be defined. check for a change between the new price and the previous order price. */
+        if ( jsondata.changes[0][0] === 'sell') { /* this is not the first non-subscribe message... */
+          if ( bidprice !== orderprice ) { /* orderprice should be defined. check for a change between the new price and the previous order price. */
+            try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
+            if ( !orderinformation ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [note: order not found]'); }
+            } else { 
               // update ordersettled...
-              try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
               ordersettled = orderinformation.settled;
               // updated ordersettled.
-
-              if ( orderinformation.id ) {
+              if ( ordersettled === false ) {
                 // delete stale bid...
                 try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
                 console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
                 // deleted stale bid.
   
-                if ( orderinformation === orderid ) { /* make new bid... */
+                if ( orderinformation === orderid ) { /* order cancellation successful. make new bid... */
                   bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
                   if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
                     try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
@@ -364,9 +363,8 @@ async function sendmessage(message, phonenumber) {
                     console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
                   } /* made bid. */
                 } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: unable to cancel previous bid.]'); }
-              }
-
-            } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
+              } 
+            }
           }
         }     
       }

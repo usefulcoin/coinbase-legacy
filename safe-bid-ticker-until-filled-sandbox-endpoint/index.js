@@ -334,6 +334,7 @@ async function sendmessage(message, phonenumber) {
           } else { /* indicated that quantity is out of bounds */
             console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
           } /* made bid. */
+          ordersettled = true;
         }     
       }
     }

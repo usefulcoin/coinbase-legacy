@@ -264,7 +264,7 @@ async function sendmessage(message, phonenumber) {
       }
 
       // update the console with messages subsequent to subscription...
-      console.log(channel + '(' + count + ') :[' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][1]); 
+      console.log(channel + ' channel (' + count + ') : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
       // updated console.
 
       count = count + 1; /* increment the counter */

@@ -295,14 +295,14 @@ async function sendmessage(message, phonenumber) {
     // once subscribed, act on each level2 update...
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
-      console.log(orderstatus);
-      if ( orderstatus === 'settled' || orderstatus === 'rejected' ) {
+      console.log(orderfilled);
+      if ( orderfilled === 0 || orderstatus === 'rejected' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
 
       } 
-      if ( orderstatus === 'settled' ) {
+      if ( orderfilled === 0 ) {
         // make ask...
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;

@@ -236,10 +236,10 @@ async function sendmessage(message, phonenumber) {
   // declared rest api variables.
 
   // declare websocket variables...
+  let orderid;
   let orderprice;
+  let orderfilled;
   let orderquantity;
-  let orderfilled = 0;
-  let orderinformation;
   let subscribed = false;
   let ordersettled = false;
   // declared websocket variables.
@@ -302,75 +302,69 @@ async function sendmessage(message, phonenumber) {
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
-        let askorderinformation = await postorder(askprice,askquantity,'sell',true,productid);
+        let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
         console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + ']'); 
         // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
-                              + ' ask: ' + Math.round(askorderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
-                              + ' @ ' + Math.round(askorderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
+                              + ' ask: ' + Math.round(orderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                              + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
                               // made ask.
 
       } else {
         if ( jsondata.changes[0][0] === 'sell' ) {
-          // update the console with messages subsequent to subscription...
-          console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-          // updated console.
-        } else {
-          let bidprice = jsondata.changes[0][1];
+          let bidprice = jsondata.changes[0][1] - Number(quoteincrement);
 
           // define safe (riskable) bid quantity...
-          bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
+          let bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum;
           // defined safe (riskable) bid quantity...
       
-          if ( orderinformation === undefined ) {
-            // make bid...
-            if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+          if ( orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
+            orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
+            
+            if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
               try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-
-              // retrieve order information...
-              orderquantity = bidquantity;
+              orderid = orderinformation.id;
               orderprice = orderinformation.price;
-              ordersettled = orderinformation.settled;
               orderfilled = orderinformation.filled_size;
-              // retrieved order information.
-
+              orderquantity = orderinformation.size;
+              ordersettled = orderinformation.settled;
               console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + ']'); 
-            } else {
+            } else { /* indicated that quantity is out of bounds */
               console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-            }
-            // made bid.
+            } /* made bid. */
 
-          } else {
-            if ( bidprice !== orderprice ) {
+          } else { /* this is not the first non-subscribe message. so there should be an orderid. if not, just print the message... */
+            if ( !orderid ) { 
+                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
+            } else if ( bidprice !== orderprice ) { /* orderid was not falsey, so orderprice should be defined. check for a change between the new price and the previous order price. */
               // delete stale bid...
-              let cancellationid; try { cancellationid = await restapirequest('DELETE','/orders/' + orderinformation.id); } catch (e) { console.error(e); }
-              console.log('order cancellation submitted and the response from Coinbase is : ' + cancellationid);
+              try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
+              console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
               // deleted stale bid.
 
-              if ( cancellationid === orderinformation.id ) {
-                // make new bid...
-                if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { 
+              if ( orderinformation === orderid ) { /* make new bid... */
+                bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
+                if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
                   try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-    
-                  // retrieve order information...
+                  orderid = orderinformation.id;
                   orderprice = orderinformation.price;
-                  ordersettled = orderinformation.settled;
                   orderfilled = orderinformation.filled_size;
-                  // retrieved order information.
-    
+                  orderquantity = orderinformation.size;
+                  ordersettled = orderinformation.settled;
                   console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [updated bid for ' + bidquantity + ']'); 
                 } else {
                   console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-                }
-                // made bid.
-              } else {
-                // update the console...
-                console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-                // updated console.
-              }
-            }
+                } /* made bid. */
+              } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: unable to cancel previous bid.]'); }
+
+              // update ordersettled...
+              try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
+              ordersettled = orderinformation.settled;
+              // updated ordersettled.
+
+            } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
           }
         }     
       }

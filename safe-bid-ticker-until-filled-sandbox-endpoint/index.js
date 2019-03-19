@@ -339,30 +339,32 @@ async function sendmessage(message, phonenumber) {
             if ( !orderid ) { 
                 console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
             } else if ( bidprice !== orderprice ) { /* orderid was not falsey, so orderprice should be defined. check for a change between the new price and the previous order price. */
-              // delete stale bid...
-              try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
-              console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
-              // deleted stale bid.
-
-              if ( orderinformation === orderid ) { /* make new bid... */
-                bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
-                if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
-                  try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-                  orderid = orderinformation.id;
-                  orderprice = orderinformation.price;
-                  orderfilled = orderinformation.filled_size;
-                  orderquantity = orderinformation.size;
-                  ordersettled = orderinformation.settled;
-                  console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [updated bid for ' + bidquantity + ']'); 
-                } else {
-                  console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-                } /* made bid. */
-              } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: unable to cancel previous bid.]'); }
-
               // update ordersettled...
               try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
               ordersettled = orderinformation.settled;
               // updated ordersettled.
+
+              if ( orderinformation.id ) {
+                // delete stale bid...
+                try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
+                console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
+                // deleted stale bid.
+  
+                if ( orderinformation === orderid ) { /* make new bid... */
+                  bidquantity = Math.round( (quoteriskablebalance/bidprice - orderfilled) / baseminimum ) * baseminimum;
+                  if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
+                    try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+                    orderid = orderinformation.id;
+                    orderprice = orderinformation.price;
+                    orderfilled = orderinformation.filled_size;
+                    orderquantity = orderinformation.size;
+                    ordersettled = orderinformation.settled;
+                    console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [updated bid for ' + bidquantity + ']'); 
+                  } else {
+                    console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
+                  } /* made bid. */
+                } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: unable to cancel previous bid.]'); }
+              }
 
             } else { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
           }

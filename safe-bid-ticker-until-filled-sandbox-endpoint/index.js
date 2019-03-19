@@ -346,7 +346,7 @@ async function sendmessage(message, phonenumber) {
             if ( bidprice !== orderprice ) {
               // delete stale bid...
               cancellationinformation = await restapirequest('DELETE','/orders/' + orderinformation.id);
-              console.log('order cancellation submitted and the response from Coinbase is : ' + JSON.parse(cancellationinformation));
+              console.log('order cancellation submitted and the response from Coinbase is : ' + cancellationinformation);
               // deleted stale bid.
 
               // make new bid...

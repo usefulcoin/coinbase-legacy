@@ -207,7 +207,7 @@ async function sendmessage(message, phonenumber) {
 
 
 
-(async function main() {
+async function sockethandlers() {
 
   // create signature required to subscribe to ticker...
   let signature = signrequest('GET','/users/self/verify');
@@ -260,4 +260,11 @@ async function sendmessage(message, phonenumber) {
       }
     }
   });
+}
+
+
+
+
+(async function main() {
+  sockethandlers();
 }());

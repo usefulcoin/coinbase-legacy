@@ -335,7 +335,7 @@ async function sendmessage(message, phonenumber) {
       let formattedsize = Number(sizechange).toFixed(Math.abs(Math.log10(baseminimum)));
       let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
       if ( priceshift ) { // update console.
-	update = false;
+        priceshift = false;
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
                             + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
       } else { 

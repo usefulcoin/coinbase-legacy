@@ -295,14 +295,14 @@ async function sendmessage(message, phonenumber) {
     // once subscribed, act on each level2 update...
     if ( subscribed && jsondata.type === 'l2update' ) {
       // discontinue subscription if bid filled...
-      console.log(orderfilled);
-      if ( orderfilled === 'filled' || orderstatus === 'rejected' ) {
+      console.log(orderstatus);
+      if ( orderstatus === 'filled' || orderstatus === 'rejected' ) {
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
         // discontinued subscription.
 
       } 
-      if ( orderfilled === 'filled' ) {
+      if ( orderstatus === 'filled' ) {
         // make ask...
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
@@ -330,7 +330,7 @@ async function sendmessage(message, phonenumber) {
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;
           orderprice = orderinformation.price;
-          orderfilled = orderinformation.done_reason;
+          orderfilled = orderinformation.filled_size;
           orderquantity = orderinformation.size;
           orderstatus = orderinformation.status;
           console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
@@ -338,10 +338,18 @@ async function sendmessage(message, phonenumber) {
           console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
         } /* made bid. */
       } else {
+        if ( bidprice !== orderprice ) { /* orderprice should be defined. check for a change between the new price and the previous order price. */
         // delete stale bid...
         try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
         console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
         // deleted stale bid.
+          try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
+          orderid = orderinformation.id;
+          orderprice = orderinformation.price;
+          orderfilled = orderinformation.filled_size;
+          orderquantity = orderinformation.size;
+          orderstatus = orderinformation.status;
+        }
       }     
     }
   });

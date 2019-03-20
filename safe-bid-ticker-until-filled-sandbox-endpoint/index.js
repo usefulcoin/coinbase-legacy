@@ -271,10 +271,11 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
-        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(JSON.parse(e).message); }
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        quoteavailablebalance = quoteaccountinformation[0].available;
+        // let quotecurrencyfilter = { currency: [quotecurrency] };
+        // let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        // let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        // quoteavailablebalance = quoteaccountinformation[0].available;
+        quoteavailablebalance = 179.2266348066930000;
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
 

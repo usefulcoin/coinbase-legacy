@@ -298,6 +298,8 @@ async function sendmessage(message, phonenumber) {
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
+          console.log('bidprice: ' + bidprice);
+          console.log('orderprice: ' + orderprice);
           if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.
             try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
             try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }

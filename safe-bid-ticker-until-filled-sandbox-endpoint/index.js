@@ -271,11 +271,10 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        // let quotecurrencyfilter = { currency: [quotecurrency] };
-        // let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        // let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        // quoteavailablebalance = quoteaccountinformation[0].available;
-        quoteavailablebalance = 179.2266348066930000;
+        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
 
@@ -289,7 +288,7 @@ async function sendmessage(message, phonenumber) {
       console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
 
       if ( jsondata.changes[0][0] === 'sell' ) { // set bid price and bid quantity
-        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
+        bidprice = Math.round( ( jsondata.changes[0][1] - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */

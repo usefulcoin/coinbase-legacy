@@ -323,7 +323,7 @@ async function sendmessage(message, phonenumber) {
 
       if ( orderstatus === 'filled' ) { // make ask.
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
-        let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+        let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...

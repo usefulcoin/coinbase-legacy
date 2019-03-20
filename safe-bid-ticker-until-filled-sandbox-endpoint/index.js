@@ -246,27 +246,23 @@ async function sendmessage(message, phonenumber) {
   let subscribed = false;
   // declared websocket variables.
 
-  ws.on('message', async function incoming(data) {
+  ws.on('message', async function incoming(data) { // start handling websocket messages.
     let jsondata = JSON.parse(data);
 
-    // report any errors sent by the websocket server...
-    if ( jsondata.type === 'error' ) {
-      console.error(jsondata.message);
-      // reported errors.
-    } 
+   
+    if ( jsondata.type === 'error' ) { // report any errors sent by the websocket server...
+      console.error(jsondata.message); } // reported errors.
 
-    // report the confirmation of subscription...
-    if ( jsondata.type === 'subscriptions' ) {
-      console.log(data);
-      // reported confirmation.
+    // start handling subscribe and unsubscribe messages. 
+    if ( jsondata.type === 'subscriptions' ) { // report the confirmation of subscription...
+      console.log(data); // reported confirmation.
 
-      // close connection if flag set...
-      if ( subscribed ) {
-        try { ws.close(); } catch (e) { console.error(e); }
-        // closed connection.
+      
+      if ( subscribed ) { // close connection if flag set...
+        try { ws.close(); } catch (e) { console.error(e); } // closed connection.
 
-      // retrieve essential REST API information once subscribed. only once...
-      } else {
+      
+      } else { // start retrieving essential REST API information once subscribed. only once...
         // retrieve product information...
         let productidfilter = { id: [productid] };
         let productinformation;
@@ -289,21 +285,20 @@ async function sendmessage(message, phonenumber) {
         // retrieved account balance information.
 
         subscribed = true; /* subscription request successful. set flag */
-      }
-    } 
+      } // end retrieval of essential REST API information once subscribed.
+    } // end handling subscribe and unsubscribe messages. 
 
-    // once subscribed, act on each level2 update...
-    if ( subscribed && jsondata.type === 'l2update' ) {
-      // discontinue subscription if bid filled...
+    // start subscribed messages.
+    if ( subscribed && jsondata.type === 'l2update' ) { /* once subscribed, act on each level2 update... */
+
       console.log(orderstatus);
-      if ( orderstatus === 'filled' || orderstatus === 'rejected' ) {
+
+      if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-        // discontinued subscription.
+      } // discontinued subscription.
 
-      } 
-      if ( orderstatus === 'filled' ) {
-        // make ask...
+      if ( orderstatus === 'filled' ) { // make ask.
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Number(quoteincrement) + Math.round( orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
@@ -315,9 +310,8 @@ async function sendmessage(message, phonenumber) {
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
                               + ' ask: ' + Math.round(orderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
-                              // made ask.
+      } // made ask.
 
-      } 
       if ( jsondata.changes[0][0] === 'buy' ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
       if ( jsondata.changes[0][0] === 'sell' ) {
         bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
@@ -339,6 +333,6 @@ async function sendmessage(message, phonenumber) {
       orderquantity = orderinformation.size;
       orderstatus = orderinformation.status;
       console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
-    }
-  });
+    } // end subscribed messages.
+  }); // end handling websocket messages.
 }());

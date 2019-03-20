@@ -293,6 +293,8 @@ async function sendmessage(message, phonenumber) {
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+
+        let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
         } // handled initial 'sell' message.

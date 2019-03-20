@@ -295,7 +295,9 @@ async function sendmessage(message, phonenumber) {
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
+          console.log(bidprice,bidquantity,'buy',true,productid);
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+          console.log(orderinformation);
           orderid = orderinformation.id;
           orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
           orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;

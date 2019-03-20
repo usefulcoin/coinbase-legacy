@@ -276,7 +276,7 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let quotecurrencyfilter = { currency: ["USD"] };
         let accountinformation;
         try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);

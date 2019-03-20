@@ -288,10 +288,12 @@ async function sendmessage(message, phonenumber) {
       console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
 
       if ( jsondata.changes[0][0] === 'sell' ) { // set bid price and bid quantity
-        bidprice = Math.round( ( jsondata.changes[0][1] - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
-        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
+        bidquantity = quoteriskablebalance/bidprice; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+        bidquantity = Math.round( bidquantity / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        bidprice = Math.round( bidprice / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.

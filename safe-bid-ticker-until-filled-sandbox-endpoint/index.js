@@ -308,9 +308,10 @@ async function sendmessage(message, phonenumber) {
         orderid = orderinformation.id;
         orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
         orderfilled = orderinformation.filled_size;
-        orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+        orderquantity = orderinformation.size;
         orderstatus = orderinformation.status;
-        console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
+        console.log('bid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency
+                        + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency);
       } // set bid price and bid quantity
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...

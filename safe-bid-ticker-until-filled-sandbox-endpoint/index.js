@@ -243,7 +243,8 @@ async function sendmessage(message, phonenumber) {
   let orderfilled;
   let bidquantity;
   let orderquantity;
-  let update = false;
+  let orderedatprice;
+  let priceshift = false;
   let subscribed = false;
   // declared websocket variables.
 
@@ -285,16 +286,12 @@ async function sendmessage(message, phonenumber) {
 
     // start subscribed messages.
     if ( subscribed && jsondata.type === 'l2update' ) { /* once subscribed, act on each level2 update... */
+      let sidechange = jsondata.changes[0][0];
+      let pricechange = jsondata.changes[0][1];
+      let sizechange = jsondata.changes[0][2];
 
-      if ( update ) { 
-        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [' + orderprice + '@' + orderquantity + ' ' + orderstatus + ']'); 
-	update = false;
-      } else { 
-        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
-      }
-
-      if ( jsondata.changes[0][0] === 'sell' ) { // set bid price and bid quantity
-        bidprice = Math.round( ( jsondata.changes[0][1] - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
+      if ( sidechange === 'sell' ) { // set bid price and bid quantity
+        bidprice = Math.round( ( pricechange - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
@@ -303,6 +300,7 @@ async function sendmessage(message, phonenumber) {
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
+          orderedatprice = pricechange;
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;
           orderfilled = orderinformation.filled_size;
@@ -311,15 +309,15 @@ async function sendmessage(message, phonenumber) {
           orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
           orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-          console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
           // console.log('bidprice: ' + bidprice);
           // console.log('orderprice: ' + orderprice);
-          if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.
+          if ( pricechange !== orderedatprice ) { // cancel previous order and submit updated bid.
+            priceshift = true;
+            orderedatprice = pricechange;
             try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
             orderstatus = orderinformation.status;
-            update = true;
             // try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
             // try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
             // orderid = orderinformation.id;
@@ -334,6 +332,14 @@ async function sendmessage(message, phonenumber) {
         } // handled regular 'sell' messages.
       } // set bid price and bid quantity
 
+      if ( priceshift ) { 
+	update = false;
+        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange 
+                            + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
+      } else { 
+        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange); 
+      }
+
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
@@ -345,7 +351,7 @@ async function sendmessage(message, phonenumber) {
         let askquantity = orderquantity;
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
-        console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + '@' + askprice + ']'); 
+        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange + ' [asked for ' + askquantity + '@' + askprice + ']'); 
         // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency

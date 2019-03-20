@@ -262,15 +262,12 @@ async function sendmessage(message, phonenumber) {
       
       } else { // start retrieving essential REST API information once subscribed. only once...
         // retrieve product information...
-        let productidfilter = { id: [productid] };
         let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
-        console.log(productinformation);
-        let filteredproductinformation = filter(productinformation, productidfilter);
-        baseminimum = filteredproductinformation[0].base_min_size;
-        basemaximum = filteredproductinformation[0].base_max_size;
-        basecurrency = filteredproductinformation[0].base_currency;
-        quotecurrency = filteredproductinformation[0].quote_currency;
-        quoteincrement = filteredproductinformation[0].quote_increment;
+        baseminimum = productinformation[0].base_min_size;
+        basemaximum = productinformation[0].base_max_size;
+        basecurrency = productinformation[0].base_currency;
+        quotecurrency = productinformation[0].quote_currency;
+        quoteincrement = productinformation[0].quote_increment;
         // retrieved product information.
       
         // retrieve available balance information...

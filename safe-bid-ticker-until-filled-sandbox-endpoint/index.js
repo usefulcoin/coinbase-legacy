@@ -296,6 +296,12 @@ async function sendmessage(message, phonenumber) {
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+          orderid = orderinformation.id;
+          orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+          orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+          orderfilled = orderinformation.filled_size;
+          orderstatus = orderinformation.status;
+          console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
           console.log('bidprice: ' + bidprice);
@@ -303,15 +309,14 @@ async function sendmessage(message, phonenumber) {
           if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.
             try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
             try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+            orderid = orderinformation.id;
+            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+            orderfilled = orderinformation.filled_size;
+            orderstatus = orderinformation.status;
+            console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
           } // cancelled previous order and submitted updated bid.
         } // handled regular 'sell' messages.
-        orderid = orderinformation.id;
-        orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
-        orderfilled = orderinformation.filled_size;
-        orderquantity = orderinformation.size;
-        orderstatus = orderinformation.status;
-        console.log('bid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency
-                        + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency);
       } // set bid price and bid quantity
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...

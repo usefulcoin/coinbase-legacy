@@ -288,20 +288,16 @@ async function sendmessage(message, phonenumber) {
       console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
 
       if ( jsondata.changes[0][0] === 'sell' ) { // set bid price and bid quantity
-        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
-        bidquantity = quoteriskablebalance/bidprice; /* defined safe (riskable) bid quantity */
-        console.log(bidquantity);
+        bidprice = Math.round( ( jsondata.changes[0][1] - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
+        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-        bidquantity = Math.round( bidquantity / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-        bidprice = Math.round( bidprice / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
-        console.log(baseminimum);
+        bidprice = bidprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        bidquantity = bidquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
-          console.log(bidprice,bidquantity,'buy',true,productid);
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-          console.log(orderinformation);
           orderid = orderinformation.id;
           orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
           orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;

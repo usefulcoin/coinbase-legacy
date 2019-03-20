@@ -295,9 +295,7 @@ async function sendmessage(message, phonenumber) {
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
-          console.log(orderid);
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-          console.log(orderinformation);
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
           if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.
@@ -313,8 +311,6 @@ async function sendmessage(message, phonenumber) {
         console.log('bid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency
                         + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency);
       } // set bid price and bid quantity
-
-      console.log(orderstatus);
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);

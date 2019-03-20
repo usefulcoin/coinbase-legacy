@@ -243,7 +243,7 @@ async function sendmessage(message, phonenumber) {
   let orderfilled;
   let bidquantity;
   let orderquantity;
-  let update = fales;
+  let update = false;
   let subscribed = false;
   // declared websocket variables.
 

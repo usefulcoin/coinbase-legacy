@@ -296,7 +296,9 @@ async function sendmessage(message, phonenumber) {
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
+          console.log(orderid);
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+          console.log(orderinformation);
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
           if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.

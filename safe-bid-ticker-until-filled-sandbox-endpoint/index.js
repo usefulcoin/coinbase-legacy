@@ -286,6 +286,31 @@ async function sendmessage(message, phonenumber) {
     // start subscribed messages.
     if ( subscribed && jsondata.type === 'l2update' ) { /* once subscribed, act on each level2 update... */
 
+      console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); 
+
+      if ( jsondata.changes[0][0] === 'sell' ) { // set bid price and bid quantity
+        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
+        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
+        if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+        if ( orderid === undefined ) { // handle initial 'sell' message.
+          try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+        } // handled initial 'sell' message.
+        else { // handle regular 'sell' messages.
+          if ( bidprice !== orderprice ) { // cancel previous order and submit updated bid.
+            try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
+            try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+          } // cancelled previous order and submitted updated bid.
+        } // handled regular 'sell' messages.
+        orderid = orderinformation.id;
+        orderprice = orderinformation.price;
+        orderfilled = orderinformation.filled_size;
+        orderquantity = orderinformation.size;
+        orderstatus = orderinformation.status;
+        console.log('bid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency
+                        + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency);
+      } // set bid price and bid quantity
+
       console.log(orderstatus);
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
@@ -306,28 +331,6 @@ async function sendmessage(message, phonenumber) {
                               + ' ask: ' + Math.round(orderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
       } // made ask.
-
-      if ( jsondata.changes[0][0] === 'buy' ) { console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1]); }
-      if ( jsondata.changes[0][0] === 'sell' ) {
-        bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
-        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-      }
-      if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
-      if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-      if ( orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
-        try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-      } else {
-        if ( bidprice !== orderprice ) {
-          try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
-          try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        }
-      }
-      orderid = orderinformation.id;
-      orderprice = orderinformation.price;
-      orderfilled = orderinformation.filled_size;
-      orderquantity = orderinformation.size;
-      orderstatus = orderinformation.status;
-      console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
     } // end subscribed messages.
   }); // end handling websocket messages.
 }());

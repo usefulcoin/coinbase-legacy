@@ -256,11 +256,9 @@ async function sendmessage(message, phonenumber) {
     // start handling subscribe and unsubscribe messages. 
     if ( jsondata.type === 'subscriptions' ) { // report the confirmation of subscription...
       console.log(data); // reported confirmation.
-
       
       if ( subscribed ) { // close connection if flag set...
         try { ws.close(); } catch (e) { console.error(e); } // closed connection.
-
       
       } else { // start retrieving essential REST API information once subscribed. only once...
         // retrieve product information...
@@ -276,7 +274,7 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        let quotecurrencyfilter = { currency: ["USD"] };
+        let quotecurrencyfilter = { currency: [quotecurrency] };
         let accountinformation;
         try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);

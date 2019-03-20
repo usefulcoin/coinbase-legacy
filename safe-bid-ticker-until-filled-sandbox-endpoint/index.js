@@ -332,7 +332,7 @@ async function sendmessage(message, phonenumber) {
         } // handled regular 'sell' messages.
       } // set bid price and bid quantity
 
-      let formattedsize = sizechange.toFixed(Math.abs(Math.log10(baseminimum));
+      let formattedsize = sizechange.toFixed(Math.abs(Math.log10(baseminimum)));
       let formattedprice = pricechange.toFixed(Math.abs(Math.log10(quoteincrement)));
       if ( priceshift ) { // update console.
 	update = false;

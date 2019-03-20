@@ -50,7 +50,7 @@ const passphrase = process.env.apipassphrase;
 // filter an array of objects...
 function filter(array, filters) {
   let itemstoinclude = Object.keys(filters);
-  return Array.from((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
+  return array.filter((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
 }
 // filtered array.
 
@@ -264,6 +264,7 @@ async function sendmessage(message, phonenumber) {
         // retrieve product information...
         let productidfilter = { id: [productid] };
         let productinformation; try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
+        console.log(productinformation);
         let filteredproductinformation = filter(productinformation, productidfilter);
         baseminimum = filteredproductinformation[0].base_min_size;
         basemaximum = filteredproductinformation[0].base_max_size;

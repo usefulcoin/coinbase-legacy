@@ -261,6 +261,24 @@ async function sendmessage(message, phonenumber) {
         try { ws.close(); } catch (e) { console.error(e); } // closed connection.
       
       } else { // start retrieving essential REST API information once subscribed. only once...
+        // retrieve product information...
+        let productidfilter = { id: [productid] };
+        let productinformation; try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
+        let filteredproductinformation = filter(productinformation, productidfilter);
+        baseminimum = filteredproductinformation[0].base_min_size;
+        basemaximum = filteredproductinformation[0].base_max_size;
+        basecurrency = filteredproductinformation[0].base_currency;
+        quotecurrency = filteredproductinformation[0].quote_currency;
+        quoteincrement = filteredproductinformation[0].quote_increment;
+        // retrieved product information.
+      
+        // retrieve available balance information...
+        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        quoteavailablebalance = quoteaccountinformation[0].available;
+        quoteriskablebalance = quoteavailablebalance*riskratio;
+        // retrieved account balance information.
 
         subscribed = true; /* subscription request successful. set flag */
       } // end retrieval of essential REST API information once subscribed.

@@ -337,19 +337,6 @@ async function sendmessage(message, phonenumber) {
         } else { /* indicated that quantity is out of bounds */
           console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
         } /* made bid. */
-      } else {
-        if ( bidprice !== orderprice ) { /* orderprice should be defined. check for a change between the new price and the previous order price. */
-        // delete stale bid...
-        try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
-        console.log('order cancellation submitted and the response from Coinbase is : ' + orderinformation);
-        // deleted stale bid.
-          try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
-          orderid = orderinformation.id;
-          orderprice = orderinformation.price;
-          orderfilled = orderinformation.filled_size;
-          orderquantity = orderinformation.size;
-          orderstatus = orderinformation.status;
-        }
       }     
     }
   });

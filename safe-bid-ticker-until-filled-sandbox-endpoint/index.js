@@ -294,6 +294,7 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Math.round( bidquantity / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         bidprice = Math.round( bidprice / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
+        console.log(bidquantity);
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.

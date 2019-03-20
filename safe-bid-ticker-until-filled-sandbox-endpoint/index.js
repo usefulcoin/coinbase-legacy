@@ -299,10 +299,12 @@ async function sendmessage(message, phonenumber) {
         if ( orderid === undefined ) { // handle initial 'sell' message.
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;
-          orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
-          orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
           orderfilled = orderinformation.filled_size;
           orderstatus = orderinformation.status;
+          orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+          orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+          orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
@@ -312,10 +314,12 @@ async function sendmessage(message, phonenumber) {
             try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
             try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
             orderid = orderinformation.id;
-            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
-            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
             orderfilled = orderinformation.filled_size;
             orderstatus = orderinformation.status;
+            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+            orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+            orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
             console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
           } // cancelled previous order and submitted updated bid.
         } // handled regular 'sell' messages.

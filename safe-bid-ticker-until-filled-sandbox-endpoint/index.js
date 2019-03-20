@@ -263,8 +263,8 @@ async function sendmessage(message, phonenumber) {
       } else { // start retrieving essential REST API information once subscribed. only once...
         // retrieve product information...
         let productidfilter = { id: [productid] };
-        let productinformation; try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
-        console.log(productidfilter);
+        let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
+        console.log(productinformation);
         let filteredproductinformation = filter(productinformation, productidfilter);
         baseminimum = filteredproductinformation[0].base_min_size;
         basemaximum = filteredproductinformation[0].base_max_size;

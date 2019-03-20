@@ -332,13 +332,15 @@ async function sendmessage(message, phonenumber) {
         } // handled regular 'sell' messages.
       } // set bid price and bid quantity
 
-      if ( priceshift ) { 
+      let formattedsize = sizechange.toFixed(Math.abs(Math.log10(baseminimum));
+      let formattedprice = pricechange.toFixed(Math.abs(Math.log10(quoteincrement)));
+      if ( priceshift ) { // update console.
 	update = false;
-        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + (sizechange).toFixed(Math.abs(Math.log10(baseminimum))) + ' @ ' + pricechange.toFixed(Math.abs(Math.log10(quoteincrement))) 
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
                             + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
       } else { 
-        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + (sizechange).toFixed(Math.abs(Math.log10(baseminimum))) + ' @ ' + pricechange.toFixed(Math.abs(Math.log10(quoteincrement))));
-      }
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice);
+      } // updated console.
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);

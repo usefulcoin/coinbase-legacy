@@ -277,7 +277,7 @@ async function sendmessage(message, phonenumber) {
         let quotecurrencyfilter = { currency: [quotecurrency] };
         let accountinformation;
         try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        let quoteaccountinformation = await filter(accountinformation, quotecurrencyfilter);
         quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.

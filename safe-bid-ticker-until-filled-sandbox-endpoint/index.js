@@ -308,7 +308,7 @@ async function sendmessage(message, phonenumber) {
         orderfilled = orderinformation.filled_size;
         orderquantity = orderinformation.size;
         orderstatus = orderinformation.status;
-        console.log('bid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency
+        console.log('bid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency
                         + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency);
       } // set bid price and bid quantity
 
@@ -325,9 +325,9 @@ async function sendmessage(message, phonenumber) {
         // update the console with messages subsequent to subscription...
         console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [asked for ' + askquantity + '@' + askprice + ']'); 
         // updated console.
-        sendmessage(productid + '\nbid: ' + Math.round(orderquantity/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+        sendmessage(productid + '\nbid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
-                              + ' ask: ' + Math.round(orderinformation.size/quoteincrement)*quoteincrement + ' ' + quotecurrency 
+                              + ' ask: ' + Math.round(orderinformation.size/baseminimum)*baseminimum + ' ' + basecurrency
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
       } // made ask.
     } // end subscribed messages.

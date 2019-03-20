@@ -264,7 +264,7 @@ async function sendmessage(message, phonenumber) {
         // retrieve product information...
         let productidfilter = { id: [productid] };
         let productinformation; try { productinformation = await restapirequest('GET','/products'); } catch (e) { console.error(e); }
-        console.log(productinformation);
+        console.log(productidfilter);
         let filteredproductinformation = filter(productinformation, productidfilter);
         baseminimum = filteredproductinformation[0].base_min_size;
         basemaximum = filteredproductinformation[0].base_max_size;

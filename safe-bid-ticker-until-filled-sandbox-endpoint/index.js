@@ -244,6 +244,7 @@ async function sendmessage(message, phonenumber) {
   let bidquantity;
   let orderquantity;
   let orderedatprice;
+  let initialbid = false;
   let priceshift = false;
   let subscribed = false;
   // declared websocket variables.
@@ -309,6 +310,7 @@ async function sendmessage(message, phonenumber) {
           orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
           orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          initialbid = true;
         } // handled initial 'sell' message.
         else { // handle regular 'sell' messages.
           // console.log('bidprice: ' + bidprice);
@@ -336,10 +338,11 @@ async function sendmessage(message, phonenumber) {
       let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
       if ( priceshift ) { // update console.
         priceshift = false;
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice + ' [price shift]');
+      } else if ( initialbid ) { 
+        initialbid = false;
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
                             + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
-      } else { 
-        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice);
       } // updated console.
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...

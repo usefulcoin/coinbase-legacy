@@ -334,10 +334,10 @@ async function sendmessage(message, phonenumber) {
 
       if ( priceshift ) { 
 	update = false;
-        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange 
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + sizechange.toFixed(Math.abs(Math.log10(baseminimum))) + ' @ ' + pricechange.toFixed(Math.abs(Math.log10(quoteincrement))) 
                             + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
       } else { 
-        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange); 
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + sizechange.toFixed(Math.abs(Math.log10(baseminimum))) + ' @ ' + pricechange.toFixed(Math.abs(Math.log10(quoteincrement))));
       }
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...

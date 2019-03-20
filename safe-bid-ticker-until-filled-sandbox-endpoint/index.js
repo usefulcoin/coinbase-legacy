@@ -306,7 +306,7 @@ async function sendmessage(message, phonenumber) {
           } // cancelled previous order and submitted updated bid.
         } // handled regular 'sell' messages.
         orderid = orderinformation.id;
-        orderprice = orderinformation.price;
+        orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
         orderfilled = orderinformation.filled_size;
         orderquantity = orderinformation.size;
         orderstatus = orderinformation.status;

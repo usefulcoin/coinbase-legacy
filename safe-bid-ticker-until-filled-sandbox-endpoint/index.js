@@ -326,16 +326,19 @@ async function sendmessage(message, phonenumber) {
       if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
       if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
       if ( orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
-          /* make bid... */
+        try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+      } else {
+        if ( bidprice !== orderprice ) {
+          try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-          orderid = orderinformation.id;
-          orderprice = orderinformation.price;
-          orderfilled = orderinformation.filled_size;
-          orderquantity = orderinformation.size;
-          orderstatus = orderinformation.status;
-          console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
-          /* made bid. */
-      }     
+        }
+      }
+      orderid = orderinformation.id;
+      orderprice = orderinformation.price;
+      orderfilled = orderinformation.filled_size;
+      orderquantity = orderinformation.size;
+      orderstatus = orderinformation.status;
+      console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
     }
   });
 }());

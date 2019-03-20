@@ -271,11 +271,8 @@ async function sendmessage(message, phonenumber) {
         // retrieved product information.
       
         // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
-        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        quoteavailablebalance = quoteaccountinformation[0].available;
-        quoteriskablebalance = quoteavailablebalance*riskratio;
+        quoteavailablebalance = 79.2266348066930000;
+        quoteriskablebalance = 0.792266348066930;
         // retrieved account balance information.
 
         subscribed = true; /* subscription request successful. set flag */

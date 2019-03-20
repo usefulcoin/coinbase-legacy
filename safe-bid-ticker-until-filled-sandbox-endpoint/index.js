@@ -323,10 +323,10 @@ async function sendmessage(message, phonenumber) {
         bidprice = jsondata.changes[0][1] - Number(quoteincrement); /* always add the quote increment to ensure that the bid is never rejected */
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
       }
-      if ( jsondata.changes[0][0] === 'sell' && orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
-        orderid = '' /* make sure no other messages are converted to bids by defining orderid falsey... */
-        
-        if ( baseminimum <= bidquantity && bidquantity <= basemaximum ) { /* make bid if quantity is within Coinbase bounds... */
+      if ( bidquantity < baseminimum ) { bidquantity = baseminimum ) { /* make sure bid quantity is within Coinbase bounds... */
+      if ( bidquantity > basemaximum ) { bidquantity = basemaximum ) { /* make sure bid quantity is within Coinbase bounds... */
+      if ( orderid === undefined ) { /* this is the first non-subscribe message. so we must bid with the information provided... */
+          /* make bid... */
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;
           orderprice = orderinformation.price;
@@ -334,9 +334,7 @@ async function sendmessage(message, phonenumber) {
           orderquantity = orderinformation.size;
           orderstatus = orderinformation.status;
           console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [initial bid for ' + bidquantity + '@' + bidprice + ']'); 
-        } else { /* indicated that quantity is out of bounds */
-          console.log(channel + ' channel : [' + jsondata.changes[0][0] + ']  ' + jsondata.changes[0][2] + ' @ ' + jsondata.changes[0][1] + ' [error: bid quantity out of bounds.]'); 
-        } /* made bid. */
+          /* made bid. */
       }     
     }
   });

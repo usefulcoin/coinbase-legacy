@@ -290,6 +290,7 @@ async function sendmessage(message, phonenumber) {
         console.log(channel + ' channel : [snap]  there are no bids in the orderbook snapshot. '); // update the console with messages subsequent to subscription...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+        try { ws.close(); } catch (e) { console.error(e); } // closed connection.
       } else {
         let snapshotprice = jsondata.bids[0][0];
         let snapshotsize = jsondata.bids[0][1];
@@ -314,12 +315,14 @@ async function sendmessage(message, phonenumber) {
                                 + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
             let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
             try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
+            try { ws.close(); } catch (e) { console.error(e); } // closed connection.
           } // discontinued subscription.
         } else { // discontinue subscription.
           console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
                               + ' [unusual order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
           let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
           try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+          try { ws.close(); } catch (e) { console.error(e); } // closed connection.
         } // discontinued subscription.
       }
     } // handled level2 snapshot message.

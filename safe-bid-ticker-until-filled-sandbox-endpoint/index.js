@@ -347,12 +347,13 @@ async function sendmessage(message, phonenumber) {
       } // updated console.
 
       if ( orderstatus === 'done' ) { // make ask.
+        orderstatus = 'submitting'; /* set status so that duplicates are not created. */
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
-        let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
+        orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
                             + ' [sell order submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency + ']');

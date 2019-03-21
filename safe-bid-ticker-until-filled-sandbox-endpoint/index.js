@@ -365,7 +365,7 @@ async function sendmessage(message, phonenumber) {
 
       if ( orderstatus === 'done' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
         if ( orderstatus === 'rejected' ) { console.log('order for ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ' rejected.'); }
-        if ( orderstatus === 'done' ) { console.log('order for ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ' filled.'; }
+        if ( orderstatus === 'done' ) { console.log('order for ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ' filled.'); }
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
       } // discontinued subscription.

@@ -285,9 +285,7 @@ async function sendmessage(message, phonenumber) {
       } // end retrieval of essential REST API information once subscribed.
     } // end handling subscribe and unsubscribe messages. 
 
-    if ( unsubscribed && jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
-      console.log( jsondata.bids );
-      console.log( Object.keys(jsondata.bids).length );
+    if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
       if ( Object.keys(jsondata.bids).length === 0 ) {
         console.log(channel + ' channel : [snap]  there are no bids in the orderbook snapshot. '); // update the console with messages subsequent to subscription...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);

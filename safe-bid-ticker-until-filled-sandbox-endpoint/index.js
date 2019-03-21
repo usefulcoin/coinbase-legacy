@@ -303,6 +303,7 @@ async function sendmessage(message, phonenumber) {
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
+          orderid = 'defined';
           orderedatprice = pricechange;
           try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
           orderid = orderinformation.id;

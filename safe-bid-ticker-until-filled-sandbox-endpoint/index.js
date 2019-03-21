@@ -350,10 +350,12 @@ async function sendmessage(message, phonenumber) {
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
         let askquantity = orderquantity;
+        let askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
+        let askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
-                            + ' [sell order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
+                            + ' [sell order submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency + ']');
         // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency

@@ -314,7 +314,6 @@ async function sendmessage(message, phonenumber) {
       } // made bid.
     } // handled level2 snapshot message.
 
-    bidstatus = 'done';
     if ( jsondata.type === 'l2update' ) { // handle each level2 update.
       let sidechange = jsondata.changes[0][0];
       let pricechange = jsondata.changes[0][1];
@@ -346,6 +345,23 @@ async function sendmessage(message, phonenumber) {
           } 
         }
       } // made ask and then discontinued the subscription.
+      else { // update bid.
+        if ( sidechange === 'sell' ) { // inspect updated sell offer.
+          newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
+          newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
+          if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
+          if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
+          newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          console.log( bidprice + ' !== ' + newbidprice ); if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
+            try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
+            orderstatus = orderinformation.status; /* update orderstatus information for submitted bid */
+            console.log('orderstatus: ' + orderstatus);
+          } // checked for a change in the best ask price.
+        } // inspected updated sell offer.
+        else { // no change in best buy offer. so just report it to the console.
+        } // reported change in best buy offer to the console.
+      } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.
 }());

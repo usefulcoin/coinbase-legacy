@@ -254,7 +254,7 @@ async function sendmessage(message, phonenumber) {
     let jsondata = JSON.parse(data);
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
-      console.log(channel + ' channel ' + messagetype + ' message : ' + exitmessage + '[' + additionalinformation + ']');
+      console.log(channel + ' channel (' + messagetype.padStart(10) + ' message) : ' + exitmessage + ' [' + additionalinformation + ']');
       let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
       try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
     }; // gracefully unsubscribe.

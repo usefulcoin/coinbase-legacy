@@ -236,18 +236,14 @@ async function sendmessage(message, phonenumber) {
   // declared rest api variables.
 
   // declare websocket variables...
-  let orderid;
+  let bidid;
   let bidprice;
-  let orderprice;
-  let subscribed;
-  let orderstatus;
-  let orderfilled;
+  let bidstatus;
+  let bidfilled;
   let bidquantity;
-  let orderquantity;
+  let subscribed;
   let orderedatprice;
-  let initialbid = false;
   let priceshift = false;
-  let unsubscribed = false;
   // declared websocket variables.
 
   ws.on('message', async function incoming(data) { // start handling websocket messages.
@@ -274,7 +270,7 @@ async function sendmessage(message, phonenumber) {
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
       if ( Object.keys(jsondata.asks).length === 0 ) { messagehandlerexit('snapshot','there are no asks in the orderbook snapshot',''); } 
-      else {
+      else { // make bid.
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
 
@@ -303,23 +299,19 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(orderinformation).length !== 0 ) {
-          if ( orderinformation.id === 36 ) {
-            orderid = orderinformation.id;
-            orderfilled = orderinformation.filled_size;
-            orderstatus = orderinformation.status;
-            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
-            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
-            orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-            orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-          } else if ( orderinformation.status === 'rejected' ) { // discontinue subscription if order rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // discontinued subscription.
-        } else { // discontinue subscription.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad buy (bid) order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-        } // discontinued subscription.
-      }
+        try { bidinformation = await postbid(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+        if ( Object.keys(bidinformation).length !== 0 ) {
+          if ( bidinformation.id === 36 ) {
+            bidid = bidinformation.id;
+            bidfilled = bidinformation.filled_size;
+            bidstatus = bidinformation.status;
+          } else if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+          } // discontinued subscription if bid rejected.
+        } else { // discontinue subscription if bad bid.
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+        } // discontinued subscription if bad bid.
+      } // made bid.
     } // handled level2 snapshot message.
 
     if ( jsondata.type === 'l2update' ) { // handle each level2 update.
@@ -330,23 +322,29 @@ async function sendmessage(message, phonenumber) {
       let formattedsize = Number(sizechange).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that size is set to a fixed number of decimal places. */
       let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that size is set to a fixed number of decimal places. */
 
-      if ( orderstatus === 'done' ) { // make ask then discontinue subscription.
-        orderstatus = 'submitting'; /* set status so that duplicates are not created. */
+      if ( bidstatus === 'done' ) { // make ask then discontinue subscription.
+        bidstatus = ''; /* set null status so that duplicates are not created. */
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
-        let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
-        let askquantity = orderquantity;
+        let askprice = Math.round( Number(quoteincrement) + bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+        let askquantity = bidquantity;
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
-        try { orderinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(orderinformation).length === 0 ) { 
-          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad sell (ask) order: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+        try { askinformation = await postask(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+        if ( Object.keys(askinformation).length === 0 ) { 
+          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
         } else {
-          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'sell (ask) order: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
-        // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
-        //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
-        orderstatus = 'done'; /* creating a fake fill until there's time to make a real fill. */
+          if ( askinformation.id === 36 ) {
+            askid = askinformation.id;
+            askfilled = askinformation.filled_size;
+            askstatus = askinformation.status;
+            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+            // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
+            //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
+          } else if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected ask: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+          } 
+        }
       } // made ask and then discontinued the subscription.
-
-    } // end subscribed messages.
+    } // handled each level2 update.
   }); // end handling websocket messages.
 }());

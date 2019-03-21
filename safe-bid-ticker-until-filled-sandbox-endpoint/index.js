@@ -266,7 +266,7 @@ async function sendmessage(message, phonenumber) {
     // handle subscribe and unsubscribe messages. 
     if ( jsondata.type === 'subscriptions' ) { 
       if ( subscribed ) { // reported the confirmation of subscription messages and closed connection.
-        console.log('both "subscribe" and "unsubscribe" messages received. closing connection...
+        console.log('both "subscribe" and "unsubscribe" messages received. closing connection...');
         try { ws.close(); } catch (e) { console.error(e); } // closed connection.
       } // reported the confirmation of subscription messages and closed connection.
       else { subscribed = true; } 

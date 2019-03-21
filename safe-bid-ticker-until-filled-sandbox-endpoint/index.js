@@ -299,7 +299,7 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        try { bidinformation = await postbid(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+        try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
         if ( Object.keys(bidinformation).length !== 0 ) {
           if ( bidinformation.id === 36 ) {
             bidid = bidinformation.id;

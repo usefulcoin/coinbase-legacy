@@ -345,13 +345,6 @@ async function sendmessage(message, phonenumber) {
                             + ' [buy order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
       } // updated console.
 
-      if ( orderstatus === 'done' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
-        if ( orderstatus === 'rejected' ) { console.log('order for ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ' rejected.'); }
-        if ( orderstatus === 'filled' ) { console.log('order filled.'); }
-        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-      } // discontinued subscription.
-
       if ( orderstatus === 'done' ) { // make ask.
         // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
         let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
@@ -366,6 +359,13 @@ async function sendmessage(message, phonenumber) {
                               + ' ask: ' + Math.round(orderinformation.size/baseminimum)*baseminimum + ' ' + basecurrency
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
       } // made ask.
+
+      if ( orderstatus === 'done' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
+        if ( orderstatus === 'rejected' ) { console.log('order for ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ' rejected.'); }
+        if ( orderstatus === 'filled' ) { console.log('order filled.'); }
+        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+      } // discontinued subscription.
     } // end subscribed messages.
   }); // end handling websocket messages.
 }());

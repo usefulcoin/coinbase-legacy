@@ -286,6 +286,7 @@ async function sendmessage(message, phonenumber) {
     } // end handling subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
+      console.log(data); // reported confirmation.
       let snapshotprice = jsondata.bids[0][0];
       let snapshotsize = jsondata.bids[0][1];
       console.log('snapshotprice: ' + snapshotprice);

@@ -296,8 +296,8 @@ async function sendmessage(message, phonenumber) {
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
         if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-        bidprice = bidprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        bidquantity = bidquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
 
         let orderinformation;
         if ( orderid === undefined ) { // handle initial 'sell' message.
@@ -346,6 +346,7 @@ async function sendmessage(message, phonenumber) {
       } // updated console.
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
+        if ( orderstatus === 'rejected' ) { console.log('order rejected.');
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
       } // discontinued subscription.

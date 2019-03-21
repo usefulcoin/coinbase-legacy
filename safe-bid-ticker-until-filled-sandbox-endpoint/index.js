@@ -287,7 +287,7 @@ async function sendmessage(message, phonenumber) {
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
       if ( Object.keys(jsondata.asks).length === 0 ) {
-        console.log(channel + ' channel : [snap]  there are no asks in the orderbook snapshot. ' // update the console with messages subsequent to subscription...
+        console.log(channel + ' channel : [snap]  there are no asks in the orderbook snapshot. '); // update the console with messages subsequent to subscription...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
       } else {
@@ -324,5 +324,93 @@ async function sendmessage(message, phonenumber) {
       }
     } // handled level2 snapshot message.
 
+    if ( subscribed && jsondata.type === 'l2update' ) { // handle each level2 update.
+      let sidechange = jsondata.changes[0][0];
+      let pricechange = jsondata.changes[0][1];
+      let sizechange = jsondata.changes[0][2];
+      let formattedsize = Number(sizechange).toFixed(Math.abs(Math.log10(baseminimum)));
+      let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
+
+      if ( orderstatus === 'done' ) { // make ask then discontinue subscription.
+        orderstatus = 'submitting'; /* set status so that duplicates are not created. */
+        // always add the quote increment to ensure that the ask is never rejected for being the same as the bid.
+        let askprice = Math.round( Number(quoteincrement) + orderprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+        let askquantity = orderquantity;
+        askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
+        askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
+        try { orderinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice // update the console with messages subsequent to subscription...
+                            + ' [sell order submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+        // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
+        //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
+        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+        orderstatus = 'done'; /* creating a fake fill until there's time to make a real fill. */
+      } // made ask.
+
+      else { // make or update bid.
+        if ( sidechange === 'sell' ) { // set bid price and bid quantity and make a bid with that information.
+          bidprice = Math.round( ( pricechange - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
+          bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+          if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
+          if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+          bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+  
+          let orderinformation;
+          if ( orderid === undefined ) { // handle initial 'sell' message.
+            orderid = 'defined';
+            orderedatprice = pricechange;
+            try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+            orderid = orderinformation.id;
+            orderfilled = orderinformation.filled_size;
+            orderstatus = orderinformation.status;
+            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+            orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+            orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+            if ( orderstatus === 'rejected' ) { // discontinue subscription if order rejected.
+              console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice // update the console with messages subsequent to subscription...
+                                  + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+              let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+              try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+            } // discontinued subscription.
+            else { initialbid = true; }
+          } // handled initial 'sell' message.
+          else { // handle regular 'sell' messages.
+            // console.log('bidprice: ' + bidprice);
+            // console.log('orderprice: ' + orderprice);
+            if ( pricechange !== orderedatprice ) { // cancel previous order and submit updated bid.
+              priceshift = true;
+              orderedatprice = pricechange;
+              try { orderinformation = await restapirequest('GET','/orders/' + orderid); } catch (e) { console.error(e); }
+              orderstatus = orderinformation.status;
+              // try { orderinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
+              // try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+              // orderid = orderinformation.id;
+              // orderfilled = orderinformation.filled_size;
+              // orderstatus = orderinformation.status;
+              // orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+              // orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+              // orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+              // orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+              // console.log('bid: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency);
+            } // cancelled previous order and submitted updated bid.
+          } // handled regular 'sell' messages.
+  
+          if ( priceshift ) { // update console.
+            priceshift = false;
+            console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice + ' [price shift] [submitted order status: ' + orderstatus + ']');
+          } else if ( initialbid ) { 
+            initialbid = false;
+            console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
+                                + ' [buy order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
+          } // updated console.
+        } // report change in best buy offer to the console...
+        else { // change in best buy offer. so just report it to the console.
+            console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice);
+        } // reported change in best buy offer to the console.
+      } // made or updated bid.
+    } // end subscribed messages.
   }); // end handling websocket messages.
 }());

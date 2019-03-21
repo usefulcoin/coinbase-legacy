@@ -314,10 +314,10 @@ async function sendmessage(message, phonenumber) {
             orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
             orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           } else if ( orderinformation.status === 'rejected' ) { // discontinue subscription if order rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency');
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
           } // discontinued subscription.
         } else { // discontinue subscription.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency');
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
         } // discontinued subscription.
       }
     } // handled level2 snapshot message.

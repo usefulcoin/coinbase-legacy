@@ -314,6 +314,7 @@ async function sendmessage(message, phonenumber) {
       } // made bid.
     } // handled level2 snapshot message.
 
+    bidstatus = 'done';
     if ( jsondata.type === 'l2update' ) { // handle each level2 update.
       let sidechange = jsondata.changes[0][0];
       let pricechange = jsondata.changes[0][1];

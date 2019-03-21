@@ -333,7 +333,7 @@ async function sendmessage(message, phonenumber) {
             orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
             if ( orderstatus === 'rejected' ) { // discontinue subscription if order rejected.
               console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice // update the console with messages subsequent to subscription...
-                                  + ' [rejected order submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+                                  + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
               let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
               try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
             } // discontinued subscription.

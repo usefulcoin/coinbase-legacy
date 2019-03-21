@@ -286,7 +286,7 @@ async function sendmessage(message, phonenumber) {
     } // end handling subscribe and unsubscribe messages. 
 
     // start subscribed messages.
-    if ( subscribed && jsondata.type === 'snapshot' ) { /* once subscribed, act initial level2 snapshot message... */
+    if ( jsondata.type === 'snapshot' ) { /* once subscribed, act initial level2 snapshot message... */
       let snapshotprice = jsondata.bids[0][0];
       let snapshotsize = jsondata.bids[0][1];
       let formattedsnapshotprice = Number(snapshotprice).toFixed(Math.abs(Math.log10(quoteincrement)));

@@ -239,6 +239,7 @@ async function sendmessage(message, phonenumber) {
   let orderid;
   let bidprice;
   let orderprice;
+  let subscribed;
   let orderstatus;
   let orderfilled;
   let bidquantity;
@@ -252,20 +253,34 @@ async function sendmessage(message, phonenumber) {
   ws.on('message', async function incoming(data) { // start handling websocket messages.
     let jsondata = JSON.parse(data);
 
+    async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
+      console.log(channel + ' channel ' + messagetype + ' message : ' + exitmessage + '[' + additionalinformation + ']');
+      let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+      try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
+    }; // gracefully unsubscribe.
    
     if ( jsondata.type === 'error' ) { // report any errors sent by the websocket server...
-      console.error(jsondata.message); } // reported errors.
+      messagehandlerexit('error',jsondata.message,'error sent by the websocket server'); 
+    } // reported errors.
 
-    // start handling subscribe and unsubscribe messages. 
-    if ( jsondata.type === 'subscriptions' ) { // report the confirmation of subscription...
-      console.log(data); // reported confirmation.
-      
-      if ( unsubscribed ) { // close connection if flag set...
+    // handle subscribe and unsubscribe messages. 
+    if ( jsondata.type === 'subscriptions' ) { 
+      if ( subscribed ) { // reported the confirmation of subscription messages and closed connection.
+        console.log('both "subscribe" and "unsubscribe" messages received. closing connection...
         try { ws.close(); } catch (e) { console.error(e); } // closed connection.
-      
-      } else { // start retrieving essential REST API information once subscribed. only once...
+      } // reported the confirmation of subscription messages and closed connection.
+      else { subscribed = true; } 
+    } // handled subscribe and unsubscribe messages. 
+
+    if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
+      if ( Object.keys(jsondata.bids).length === 0 ) { messagehandlerexit('snapshot','there are no bids in the orderbook snapshot'); } 
+      else {
+        let snapshotprice = jsondata.bids[0][0]; /* capture best bid price from the orderbook. */
+        let snapshotsize = jsondata.bids[0][1]; /* capture best bid quantity from the orderbook. */
+
         // retrieve product information...
         let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
+        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot','unable to retrieve ' + productid + ' product information'); }
         baseminimum = productinformation.base_min_size;
         basemaximum = productinformation.base_max_size;
         basecurrency = productinformation.base_currency;
@@ -276,24 +291,12 @@ async function sendmessage(message, phonenumber) {
         // retrieve available balance information...
         let quotecurrencyfilter = { currency: [quotecurrency] };
         let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot','unable to retrieve account information'); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
         quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
 
-        unsubscribed = true; /* subscription request successful. set flag to unsubscribed. */
-      } // end retrieval of essential REST API information once subscribed.
-    } // end handling subscribe and unsubscribe messages. 
-
-    if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
-      if ( Object.keys(jsondata.bids).length === 0 ) {
-        console.log(channel + ' channel : [snap]  there are no bids in the orderbook snapshot. '); // update the console with messages subsequent to subscription...
-        let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-        try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-        try { ws.close(); } catch (e) { console.error(e); } // closed connection.
-      } else {
-        let snapshotprice = jsondata.bids[0][0];
-        let snapshotsize = jsondata.bids[0][1];
         bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */ 
         bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
@@ -311,18 +314,10 @@ async function sendmessage(message, phonenumber) {
             orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
             orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           } else if ( orderinformation.status === 'rejected' ) { // discontinue subscription if order rejected.
-            console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
-                                + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
-            let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-            try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
-            try { ws.close(); } catch (e) { console.error(e); } // closed connection.
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency');
           } // discontinued subscription.
         } else { // discontinue subscription.
-          console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
-                              + ' [unusual order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
-          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-          try { ws.close(); } catch (e) { console.error(e); } // closed connection.
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad order: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency');
         } // discontinued subscription.
       }
     } // handled level2 snapshot message.

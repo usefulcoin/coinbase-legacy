@@ -286,38 +286,42 @@ async function sendmessage(message, phonenumber) {
     } // end handling subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
-      console.log(data); // reported confirmation.
-      let snapshotprice = jsondata.bids[0][0];
-      let snapshotsize = jsondata.bids[0][1];
-      console.log('snapshotprice: ' + snapshotprice);
-      console.log('snapshotsize: ' + snapshotsize);
-      bidprice = snapshotprice; 
-      bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-      if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
-      if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-      bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-      try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-      if ( Object.keys(orderinformation).length !== 0 ) {
-        if ( orderinformation.id === 36 ) {
-          orderid = orderinformation.id;
-          orderfilled = orderinformation.filled_size;
-          orderstatus = orderinformation.status;
-          orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
-          orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
-          orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-          orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        } else if ( orderinformation.status === 'rejected' ) { // discontinue subscription if order rejected.
-          console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
-                              + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
-          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
-          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
-        } // discontinued subscription.
-      } else { // discontinue subscription.
-        console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
-                            + ' [unusual order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+      if ( Object.keys(jsondata.asks).length === 0 ) {
+        console.log(channel + ' channel : [snap]  there are no asks in the orderbook snapshot. ' // update the console with messages subsequent to subscription...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
-      } // discontinued subscription.
+      } else {
+        let snapshotprice = jsondata.asks[0][0];
+        let snapshotsize = jsondata.asks[0][1];
+        bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */ 
+        bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
+        if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+        bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+        if ( Object.keys(orderinformation).length !== 0 ) {
+          if ( orderinformation.id === 36 ) {
+            orderid = orderinformation.id;
+            orderfilled = orderinformation.filled_size;
+            orderstatus = orderinformation.status;
+            orderquantity = Math.round(orderinformation.size/baseminimum)*baseminimum;
+            orderprice = Math.round(orderinformation.price/quoteincrement)*quoteincrement;
+            orderquantity = orderquantity.toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+            orderprice = orderprice.toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+          } else if ( orderinformation.status === 'rejected' ) { // discontinue subscription if order rejected.
+            console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
+                                + ' [rejected order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+            let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+            try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
+          } // discontinued subscription.
+        } else { // discontinue subscription.
+          console.log(channel + ' channel : [snap]  ' + snapshotsize + ' @ ' + snapshotprice // update the console with messages subsequent to subscription...
+                              + ' [unusual order submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency + ']'); // updated console.
+          let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+          try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
+        } // discontinued subscription.
+      }
     } // handled level2 snapshot message.
 
   }); // end handling websocket messages.

@@ -246,7 +246,7 @@ async function sendmessage(message, phonenumber) {
   let orderedatprice;
   let initialbid = false;
   let priceshift = false;
-  let subscribed = false;
+  let unsubscribed = false;
   // declared websocket variables.
 
   ws.on('message', async function incoming(data) { // start handling websocket messages.
@@ -260,7 +260,7 @@ async function sendmessage(message, phonenumber) {
     if ( jsondata.type === 'subscriptions' ) { // report the confirmation of subscription...
       console.log(data); // reported confirmation.
       
-      if ( subscribed ) { // close connection if flag set...
+      if ( unsubscribed ) { // close connection if flag set...
         try { ws.close(); } catch (e) { console.error(e); } // closed connection.
       
       } else { // start retrieving essential REST API information once subscribed. only once...
@@ -281,11 +281,13 @@ async function sendmessage(message, phonenumber) {
         quoteriskablebalance = quoteavailablebalance*riskratio;
         // retrieved account balance information.
 
-        subscribed = true; /* subscription request successful. set flag */
+        unsubscribed = true; /* subscription request successful. set flag to unsubscribed. */
       } // end retrieval of essential REST API information once subscribed.
     } // end handling subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
+      console.log( jsondata.bids );
+      console.log( Object.keys(jsondata.bids).length );
       if ( Object.keys(jsondata.bids).length === 0 ) {
         console.log(channel + ' channel : [snap]  there are no bids in the orderbook snapshot. '); // update the console with messages subsequent to subscription...
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);

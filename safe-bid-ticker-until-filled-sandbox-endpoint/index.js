@@ -290,6 +290,8 @@ async function sendmessage(message, phonenumber) {
       let sidechange = jsondata.changes[0][0];
       let pricechange = jsondata.changes[0][1];
       let sizechange = jsondata.changes[0][2];
+      let formattedsize = Number(sizechange).toFixed(Math.abs(Math.log10(baseminimum)));
+      let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
 
       if ( sidechange === 'sell' ) { // set bid price and bid quantity
         bidprice = Math.round( ( pricechange - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always add the quote increment to ensure that the bid is never rejected */
@@ -334,15 +336,13 @@ async function sendmessage(message, phonenumber) {
         } // handled regular 'sell' messages.
       } // set bid price and bid quantity
 
-      let formattedsize = Number(sizechange).toFixed(Math.abs(Math.log10(baseminimum)));
-      let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
       if ( priceshift ) { // update console.
         priceshift = false;
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice + ' [price shift] [submitted order status: ' + orderstatus + ']');
       } else if ( initialbid ) { 
         initialbid = false;
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
-                            + ' [order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
+                            + ' [buy order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
       } // updated console.
 
       if ( orderstatus === 'done' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
@@ -358,7 +358,8 @@ async function sendmessage(message, phonenumber) {
         let askquantity = orderquantity;
         let orderinformation = await postorder(askprice,askquantity,'sell',true,productid);
         // update the console with messages subsequent to subscription...
-        console.log(channel + ' channel : [' + sidechange + ']  ' + sizechange + ' @ ' + pricechange + ' [asked for ' + askquantity + '@' + askprice + ']'); 
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice
+                            + ' [sell order submission: ' + orderquantity + ' ' + basecurrency + ' @ ' + orderprice + ' ' + basecurrency + '/' + quotecurrency + ']');
         // updated console.
         sendmessage(productid + '\nbid: ' + Math.round(orderquantity/baseminimum)*baseminimum + ' ' + basecurrency 
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency

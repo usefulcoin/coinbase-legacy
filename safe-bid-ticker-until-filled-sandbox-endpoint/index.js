@@ -338,7 +338,7 @@ async function sendmessage(message, phonenumber) {
       let formattedprice = Number(pricechange).toFixed(Math.abs(Math.log10(quoteincrement)));
       if ( priceshift ) { // update console.
         priceshift = false;
-        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice + ' [price shift]');
+        console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice + ' [price shift] [submitted order status: ' + orderstatus + ']');
       } else if ( initialbid ) { 
         initialbid = false;
         console.log(channel + ' channel : [' + sidechange.padEnd(4) + ']  ' + formattedsize + ' @ ' + formattedprice

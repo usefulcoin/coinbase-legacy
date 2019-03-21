@@ -286,6 +286,16 @@ async function sendmessage(message, phonenumber) {
     } // end handling subscribe and unsubscribe messages. 
 
     // start subscribed messages.
+    if ( subscribed && jsondata.type === 'snapshot' ) { /* once subscribed, act initial level2 snapshot message... */
+      let snapshotprice = jsondata.bids[0][0];
+      let snapshotsize = jsondata.bids[0][1];
+      let formattedsnapshotprice = Number(snapshotprice).toFixed(Math.abs(Math.log10(quoteincrement)));
+      let formattedsnapshotsize = Number(snapshotsize).toFixed(Math.abs(Math.log10(baseminimum)));
+      console.log('snapshotprice: ' + snapshotprice);
+      console.log('snapshotsize: ' + snapshotsize);
+    }
+
+    // start subscribed messages.
     if ( subscribed && jsondata.type === 'l2update' ) { /* once subscribed, act on each level2 update... */
       let sidechange = jsondata.changes[0][0];
       let pricechange = jsondata.changes[0][1];

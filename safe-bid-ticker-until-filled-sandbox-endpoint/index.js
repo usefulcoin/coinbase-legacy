@@ -254,7 +254,7 @@ async function sendmessage(message, phonenumber) {
     let jsondata = JSON.parse(data);
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
-      console.log(channel + ' channel (' + messagetype.padStart(10) + ' message) : ' + exitmessage + ' [' + additionalinformation + ']');
+      console.log(channel + ' channel  (' + messagetype.padStart(10) + ' message  )  :  ' + exitmessage + ' [' + additionalinformation + ']');
       let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
       try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
     }; // gracefully unsubscribe.
@@ -273,14 +273,14 @@ async function sendmessage(message, phonenumber) {
     } // handled subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
-      if ( Object.keys(jsondata.bids).length === 0 ) { messagehandlerexit('snapshot','there are no bids in the orderbook snapshot'); } 
+      if ( Object.keys(jsondata.bids).length === 0 ) { messagehandlerexit('snapshot','there are no bids in the orderbook snapshot',''); } 
       else {
         let snapshotprice = jsondata.bids[0][0]; /* capture best bid price from the orderbook. */
         let snapshotsize = jsondata.bids[0][1]; /* capture best bid quantity from the orderbook. */
 
         // retrieve product information...
         let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
-        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot','unable to retrieve ' + productid + ' product information'); }
+        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve ' + productid + ' product information'); }
         baseminimum = productinformation.base_min_size;
         basemaximum = productinformation.base_max_size;
         basecurrency = productinformation.base_currency;
@@ -291,7 +291,7 @@ async function sendmessage(message, phonenumber) {
         // retrieve available balance information...
         let quotecurrencyfilter = { currency: [quotecurrency] };
         let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot','unable to retrieve account information'); }
+        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve account information'); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
         quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;

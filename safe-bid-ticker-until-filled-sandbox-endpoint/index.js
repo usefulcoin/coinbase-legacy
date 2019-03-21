@@ -362,6 +362,7 @@ async function sendmessage(message, phonenumber) {
                               + ' @ ' + Math.round(orderprice/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency
                               + ' ask: ' + Math.round(orderinformation.size/baseminimum)*baseminimum + ' ' + basecurrency
                               + ' @ ' + Math.round(orderinformation.price/quoteincrement)*quoteincrement + ' ' + basecurrency + '/' + quotecurrency, recipient);
+        orderstatus = 'done'; /* creating a fake fill until there's time to make a real fill. */
       } // made ask.
 
       if ( orderstatus === 'done' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...

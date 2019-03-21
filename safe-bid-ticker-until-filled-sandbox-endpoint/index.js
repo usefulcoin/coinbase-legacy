@@ -285,7 +285,7 @@ async function sendmessage(message, phonenumber) {
       } // end retrieval of essential REST API information once subscribed.
     } // end handling subscribe and unsubscribe messages. 
 
-    if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
+    if ( unsubscribed && jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
       console.log( jsondata.bids );
       console.log( Object.keys(jsondata.bids).length );
       if ( Object.keys(jsondata.bids).length === 0 ) {

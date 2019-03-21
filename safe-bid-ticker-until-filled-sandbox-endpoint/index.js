@@ -273,10 +273,10 @@ async function sendmessage(message, phonenumber) {
     } // handled subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
-      if ( Object.keys(jsondata.bids).length === 0 ) { messagehandlerexit('snapshot','there are no bids in the orderbook snapshot',''); } 
+      if ( Object.keys(jsondata.asks).length === 0 ) { messagehandlerexit('snapshot','there are no asks in the orderbook snapshot',''); } 
       else {
-        let snapshotprice = jsondata.bids[0][0]; /* capture best bid price from the orderbook. */
-        let snapshotsize = jsondata.bids[0][1]; /* capture best bid quantity from the orderbook. */
+        let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
+        let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
 
         // retrieve product information...
         let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }

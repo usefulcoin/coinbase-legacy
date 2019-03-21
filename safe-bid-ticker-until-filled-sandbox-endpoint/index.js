@@ -346,7 +346,7 @@ async function sendmessage(message, phonenumber) {
       } // updated console.
 
       if ( orderstatus === 'filled' || orderstatus === 'rejected' ) { // discontinue subscription if order filled or rejected...
-        if ( orderstatus === 'rejected' ) { console.log('order rejected.');
+        if ( orderstatus === 'rejected' ) { console.log('order rejected.'); }
         let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
         try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
       } // discontinued subscription.

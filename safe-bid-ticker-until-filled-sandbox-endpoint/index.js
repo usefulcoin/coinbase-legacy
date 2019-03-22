@@ -402,7 +402,7 @@ async function sendmessage(message, phonenumber) {
                     bidid = updatedbid.id;
                     bidfilled = updatedbid.filled_size;
                     bidstatus = updatedbid.status;
-                    messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                    messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                        'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   } 
                 }

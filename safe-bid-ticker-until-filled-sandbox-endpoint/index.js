@@ -27,7 +27,7 @@ const fetch = require('node-fetch');
 
 
 // define consts...
-const channel = 'level2,match';
+const channels = '["level2","match"]';
 const riskratio = 0.00001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
@@ -167,7 +167,7 @@ function channelsubscription(type, productid, channel, signature, key, passphras
   let subscriptionrequest = {
       'type': type,
       'product_ids': [productid],
-      'channels': [channel],
+      'channels': channels,
       'signature': signature.signedmessage,
       'key': key,
       'passphrase': passphrase,

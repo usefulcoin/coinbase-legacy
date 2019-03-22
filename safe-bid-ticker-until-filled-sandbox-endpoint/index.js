@@ -320,6 +320,7 @@ async function sendmessage(message, phonenumber) {
             bidid = bidinformation.id;
             bidfilled = bidinformation.filled_size;
             bidstatus = bidinformation.status;
+            messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
           } // valid order submitted. updated state variables.
         }
       } // made bid.

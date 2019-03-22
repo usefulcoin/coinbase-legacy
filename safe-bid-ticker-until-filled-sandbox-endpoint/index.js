@@ -369,9 +369,9 @@ async function sendmessage(message, phonenumber) {
         if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
         newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          let biddelta = bidprice - newbidprice;
-          if ( Math.abs(biddelta) === 0 ) { // check if the best ask price matches submitted price (which subtracted the quote increment).
+        let biddelta = bidprice - newbidprice;
+        if ( sidechange === 'buy' ) { // inspect updated buy offer.
+          if ( Math.abs(biddelta) === 0 ) { // check if the best bid price matches submitted price (which subtracted the quote increment).
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
@@ -379,20 +379,9 @@ async function sendmessage(message, phonenumber) {
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + bidfilled + ') ' + bidstatus);
-          } // checked if the best ask price matches submitted price.
-          if ( Math.abs(biddelta) > 0 ) { // check for a change in the best ask price exceeding the quote increment.
-              // if ( bidstatus = 'open' ) { try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
-              // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(newbidprice,newbidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
-              // bidid = orderinformation.id;
-              // bidstatus = orderinformation.status; 
-              // bidfilled = orderinformation.filled_size; 
             } // handled non-null response from rest api server returned.
-          } // checked for a change in the best ask price.
-          else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }
-        } // inspected updated sell offer.
-        else { // inspect updated buy offer. 
-          messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); /* log bid offer information to console */
-        }  // inspected updated buy offer.
+          } // checked if the best ask price matches submitted price.
+        } // inspected updated buy offer.
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

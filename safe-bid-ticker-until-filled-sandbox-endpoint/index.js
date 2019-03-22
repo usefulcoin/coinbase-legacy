@@ -249,6 +249,10 @@ async function sendmessage(message, phonenumber) {
   ws.on('message', async function incoming(data) { // start handling websocket messages.
     let jsondata = JSON.parse(data);
 
+    function messagehandlerinfo(messagetype,infomessage,additionalinformation) {
+      console.log(channel + ' channel  (' + messagetype.padStart(10) + ' message  )  :  ' + infomessage + ' [' + additionalinformation + ']');
+    }
+
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
       console.log(channel + ' channel  (' + messagetype.padStart(10) + ' message  )  :  ' + exitmessage + ' [' + additionalinformation + ']');
       let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
@@ -337,18 +341,21 @@ async function sendmessage(message, phonenumber) {
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
         let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(askinformation) === 'message' ) { messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message); } 
+        if ( Object.keys(askinformation) === 'message' ) { messagehandlerexit('l2update', '<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice, askinformation.message); } 
         if ( Object.keys(askinformation).length === 0 ) { 
-          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+          messagehandlerexit('l2update', '<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice, 
+                             'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
         } else {
           if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
-            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+            messagehandlerexit('l2update', '<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice, 
+                               'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
           } 
           if ( askinformation.id.length === 36 ) {
             askid = askinformation.id;
             askfilled = askinformation.filled_size;
             askstatus = askinformation.status;
-            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+            messagehandlerexit('l2update', '<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice, 
+                               'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
             // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
             //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
           } 
@@ -369,11 +376,14 @@ async function sendmessage(message, phonenumber) {
             // bidfilled = orderinformation.filled_size;
             // bidstatus = orderinformation.status;
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message); } /* rest api server returned a message */
-            if ( Object.keys(orderinformation).length === 0 ) { /* rest api server returned null */
-              messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
-            } else { bidstatus = orderinformation.status; console.log(bidstatus); /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
+            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,orderinformation.message); }
+            if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,'bad request'); }
+            else { // handle non-null response from rest api server returned.
+              bidstatus = orderinformation.status; 
+              messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,'exisist bid: ' + bidstatus);
+            } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.
+          else { messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,''); }
         } // inspected updated sell offer.
       } // updated bid.
     } // handled each level2 update.

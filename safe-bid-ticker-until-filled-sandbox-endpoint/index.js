@@ -363,13 +363,13 @@ async function sendmessage(message, phonenumber) {
         }
       } // made ask and then discontinued the subscription.
       else { // update bid.
+        let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
+        let newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
+        if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
+        if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
+        newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
-          let newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
-          if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
-          if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
-          newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-          newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
             // try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
             // let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
@@ -377,16 +377,16 @@ async function sendmessage(message, phonenumber) {
             // bidfilled = orderinformation.filled_size;
             // bidstatus = orderinformation.status;
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,orderinformation.message); }
-            if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,'bad request'); }
+            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,orderinformation.message); }
+            if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,'bad request'); }
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
-              messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,'exisist bid: ' + bidstatus);
+              messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,'exisist bid: ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.
-          else { messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,''); }
+          else { messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,newbidquantity + ' @ ' + newbidprice); }
         } // inspected updated sell offer.
-        else { messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,''); } /* log bid offer information to console */
+        else { messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

@@ -341,7 +341,7 @@ async function sendmessage(message, phonenumber) {
             // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
             //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
           } else if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected ask: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
           } 
         }
       } // made ask and then discontinued the subscription.
@@ -353,10 +353,13 @@ async function sendmessage(message, phonenumber) {
           if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
           newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-          console.log( bidprice + ' !== ' + newbidprice ); if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
+          if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            console.log(orderinformation);
-            orderstatus = orderinformation.status; /* update orderstatus information for submitted bid */
+            if ( Object.keys(askinformation).length === 0 ) { /* rest api server returned null */
+              messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
+            } else if ( Object.keys(askinformation) === 'message' ) { /* rest api server returned error message */
+              messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message);
+            } else { orderstatus = orderinformation.status; } /* update orderstatus information for submitted bid */
             console.log(orderstatus);
           } // checked for a change in the best ask price.
         } // inspected updated sell offer.

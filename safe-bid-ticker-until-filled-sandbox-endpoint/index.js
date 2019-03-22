@@ -371,25 +371,25 @@ async function sendmessage(message, phonenumber) {
         newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         let delta = bidprice - newbidprice;
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          if ( Math.abs(delta) === 0 ) { // check if the best ask price matches submitted price (which subtracted the quote increment from the best sell price).
+          if ( Math.abs(delta) > 0 ) { // check if the best ask price differs from the submitted price (which subtracted the quote increment from the best sell price).
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */
-              if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + newbidquantity + ') ' + bidstatus);
-              // if ( bidstatus = 'open' ) { try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'the best bid changed. existing bid status: (~' + newbidquantity + ') ' + bidstatus);
+              if ( bidstatus = 'open' ) { 
+                let cancellationinformation = try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
+                if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
+                if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
+                else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + cancellationinformation);
               // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
               // bidid = orderinformation.id;
               // bidstatus = orderinformation.status; 
               // bidfilled = orderinformation.filled_size; 
             } // handled non-null response from rest api server returned.
-          } // checked if the best ask price matches submitted price.
+          } // checked if the best ask price differs from the submitted price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }
         } // inspected updated sell offer.
         else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */

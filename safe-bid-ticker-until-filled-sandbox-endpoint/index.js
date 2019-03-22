@@ -377,16 +377,16 @@ async function sendmessage(message, phonenumber) {
             // bidfilled = orderinformation.filled_size;
             // bidstatus = orderinformation.status;
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,orderinformation.message); }
-            if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,'bad request'); }
+            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update','<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
+            if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update','<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
-              messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,'exisist bid: ' + bidstatus);
+              messagehandlerinfo('l2update','<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice,'exisist bid: ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.
-          else { messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,newbidquantity + ' @ ' + newbidprice); }
+          else { messagehandlerinfo('l2update','<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }
         } // inspected updated sell offer.
-        else { messagehandlerinfo('l2update','<' + sidechange + '> ' + sizechange + ' @ ' + pricechange,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
+        else { messagehandlerinfo('l2update','<' + sidechange + '> ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

@@ -336,15 +336,15 @@ async function sendmessage(message, phonenumber) {
         let askquantity = bidquantity;
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
-        try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+        let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+        if ( Object.keys(askinformation) === 'message' ) { messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message); } 
         if ( Object.keys(askinformation).length === 0 ) { 
           messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
-        } else if ( Object.keys(askinformation) === 'message' ) { 
-          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message);
         } else {
           if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
             messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
-          } else if ( askinformation.id === 36 ) {
+          } 
+          if ( askinformation.id.length === 36 ) {
             askid = askinformation.id;
             askfilled = askinformation.filled_size;
             askstatus = askinformation.status;
@@ -364,16 +364,13 @@ async function sendmessage(message, phonenumber) {
           newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
+            if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message); } /* rest api server returned a message */
             if ( Object.keys(orderinformation).length === 0 ) { /* rest api server returned null */
               messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
-            } else if ( Object.keys(orderinformation) === 'message' ) { /* rest api server returned error message */
-              messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message);
-            } else { orderstatus = orderinformation.status; } /* update orderstatus information for submitted bid */
+            } else { orderstatus = orderinformation.status; /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
             console.log(orderstatus);
           } // checked for a change in the best ask price.
         } // inspected updated sell offer.
-        else { // no change in best buy offer. so just report it to the console.
-        } // reported change in best buy offer to the console.
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

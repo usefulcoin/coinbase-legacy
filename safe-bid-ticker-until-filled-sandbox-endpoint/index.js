@@ -391,7 +391,7 @@ async function sendmessage(message, phonenumber) {
                 else {
                   let id = cancellationinformation[0];
                   messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,
-                                     '~' + newbidquantity + ' ' + basecurrency + '. cancelling ' + bidstatus + ' order id: ' + id);
+                                     '~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus + '. cancelling order id: ' + id);
                 }
                 let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 

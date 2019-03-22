@@ -382,8 +382,7 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              yetfilled = newbidquantity - bidfilled; 
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: [' + yetfilled + '] ' + bidstatus);
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: [' + bidfilled + '] ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }

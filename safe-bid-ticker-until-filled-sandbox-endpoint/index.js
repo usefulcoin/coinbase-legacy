@@ -405,7 +405,7 @@ async function sendmessage(message, phonenumber) {
                     if ( updatedbid.id.length === 36 ) {
                       bidid = updatedbid.id;
                       bidfilled = updatedbid.filled_size;
-                      bidstatus = updatedbid.status;
+                      let updated; if (updated ) { updated = false } else { bidstatus = updatedbid.status; updated = true; }
                       messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                          'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                     }
@@ -413,7 +413,6 @@ async function sendmessage(message, phonenumber) {
                                               'bid with no UUID: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
                 }
-                let updated; if (updated ) { updated = false } else { bidstatus = 'updated'; updated = true; }
               } // updated bid.
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.

@@ -378,9 +378,7 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              newbidquantity = newbidquantity - bidfilled;
-              newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is of a fixed number of decimal places. */
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + newbidquantity + ') ' + bidstatus);
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + bidfilled + ') ' + bidstatus);
           } // checked if the best ask price matches submitted price.
           if ( Math.abs(biddelta) > 0 ) { // check for a change in the best ask price exceeding the quote increment.
               // if ( bidstatus = 'open' ) { try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }

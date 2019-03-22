@@ -302,9 +302,9 @@ async function sendmessage(message, phonenumber) {
         try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
         if ( Object.keys(bidinformation).length === 0 ) {
           messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-        else if ( Object.keys(bidinformation) === 'message' ) {
+        } else if ( Object.keys(bidinformation) === 'message' ) {
           messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
-        else {
+        } else {
           if ( bidinformation.id === 36 ) {
             bidid = bidinformation.id;
             bidfilled = bidinformation.filled_size;

@@ -277,6 +277,7 @@ async function sendmessage(message, phonenumber) {
         // retrieve product information...
         let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
         if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve ' + productid + ' product information'); }
+        if ( Object.keys(productinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,productinformation.message); }
         baseminimum = productinformation.base_min_size;
         basemaximum = productinformation.base_max_size;
         basecurrency = productinformation.base_currency;
@@ -288,6 +289,7 @@ async function sendmessage(message, phonenumber) {
         let quotecurrencyfilter = { currency: [quotecurrency] };
         let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
         if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve account information'); }
+        if ( Object.keys(accountinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,accountinformation.message); }
         let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
         quoteavailablebalance = quoteaccountinformation[0].available;
         quoteriskablebalance = quoteavailablebalance*riskratio;
@@ -300,20 +302,22 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(bidinformation).length === 0 ) {
+        if ( Object.keys(bidinformation).length === 0 ) { // discontinue subscription if bad bid.
           messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-        } else if ( Object.keys(bidinformation) === 'message' ) {
+        } // discontinued subscription.
+        else if ( Object.keys(bidinformation) === 'message' ) {  // discontinue subscription if error message received from rest api server.
           messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
-        } else {
-          if ( bidinformation.id === 36 ) {
+        } // discontinued subscription.
+        else {
+          if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+          } // discontinued subscription if bid rejected. 
+          else if ( bidinformation.id === 36 ) { // valid order submitted. update state variables.
             bidid = bidinformation.id;
             bidfilled = bidinformation.filled_size;
             bidstatus = bidinformation.status;
-          } else if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // discontinued subscription if bid rejected.
-        } else { // discontinue subscription if bad bid.
-        } // discontinued subscription if bad bid.
+          } // valid order submitted. updated state variables.
+        }
       } // made bid.
     } // handled level2 snapshot message.
 
@@ -335,16 +339,18 @@ async function sendmessage(message, phonenumber) {
         try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
         if ( Object.keys(askinformation).length === 0 ) { 
           messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+        } else if ( Object.keys(askinformation) === 'message' ) { 
+          messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message);
         } else {
-          if ( askinformation.id === 36 ) {
+          if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
+            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
+          } else if ( askinformation.id === 36 ) {
             askid = askinformation.id;
             askfilled = askinformation.filled_size;
             askstatus = askinformation.status;
             messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
             // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
             //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
-          } else if ( askinformation.status === 'rejected' ) { // discontinue subscription if ask rejected.
-            messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
           } 
         }
       } // made ask and then discontinued the subscription.

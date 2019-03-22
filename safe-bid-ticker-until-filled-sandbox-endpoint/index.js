@@ -369,8 +369,7 @@ async function sendmessage(message, phonenumber) {
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message); } /* rest api server returned a message */
             if ( Object.keys(orderinformation).length === 0 ) { /* rest api server returned null */
               messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
-            } else { orderstatus = orderinformation.status; /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
-            console.log(orderstatus);
+            } else { bidstatus = orderinformation.status; /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
           } // checked for a change in the best ask price.
         } // inspected updated sell offer.
       } // updated bid.

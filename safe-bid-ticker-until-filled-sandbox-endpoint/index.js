@@ -27,7 +27,7 @@ const fetch = require('node-fetch');
 
 
 // define consts...
-const channels = ["level2"];
+const channels = ["level2","heartbeat"];
 const riskratio = 0.00001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';

@@ -363,7 +363,7 @@ async function sendmessage(message, phonenumber) {
         }
       } // made ask and then discontinued the subscription.
 
-      if ( bidstatus === 'open' ) // update bid.
+      if ( bidstatus === 'open' ) { // update bid.
         let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
         let newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */
         if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */

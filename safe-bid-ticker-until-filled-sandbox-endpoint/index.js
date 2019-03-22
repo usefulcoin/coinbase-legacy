@@ -354,8 +354,8 @@ async function sendmessage(message, phonenumber) {
           newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           console.log( bidprice + ' !== ' + newbidprice ); if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
-            try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            orderstatus = orderinformation.status; /* update orderstatus information for submitted bid */
+            try { bidinformation = await restapirequest('GET','/bids/' + bidid); } catch (e) { console.error(e); }
+            orderstatus = bidinformation.status; /* update orderstatus information for submitted bid */
             console.log('orderstatus: ' + orderstatus);
           } // checked for a change in the best ask price.
         } // inspected updated sell offer.

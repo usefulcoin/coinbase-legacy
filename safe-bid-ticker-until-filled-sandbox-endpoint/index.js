@@ -398,7 +398,6 @@ async function sendmessage(message, phonenumber) {
                   messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                      'bad bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                 } else {
-                  console.log(updatedbid);  
                   if ( updatedbid.status === 'rejected' ) { // discontinue subscription if bid rejected.
                     messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                        'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);

@@ -336,7 +336,9 @@ async function sendmessage(message, phonenumber) {
         let askquantity = bidquantity;
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
+        console.log(askprice,askquantity,'sell',true,productid);
         let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+        console.log(askinformation);
         if ( Object.keys(askinformation) === 'message' ) { messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message); } 
         if ( Object.keys(askinformation).length === 0 ) { 
           messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);

@@ -369,10 +369,10 @@ async function sendmessage(message, phonenumber) {
         if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
         newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        let biddelta = bidprice - newbidprice;
-        let pricedelta = bidprice - formattedprice;
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          if ( Math.abs(pricedelta) === quoteincrement ) { // check if the best ask price matches submitted price (which subtracted the quote increment).
+          let biddelta = bidprice - newbidprice;
+          let pricedelta = bidprice - formattedprice;
+          if ( Math.abs(pricedelta) === Number(quoteincrement) ) { // check if the best ask price matches submitted price (which subtracted the quote increment).
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
@@ -383,7 +383,7 @@ async function sendmessage(message, phonenumber) {
               newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is of a fixed number of decimal places. */
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + newbidquantity + ') ' + bidstatus);
           } // checked if the best ask price matches submitted price.
-          if ( Math.abs(biddelta) > quoteincrement ) { // check for a change in the best ask price exceeding the quote increment.
+          if ( Math.abs(biddelta) > Number(quoteincrement) ) { // check for a change in the best ask price exceeding the quote increment.
               // if ( bidstatus = 'open' ) { try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
               // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(newbidprice,newbidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
               // bidid = orderinformation.id;

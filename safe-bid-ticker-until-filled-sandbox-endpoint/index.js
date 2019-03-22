@@ -383,7 +383,7 @@ async function sendmessage(message, phonenumber) {
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
-                else { id = JSON.parse(cancellationinformation) ; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
+                else { let id = JSON.parse(cancellationinformation); messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
                 // let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 // if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
                 // if ( Object.keys(updatedbid).length === 0 ) { 

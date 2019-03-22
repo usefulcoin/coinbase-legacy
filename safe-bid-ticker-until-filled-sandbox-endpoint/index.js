@@ -363,7 +363,7 @@ async function sendmessage(message, phonenumber) {
         }
       } // made ask and then discontinued the subscription.
 
-      else { // update bid.
+      else { // check for price changes and receive status update.
         let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
         let newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */
         if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
@@ -379,17 +379,19 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus);
-              if ( bidstatus === 'open' ) { // cancel stale open bid.
-                let cancelling; if (cancelling ) { cancelling = false } else { bidstatus = 'cancelling'; cancelling = true; }
+              if ( bidstatus === undefined ) { 
+                bidstatus = 'order expired. it may have been filled or cancelled (or something else). assuming filled... setting status to "done"';
+                messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus); 
+                bidstatus = 'done'; /* if the status comes back undefined it means that the order was filled or cancelled */
+              } 
+              else if ( bidstatus === 'open' ) { // cancel and update stale open bid.
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
-                else { let id = cancellationinformation[0]; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
-                let cancelled; if (cancelled ) { cancelled = false } else { bidstatus = 'cancelled'; cancelled = true; }
-              } // cancelled stale open bid.
-              else if ( bidstatus === 'cancelled' ) { // update bid.
-                let updating; if (updating ) { updating = false } else { bidstatus = 'updating'; updating = true; }
+                else {
+                  let id = cancellationinformation[0];
+                  messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus + ' order id: ' + id);
+                }
                 let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
                 if ( Object.keys(updatedbid).length === 0 ) { 
@@ -404,18 +406,19 @@ async function sendmessage(message, phonenumber) {
                   if ( updatedbid.id.length === 36 ) {
                     bidid = updatedbid.id;
                     bidfilled = updatedbid.filled_size;
-                    let updated; if (updated ) { updated = false } else { bidstatus = updatedbid.status; updated = true; }
+                    bidstatus = updatedbid.status;
                     messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                        'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
                 }
-              } // updated bid.
+              } // cancelled and updated bid.
+              else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus); }
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.
-          else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }
+          else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' @ ' + newbidprice); }
         } // inspected updated sell offer.
-        else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
-      } // updated bid.
+        else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
+      } // checked for price changes and received status update.
 
     } // handled each level2 update.
   }); // end handling websocket messages.

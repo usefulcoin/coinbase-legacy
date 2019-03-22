@@ -380,7 +380,7 @@ async function sendmessage(message, phonenumber) {
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus);
-              if ( bidstatus !== 'done' ) { // cancel stale open bid.
+              if ( bidstatus === 'open' ) { // cancel stale open bid.
                 bidstatus = 'cancelling';
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }

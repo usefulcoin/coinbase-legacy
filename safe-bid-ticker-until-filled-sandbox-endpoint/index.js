@@ -386,6 +386,7 @@ async function sendmessage(message, phonenumber) {
           } // checked for a change in the best ask price.
           else { messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,''); }
         } // inspected updated sell offer.
+        else { messagehandlerinfo('l2update','<' + sidechange + '> ' + newbidquantity + ' @ ' + newbidprice,''); } /* log bid offer information to console */
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

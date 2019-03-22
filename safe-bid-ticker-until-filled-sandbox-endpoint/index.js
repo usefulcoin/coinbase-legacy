@@ -372,7 +372,8 @@ async function sendmessage(message, phonenumber) {
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
           let biddelta = bidprice - newbidprice;
           let pricedelta = bidprice - formattedprice;
-          if ( Math.abs(pricedelta) === Number(quoteincrement) ) { // check if the best ask price matches submitted price (which subtracted the quote increment).
+          console.log(biddelta);
+          if ( Math.abs(biddelta) === 0 ) { // check if the best ask price matches submitted price (which subtracted the quote increment).
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }

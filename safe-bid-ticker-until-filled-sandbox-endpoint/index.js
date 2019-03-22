@@ -388,7 +388,7 @@ async function sendmessage(message, phonenumber) {
                 else { let id = cancellationinformation[0]; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
                 let cancelled; if (cancelled ) { cancelled = false } else { bidstatus = 'cancelled'; cancelled = true; }
               } // cancelled stale open bid.
-              if ( bidstatus === 'cancelled' ) { // update bid.
+              else if ( bidstatus === 'cancelled' ) { // update bid.
                 let updating; if (updating ) { updating = false } else { bidstatus = 'updating'; updating = true; }
                 let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 

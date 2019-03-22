@@ -378,17 +378,31 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'the best bid changed. existing bid status: (~' + newbidquantity + ') ' + bidstatus);
-              if ( bidstatus = 'open' ) { 
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'(~' + newbidquantity + ') ' + bidstatus);
+              if ( bidstatus = 'open' ) { // handle stale open bid.
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
-                else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + cancellationinformation); }
-              }
-              // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
-              // bidid = orderinformation.id;
-              // bidstatus = orderinformation.status; 
-              // bidfilled = orderinformation.filled_size; 
+                else { id = JSON.parse(cancellationinformation) ; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
+                let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
+                if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
+                if ( Object.keys(updatedbid).length === 0 ) { 
+                  messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                     'bad bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                } else {
+                  if ( updatedbid.status === 'rejected' ) { // discontinue subscription if bid rejected.
+                    messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                       'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                  } 
+                  if ( updatedbid.id.length === 36 ) {
+                    bidid = updatedbid.id;
+                    bidfilled = updatedbid.filled_size;
+                    bidstatus = updatedbid.status;
+                    messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                       'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                  } 
+                }
+              } // handled stale open bid.
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }

@@ -382,10 +382,6 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
-              if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: [' + newbidquantity + '] ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.

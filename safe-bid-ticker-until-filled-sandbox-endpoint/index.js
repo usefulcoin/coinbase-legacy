@@ -302,7 +302,6 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-            console.log(bidinformation.status);
         if ( Object.keys(bidinformation).length === 0 ) { // discontinue subscription if bad bid.
           messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
         } // discontinued subscription.
@@ -313,7 +312,7 @@ async function sendmessage(message, phonenumber) {
           if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
             messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
           } // discontinued subscription if bid rejected. 
-          else if ( bidinformation.id === 36 ) { // valid order submitted. update state variables.
+          if ( bidinformation.id === 36 ) { // valid order submitted. update state variables.
             bidid = bidinformation.id;
             bidfilled = bidinformation.filled_size;
             bidstatus = bidinformation.status;

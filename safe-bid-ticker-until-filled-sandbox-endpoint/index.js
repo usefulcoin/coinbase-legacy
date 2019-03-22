@@ -380,6 +380,7 @@ async function sendmessage(message, phonenumber) {
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'(~' + newbidquantity + ') ' + bidstatus);
               if ( bidstatus = 'open' ) { // handle stale open bid.
+                bidstatus = 'cancelling';
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }

@@ -381,15 +381,15 @@ async function sendmessage(message, phonenumber) {
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'~' + newbidquantity + ' ' + basecurrency + ' ' + bidstatus);
               if ( bidstatus === 'open' ) { // cancel stale open bid.
-                bidstatus = 'cancelling';
+                let cancelling; if (cancelling ) { cancelling = false } else { bidstatus = 'cancelling'; cancelling = true; }
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
                 else { let id = cancellationinformation[0]; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
-                bidstatus = 'cancelled';
+                let cancelled; if (cancelled ) { cancelled = false } else { bidstatus = 'cancelled'; cancelled = true; }
               } // cancelled stale open bid.
               if ( bidstatus === 'cancelled' ) { // update bid.
-                bidstatus = 'updating';
+                let updating; if (updating ) { updating = false } else { bidstatus = 'updating'; updating = true; }
                 let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
                 if ( Object.keys(updatedbid).length === 0 ) { 
@@ -413,7 +413,7 @@ async function sendmessage(message, phonenumber) {
                                               'bid with no UUID: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
                 }
-                bidstatus = 'updated';
+                let updated; if (updated ) { updated = false } else { bidstatus = 'updated'; updated = true; }
               } // updated bid.
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.

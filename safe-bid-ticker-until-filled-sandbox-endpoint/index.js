@@ -314,6 +314,7 @@ async function sendmessage(message, phonenumber) {
           } // discontinued subscription if bid rejected. 
           else if ( bidinformation.id === 36 ) { // valid order submitted. update state variables.
             bidid = bidinformation.id;
+            console.log(bidid);
             bidfilled = bidinformation.filled_size;
             bidstatus = bidinformation.status;
           } // valid order submitted. updated state variables.

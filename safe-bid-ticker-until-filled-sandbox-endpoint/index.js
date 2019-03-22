@@ -396,10 +396,11 @@ async function sendmessage(message, phonenumber) {
                   messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                      'bad bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                 } else {
+                  console.log(updatedbid);  
                   if ( updatedbid.status === 'rejected' ) { // discontinue subscription if bid rejected.
                     messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                        'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
-                  } 
+                  }
                   if ( updatedbid.id.length ) {
                     if ( updatedbid.id.length === 36 ) {
                       bidid = updatedbid.id;
@@ -408,7 +409,7 @@ async function sendmessage(message, phonenumber) {
                       messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                          'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                     }
-                  } else { console.log(updatedbid); messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,
+                  } else { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,
                                               'bid with no UUID: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
                 }

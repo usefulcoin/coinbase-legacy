@@ -384,24 +384,24 @@ async function sendmessage(message, phonenumber) {
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
                 else { id = JSON.parse(cancellationinformation) ; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
-                let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
-                if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
-                if ( Object.keys(updatedbid).length === 0 ) { 
-                  messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
-                                     'bad bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
-                } else {
-                  if ( updatedbid.status === 'rejected' ) { // discontinue subscription if bid rejected.
-                    messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
-                                       'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
-                  } 
-                  if ( updatedbid.id.length === 36 ) {
-                    bidid = updatedbid.id;
-                    bidfilled = updatedbid.filled_size;
-                    bidstatus = updatedbid.status;
-                    messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
-                                       'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
-                  } 
-                }
+                // let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
+                // if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
+                // if ( Object.keys(updatedbid).length === 0 ) { 
+                  // messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                     // 'bad bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                // } else {
+                  // if ( updatedbid.status === 'rejected' ) { // discontinue subscription if bid rejected.
+                    // messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                       // 'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                  // } 
+                  // if ( updatedbid.id.length === 36 ) {
+                    // bidid = updatedbid.id;
+                    // bidfilled = updatedbid.filled_size;
+                    // bidstatus = updatedbid.status;
+                    // messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                       // 'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                  // } 
+                // }
               } // handled stale open bid.
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.

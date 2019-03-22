@@ -379,12 +379,15 @@ async function sendmessage(message, phonenumber) {
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'(~' + newbidquantity + ') ' + bidstatus);
-              if ( bidstatus = 'open' ) { // handle stale open bid.
+              if ( bidstatus = 'open' ) { // cancel stale open bid.
                 bidstatus = 'cancelling';
                 let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + bidid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
                 else { let id = cancellationinformation[0]; messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + id); }
+              } // cancel stale open bid.
+              if ( bidstatus = 'cancelling' ) { // update bid.
+                bidstatus = 'updating';
                 let updatedbid; try { updatedbid = await postorder(newbidprice,newbidquantity,'sell',true,productid); } catch (e) { console.error(e); }
                 if ( Object.keys(updatedbid) === 'message' ) { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, updatedbid.message); } 
                 if ( Object.keys(updatedbid).length === 0 ) { 
@@ -403,7 +406,7 @@ async function sendmessage(message, phonenumber) {
                                        'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   } 
                 }
-              } // handled stale open bid.
+              } // updated bid.
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price differs from the submitted price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }

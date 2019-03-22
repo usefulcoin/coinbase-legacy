@@ -364,14 +364,14 @@ async function sendmessage(message, phonenumber) {
       } // made ask and then discontinued the subscription.
       else { // update bid.
         let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
-        let newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
+        let newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */
         if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
         if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
         newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+
+        let delta = bidprice - newbidprice;
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          let delta = bidprice - newbidprice;
-          // if ( Math.abs(delta) > quoteminimum ) { // check for a change in the best ask price.
           if ( Math.abs(delta) > 0 ) { // check for a change in the best ask price.
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
@@ -379,13 +379,8 @@ async function sendmessage(message, phonenumber) {
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
-              newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */
-              if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
-              newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + newbidquantity + ') ' + bidstatus);
               // if ( bidstatus = 'open' ) { try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
-              // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
+              // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(newbidprice,newbidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
               // bidid = orderinformation.id;
               // bidstatus = orderinformation.status; 
               // bidfilled = orderinformation.filled_size; 
@@ -393,7 +388,15 @@ async function sendmessage(message, phonenumber) {
           } // checked for a change in the best ask price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }
         } // inspected updated sell offer.
-        else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
+        else { 
+          if ( Math.abs(delta) > 0 ) { // check for a change in the best bid price.
+              newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
+              if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
+              if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
+              newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + newbidquantity + ') ' + bidstatus);
+          } // checked for a change in the best bid price.
+          messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); } /* log bid offer information to console */
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

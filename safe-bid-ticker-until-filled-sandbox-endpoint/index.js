@@ -381,7 +381,7 @@ async function sendmessage(message, phonenumber) {
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
             else { // handle non-null response from rest api server returned.
               bidstatus = orderinformation.status; 
-              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'exisist bid: ' + bidstatus);
+              messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked for a change in the best ask price.
           else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,newbidquantity + ' @ ' + newbidprice); }

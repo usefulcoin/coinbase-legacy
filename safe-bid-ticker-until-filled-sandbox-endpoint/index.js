@@ -370,8 +370,8 @@ async function sendmessage(message, phonenumber) {
         newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         let biddelta = bidprice - newbidprice;
-        if ( sidechange === 'buy' ) { // inspect updated buy offer.
-          if ( Math.abs(biddelta) === 0 ) { // check if the best bid price matches submitted price (which subtracted the quote increment).
+        if ( sidechange === 'sell' ) { // inspect updated sell offer.
+          if ( Math.abs(biddelta) === 0 ) { // check if the best ask price matches submitted price (which subtracted the quote increment from the best sell price).
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
@@ -381,7 +381,7 @@ async function sendmessage(message, phonenumber) {
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'existing bid status: (~' + bidfilled + ') ' + bidstatus);
             } // handled non-null response from rest api server returned.
           } // checked if the best ask price matches submitted price.
-        } // inspected updated buy offer.
+        } // inspected updated sell offer.
       } // updated bid.
     } // handled each level2 update.
   }); // end handling websocket messages.

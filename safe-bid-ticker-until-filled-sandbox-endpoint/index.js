@@ -380,6 +380,7 @@ async function sendmessage(message, phonenumber) {
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
             if ( Object.keys(orderinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
             else { // handle non-null response from rest api server returned.
+              console.log(orderinformation);
               bidstatus = orderinformation.status; 
               bidfilled = orderinformation.filled_size; 
               newbidquantity = quoteriskablebalance/newbidprice - bidfilled; /* defined safe (riskable) bid quantity */

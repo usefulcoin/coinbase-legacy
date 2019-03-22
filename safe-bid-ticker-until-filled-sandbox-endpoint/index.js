@@ -250,11 +250,11 @@ async function sendmessage(message, phonenumber) {
     let jsondata = JSON.parse(data);
 
     function messagehandlerinfo(messagetype,infomessage,additionalinformation) {
-      console.log(channel + ' channel  (' + messagetype.padStart(10) + ' message  )  :  ' + infomessage + ' [' + additionalinformation + ']');
+      console.log(messagetype.padStart(10) + ' message  )  :  ' + infomessage + ' [' + additionalinformation + ']');
     }
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
-      console.log(channel + ' channel  (' + messagetype.padStart(10) + ' message  )  :  ' + exitmessage + ' [' + additionalinformation + ']');
+      console.log(messagetype.padStart(10) + ' message  )  :  ' + exitmessage + ' [' + additionalinformation + ']');
       let subscriptionrequest = channelsubscription('unsubscribe', productid, channels, signature, key, passphrase);
       try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
     }; // gracefully unsubscribe.

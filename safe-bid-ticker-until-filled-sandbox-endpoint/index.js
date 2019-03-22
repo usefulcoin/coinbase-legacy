@@ -401,16 +401,12 @@ async function sendmessage(message, phonenumber) {
                     messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
                                        'rejected bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
-                  if ( updatedbid.id.length ) {
-                    if ( updatedbid.id.length === 36 ) {
-                      bidid = updatedbid.id;
-                      bidfilled = updatedbid.filled_size;
-                      let updated; if (updated ) { updated = false } else { bidstatus = updatedbid.status; updated = true; }
-                      messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
-                                         'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
-                    }
-                  } else { messagehandlerexit('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,
-                                              'bid with no UUID: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
+                  if ( updatedbid.id.length === 36 ) {
+                    bidid = updatedbid.id;
+                    bidfilled = updatedbid.filled_size;
+                    let updated; if (updated ) { updated = false } else { bidstatus = updatedbid.status; updated = true; }
+                    messagehandlerinfo('l2update', sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice, 
+                                       'bid: ' + newbidquantity + ' ' + basecurrency + ' @ ' + newbidprice + ' ' + basecurrency + '/' + quotecurrency);
                   }
                 }
               } // updated bid.

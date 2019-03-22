@@ -336,9 +336,7 @@ async function sendmessage(message, phonenumber) {
         let askquantity = bidquantity;
         askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
         askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
-        console.log(askprice,askquantity,'sell',true,productid);
         let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
-        console.log(askinformation);
         if ( Object.keys(askinformation) === 'message' ) { messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, askinformation.message); } 
         if ( Object.keys(askinformation).length === 0 ) { 
           messagehandlerexit('l2update', formattedsize + ' @ ' + formattedprice, 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency);
@@ -358,18 +356,23 @@ async function sendmessage(message, phonenumber) {
       } // made ask and then discontinued the subscription.
       else { // update bid.
         if ( sidechange === 'sell' ) { // inspect updated sell offer.
-          newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
-          newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
+          let newbidprice = pricechange - Number(quoteincrement); /* always subtract the quote increment to ensure that the bid is never rejected */
+          let newbidquantity = quoteriskablebalance/bidprice - bidfilled; /* defined safe (riskable) bid quantity */
           if ( newbidquantity < baseminimum ) { newbidquantity = baseminimum } /* make sure that the new bid quantity is within Coinbase bounds... */
           if ( newbidquantity > basemaximum ) { newbidquantity = basemaximum } /* make sure that the new bid quantity is within Coinbase bounds... */
           newbidprice = Number(newbidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
+            // try { await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
+            // let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+            // bidid = orderinformation.id;
+            // bidfilled = orderinformation.filled_size;
+            // bidstatus = orderinformation.status;
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
             if ( Object.keys(orderinformation) === 'message' ) { messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message); } /* rest api server returned a message */
             if ( Object.keys(orderinformation).length === 0 ) { /* rest api server returned null */
               messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
-            } else { bidstatus = orderinformation.status; /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
+            } else { bidstatus = orderinformation.status; console.log(bidstatus); /* update orderstatus information for submitted bid */ } /* rest api server returned non-null response */
           } // checked for a change in the best ask price.
         } // inspected updated sell offer.
       } // updated bid.

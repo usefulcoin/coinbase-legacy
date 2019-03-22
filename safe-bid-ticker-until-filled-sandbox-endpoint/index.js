@@ -300,7 +300,11 @@ async function sendmessage(message, phonenumber) {
         if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
         bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
         try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(bidinformation).length !== 0 ) {
+        if ( Object.keys(bidinformation).length === 0 ) {
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+        else if ( Object.keys(bidinformation) === 'message' ) {
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
+        else {
           if ( bidinformation.id === 36 ) {
             bidid = bidinformation.id;
             bidfilled = bidinformation.filled_size;
@@ -309,7 +313,6 @@ async function sendmessage(message, phonenumber) {
             messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
           } // discontinued subscription if bid rejected.
         } else { // discontinue subscription if bad bid.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
         } // discontinued subscription if bad bid.
       } // made bid.
     } // handled level2 snapshot message.
@@ -355,9 +358,9 @@ async function sendmessage(message, phonenumber) {
           newbidquantity = Number(newbidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
           if ( bidprice !== newbidprice ) { // check for a change in the best ask price.
             let orderinformation; try { orderinformation = await restapirequest('GET','/orders/' + bidid); } catch (e) { console.error(e); }
-            if ( Object.keys(askinformation).length === 0 ) { /* rest api server returned null */
+            if ( Object.keys(orderinformation).length === 0 ) { /* rest api server returned null */
               messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,'bad request'); /* report status */
-            } else if ( Object.keys(askinformation) === 'message' ) { /* rest api server returned error message */
+            } else if ( Object.keys(orderinformation) === 'message' ) { /* rest api server returned error message */
               messagehandlerexit('l2update',newbidquantity + ' @ ' + newbidprice,orderinformation.message);
             } else { orderstatus = orderinformation.status; } /* update orderstatus information for submitted bid */
             console.log(orderstatus);

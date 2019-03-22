@@ -380,10 +380,11 @@ async function sendmessage(message, phonenumber) {
               bidfilled = orderinformation.filled_size; 
               messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'the best bid changed. existing bid status: (~' + newbidquantity + ') ' + bidstatus);
               if ( bidstatus = 'open' ) { 
-                let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); } }
+                let cancellationinformation; try { cancellationinformation = await restapirequest('DELETE','/orders/' + orderid); } catch (e) { console.error(e); }
                 if ( Object.keys(cancellationinformation) === 'message' ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,orderinformation.message); }
                 if ( Object.keys(cancellationinformation).length === 0 ) { messagehandlerexit('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'bad request'); }
-                else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + cancellationinformation);
+                else { messagehandlerinfo('l2update',sidechange.padStart(5) + ' ' + formattedsize + ' @ ' + formattedprice,'cancelled order id: ' + cancellationinformation); }
+              }
               // if ( bidstatus = 'open' ) { let orderinformation; try { orderinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); } }
               // bidid = orderinformation.id;
               // bidstatus = orderinformation.status; 

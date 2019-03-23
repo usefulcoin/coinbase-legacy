@@ -208,54 +208,76 @@ async function sendmessage(message, phonenumber) {
 
 
 async function makebid(askprice,askquantity) {
-        let snapshotprice = askprice; /* capture best ask price from the orderbook. */
-        let snapshotsize = askquantity; /* capture best ask quantity from the orderbook. */
+  // declare variables.
+  let snapshotprice = askprice; /* capture best ask price from the orderbook. */
+  let snapshotsize = askquantity; /* capture best ask quantity from the orderbook. */
+  let successmessage;
+  let errormessage;
+  // declared variables.
 
-        // retrieve product information...
-        let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
-        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve ' + productid + ' product information'); }
-        if ( Object.keys(productinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,productinformation.message); }
-        baseminimum = productinformation.base_min_size;
-        basemaximum = productinformation.base_max_size;
-        basecurrency = productinformation.base_currency;
-        quotecurrency = productinformation.quote_currency;
-        quoteincrement = productinformation.quote_increment;
-        // retrieved product information.
+  // retrieve product information...
+  let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
+  if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
+  if ( Object.keys(productinformation) === 'message' ) { errormessage = productinformation.message); }
+  let baseminimum = productinformation.base_min_size;
+  let basemaximum = productinformation.base_max_size;
+  let basecurrency = productinformation.base_currency;
+  let quotecurrency = productinformation.quote_currency;
+  let quoteincrement = productinformation.quote_increment;
+  // retrieved product information.
 
-        // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
-        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve account information'); }
-        if ( Object.keys(accountinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,accountinformation.message); }
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        quoteavailablebalance = quoteaccountinformation[0].available;
-        quoteriskablebalance = quoteavailablebalance*riskratio;
-        // retrieved account balance information.
+  // retrieve available balance information...
+  let quotecurrencyfilter = { currency: [quotecurrency] };
+  let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+  if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'); }
+  if ( Object.keys(accountinformation) === 'message' ) { errormessage = accountinformation.message); }
+  let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+  let quoteavailablebalance = quoteaccountinformation[0].available;
+  let quoteriskablebalance = quoteavailablebalance*riskratio;
+  // retrieved account balance information.
 
-        bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */
-        bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-        if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
-        if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-        bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(bidinformation) === 'message' ) {  // discontinue subscription if error message received from rest api server.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
-        } // discontinued subscription.
-        if ( Object.keys(bidinformation).length === 0 ) { // discontinue subscription if bad bid.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-        } // discontinued subscription.
-        else {
-          if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // discontinued subscription if bid rejected.
-          if ( bidinformation.id.length === 36 ) { // valid order submitted. update state variables.
-            bidid = bidinformation.id;
-            bidfilled = bidinformation.filled_size;
-            bidstatus = bidinformation.status;
-            messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // valid order submitted. updated state variables.
-        }
+  // validate and format bid price and quantity.
+  let bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */
+  let bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+  let bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+  if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
+  if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+  bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+  // validated and formatted bid price and quantity.
+
+  // submit bid.
+  let bidinformation; try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+  // submitted bid.
+
+  // analyze response.
+  if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; }
+  else if ( Object.keys(bidinformation) === 'message' ) { errormessage = orderinformation.message; }
+  else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; }
+  else if ( bidinformation.id.length === 36 ) {
+    let bidid = bidinformation.id;
+    let bidfilled = bidinformation.filled_size;
+    let bidstatus = bidinformation.status;
+    successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency';
+  } // analyze response.
+
+  let bidsubmission = {
+    'bidid': bidid,
+    'bidprice': bidprice,
+    'bidquantity': bidquantity,
+    'bidfilled': bidfilled,
+    'baseminimum': baseminimum,
+    'basemaximum': basemaximum,
+    'basecurrency': basecurrency,
+    'quotecurrency': quotecurrency,
+    'quoteincrement': quoteincrement,
+    'quoteavailablebalance': quoteavailablebalance,
+    'quoteriskablebalance': quoteriskablebalance,
+    'bidstatus': bidstatus,
+    'successmessage': successmessage
+    'errormessage': errormessage
+  }
+
+  return bidsubmission;
 }
 
 
@@ -279,16 +301,6 @@ async function makebid(askprice,askquantity) {
   });
   // opened connection and sent subscribe request.
 
-  // declare rest api variables...
-  let baseminimum;
-  let basemaximum;
-  let basecurrency;
-  let quotecurrency;
-  let quoteincrement;
-  let quoteavailablebalance;
-  let quoteriskablebalance;
-  // declared rest api variables.
-
   // declare websocket variables...
   let bidid;
   let bidprice;
@@ -304,11 +316,11 @@ async function makebid(askprice,askquantity) {
     let jsondata = JSON.parse(data);
 
     function messagehandlerinfo(messagetype,infomessage,additionalinformation) {
-      console.log(messagetype.padStart(10) + ' message    :  ' + infomessage + ' [' + additionalinformation + ']');
+      console.log(messagetype.padStart(8) + ' message : ' + infomessage + ' [' + additionalinformation + ']');
     }
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
-      console.log(messagetype.padStart(10) + ' message    :  ' + exitmessage + ' [' + additionalinformation + ']');
+      console.log(messagetype.padStart(8) + ' message : ' + exitmessage + ' [' + additionalinformation + ']');
       let subscriptionrequest = channelsubscription('unsubscribe', productid, channels, signature, key, passphrase);
       try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
     }; // gracefully unsubscribe.
@@ -331,7 +343,14 @@ async function makebid(askprice,askquantity) {
       else { // make bid.
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
-        makebid(snapshotprice, snapshotsize);
+        let bid = makebid(snapshotprice, snapshotsize);
+        bidid = bid.id;
+        bidfilled = bid.filled_size;
+        bidstatus = bid.status;
+        successmessage = bid.successmessage;
+        errormessage = bid.errormessage;
+        if ( errormessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
+        if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
       } // made bid.
     } // handled level2 snapshot message.
 

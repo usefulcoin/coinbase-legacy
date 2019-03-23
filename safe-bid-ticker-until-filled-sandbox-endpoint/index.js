@@ -276,6 +276,8 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  let askid = askinformation.id;
+  successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency;
   // analyze response.
 
   let asksubmission = {
@@ -319,6 +321,11 @@ async function makebid(askprice,askquantity,configurationinformation) {
   // submitted bid.
 
   // analyze response.
+  if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( Object.keys(bidinformation).length === 1 ) { errormessage = bidinformation.message; } 
+  else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( bidinformation.id.length === 36 ) { bidid = bidinformation.id; successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else { errormessage = '[unexpected error] bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   let bidid = bidinformation.id;
   successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
   // analyze response.

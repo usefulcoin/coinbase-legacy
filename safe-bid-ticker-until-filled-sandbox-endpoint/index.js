@@ -207,6 +207,59 @@ async function sendmessage(message, phonenumber) {
 
 
 
+async function makebid(askprice,askquantity) {
+        let snapshotprice = askprice; /* capture best ask price from the orderbook. */
+        let snapshotsize = askquantity; /* capture best ask quantity from the orderbook. */
+
+        // retrieve product information...
+        let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
+        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve ' + productid + ' product information'); }
+        if ( Object.keys(productinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,productinformation.message); }
+        baseminimum = productinformation.base_min_size;
+        basemaximum = productinformation.base_max_size;
+        basecurrency = productinformation.base_currency;
+        quotecurrency = productinformation.quote_currency;
+        quoteincrement = productinformation.quote_increment;
+        // retrieved product information.
+
+        // retrieve available balance information...
+        let quotecurrencyfilter = { currency: [quotecurrency] };
+        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
+        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve account information'); }
+        if ( Object.keys(accountinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,accountinformation.message); }
+        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+        quoteavailablebalance = quoteaccountinformation[0].available;
+        quoteriskablebalance = quoteavailablebalance*riskratio;
+        // retrieved account balance information.
+
+        bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */
+        bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
+        if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
+        if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
+        bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
+        try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
+        if ( Object.keys(bidinformation) === 'message' ) {  // discontinue subscription if error message received from rest api server.
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
+        } // discontinued subscription.
+        if ( Object.keys(bidinformation).length === 0 ) { // discontinue subscription if bad bid.
+          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+        } // discontinued subscription.
+        else {
+          if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
+            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+          } // discontinued subscription if bid rejected.
+          if ( bidinformation.id.length === 36 ) { // valid order submitted. update state variables.
+            bidid = bidinformation.id;
+            bidfilled = bidinformation.filled_size;
+            bidstatus = bidinformation.status;
+            messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
+          } // valid order submitted. updated state variables.
+}
+
+
+
+
 (async function main() {
 
   // create signature required to subscribe to a channel...
@@ -277,52 +330,7 @@ async function sendmessage(message, phonenumber) {
       else { // make bid.
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
-
-        // retrieve product information...
-        let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
-        if ( Object.keys(productinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve ' + productid + ' product information'); }
-        if ( Object.keys(productinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,productinformation.message); }
-        baseminimum = productinformation.base_min_size;
-        basemaximum = productinformation.base_max_size;
-        basecurrency = productinformation.base_currency;
-        quotecurrency = productinformation.quote_currency;
-        quoteincrement = productinformation.quote_increment;
-        // retrieved product information.
-      
-        // retrieve available balance information...
-        let quotecurrencyfilter = { currency: [quotecurrency] };
-        let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
-        if ( Object.keys(accountinformation).length === 0 ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'unable to retrieve account information'); }
-        if ( Object.keys(accountinformation) === 'message' ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,accountinformation.message); }
-        let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-        quoteavailablebalance = quoteaccountinformation[0].available;
-        quoteriskablebalance = quoteavailablebalance*riskratio;
-        // retrieved account balance information.
-
-        bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */ 
-        bidprice = Number(bidprice).toFixed(Math.abs(Math.log10(quoteincrement))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        bidquantity = Math.round( (quoteriskablebalance/bidprice) / baseminimum ) * baseminimum; /* defined safe (riskable) bid quantity */
-        if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
-        if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
-        bidquantity = Number(bidquantity).toFixed(Math.abs(Math.log10(baseminimum))); /* make absolutely sure that it is rounded and of a fixed number of decimal places. */
-        try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
-        if ( Object.keys(bidinformation) === 'message' ) {  // discontinue subscription if error message received from rest api server.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,orderinformation.message);
-        } // discontinued subscription.
-        if ( Object.keys(bidinformation).length === 0 ) { // discontinue subscription if bad bid.
-          messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-        } // discontinued subscription.
-        else {
-          if ( bidinformation.status === 'rejected' ) { // discontinue subscription if bid rejected.
-            messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // discontinued subscription if bid rejected. 
-          if ( bidinformation.id.length === 36 ) { // valid order submitted. update state variables.
-            bidid = bidinformation.id;
-            bidfilled = bidinformation.filled_size;
-            bidstatus = bidinformation.status;
-            messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
-          } // valid order submitted. updated state variables.
-        }
+        makebid(snapshotprice, snapshotsize);
       } // made bid.
     } // handled level2 snapshot message.
 

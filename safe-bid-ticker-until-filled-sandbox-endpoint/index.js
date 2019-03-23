@@ -224,22 +224,26 @@ async function configureorder(productid) {
   // retrieve product information...
   let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
-  if ( Object.keys(productinformation) === 'message' ) { errormessage = productinformation.message; }
-  let baseminimum = productinformation.base_min_size;
-  let basemaximum = productinformation.base_max_size;
-  let basecurrency = productinformation.base_currency;
-  let quotecurrency = productinformation.quote_currency;
-  let quoteincrement = productinformation.quote_increment;
+  else if ( Object.keys(productinformation).length === 1 ) { errormessage = 'Coinbase response "' + productinformation.message + '"'; }
+  else {
+    let baseminimum = productinformation.base_min_size;
+    let basemaximum = productinformation.base_max_size;
+    let basecurrency = productinformation.base_currency;
+    let quotecurrency = productinformation.quote_currency;
+    let quoteincrement = productinformation.quote_increment;
+  }
   // retrieved product information.
 
   // retrieve available balance information...
   let quotecurrencyfilter = { currency: [quotecurrency] };
   let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
   if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'; }
-  if ( Object.keys(accountinformation) === 'message' ) { errormessage = accountinformation.message; }
-  let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-  let quoteavailablebalance = quoteaccountinformation[0].available;
-  let quoteriskablebalance = quoteavailablebalance*riskratio;
+  else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'Coinbase response "' + accountinformation.message + '"'; }
+  else {
+    let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+    let quoteavailablebalance = quoteaccountinformation[0].available;
+    let quoteriskablebalance = quoteavailablebalance*riskratio;
+  }
   // retrieved account balance information.
 
   let configurationinformation = { // make configuration information object.
@@ -285,7 +289,7 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(askinformation).length === 1 ) { errormessage = askinformation.message; } 
+  else if ( Object.keys(askinformation).length === 1 ) { errormessage = 'Coinbase response "' + askinformation.message + '"'; } 
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( askinformation.id.length === 36 ) { successmessage = 'submitting ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = 'unexpected error encountered submitting ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
@@ -333,7 +337,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(bidinformation).length === 1 ) { errormessage = bidinformation.message; } 
+  else if ( Object.keys(bidinformation).length === 1 ) { errormessage = 'Coinbase response "' + bidinformation.message + '"'; } 
   else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( bidinformation.id.length === 36 ) { successmessage = 'submitting bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = 'unexpected error encountered submitting bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 

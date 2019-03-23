@@ -250,13 +250,6 @@ async function makebid(askprice,askquantity) {
   // submitted bid.
 
   // analyze response.
-  if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; }
-  else if ( Object.keys(bidinformation) === 'message' ) { errormessage = orderinformation.message; }
-  else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; }
-  else if ( bidinformation.id.length === 36 ) {
-    let bidid = bidinformation.id;
-    let bidfilled = bidinformation.filled_size;
-    let bidstatus = bidinformation.status;
     successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
   } // analyze response.
 
@@ -343,7 +336,7 @@ async function makebid(askprice,askquantity) {
         bidstatus = bid.status;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;
-        if ( !successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
+        if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
       } // made bid.
     } // handled level2 snapshot message.
 

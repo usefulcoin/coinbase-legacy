@@ -421,8 +421,8 @@ async function makebid(askprice,askquantity,configurationinformation) {
         askid = ask.askid;
         asksuccess = ask.successmessage;
         askerror = ask.errormessage;
-        if ( askerror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,askerror); }
-        if ( asksuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,asksuccess); }
+        if ( askerror ) { messagehandlerexit('done',bidquantity + ' @ ' + bidprice,askerror); }
+        if ( asksuccess ) { messagehandlerinfo('done',bidquantity + ' @ ' + bidprice,asksuccess); }
       }
       if ( id === askid ) { 
         messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');

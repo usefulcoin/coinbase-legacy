@@ -266,20 +266,20 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
   askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
   // validated and formatted ask price and quantity.
 
-  // submit bid.
+  // submit ask.
   let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
-  // submitted bid.
+  // submitted ask.
 
   // analyze response.
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( Object.keys(askinformation).length === 1 ) { console.log(askinformation.message); errormessage = askinformation.message; } 
-  // else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  // else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  // else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
   let asksubmission = {
-    'askid': askid,
+    'askid': askinformation.id,
     'successmessage': successmessage,
     'errormessage': errormessage
   }
@@ -420,6 +420,9 @@ async function makebid(askprice,askquantity,configurationinformation) {
         let ask = await makeask(bidprice, bidquantity, orderconfiguration);
         askid = ask.askid;
         asksuccess = ask.successmessage;
+        askerror = ask.errormessage;
+        if ( askerror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,askerror); }
+        if ( asksuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,asksuccess); }
       }
       if ( id === askid ) { 
         messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');

@@ -272,7 +272,7 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(askinformation) === 'message' ) { errormessage = askinformation.message; } 
+  else if ( Object.keys(askinformation) === ['message'] ) { errormessage = askinformation.message; } 
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { console.log(askinformation); }
   // else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 

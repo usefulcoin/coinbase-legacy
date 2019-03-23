@@ -233,7 +233,7 @@ async function configureorder(productid) {
   // retrieve product information...
   let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
-  else if ( Object.keys(productinformation).length === 1 ) { errormessage = 'Coinbase response "' + productinformation.message + '"'; }
+  else if ( Object.keys(productinformation).length === 1 ) { errormessage = 'the Coinbase response is "' + productinformation.message + '"'; }
   else {
     baseminimum = productinformation.base_min_size;
     basemaximum = productinformation.base_max_size;
@@ -247,7 +247,7 @@ async function configureorder(productid) {
   let quotecurrencyfilter = { currency: [quotecurrency] };
   let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
   if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'; }
-  else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'Coinbase response "' + accountinformation.message + '"'; }
+  else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'the Coinbase response is "' + accountinformation.message + '"'; }
   else {
     let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
     let quoteavailablebalance = quoteaccountinformation[0].available;
@@ -296,7 +296,7 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask submission: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(askinformation).length === 1 ) { errormessage = 'Coinbase response "' + askinformation.message + '"'; } 
+  else if ( Object.keys(askinformation).length === 1 ) { errormessage = 'the Coinbase response is "' + askinformation.message + '"'; } 
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( askinformation.id.length === 36 ) { successmessage = 'submitting ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = 'unexpected error encountered submitting ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
@@ -343,7 +343,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid submission: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(bidinformation).length === 1 ) { errormessage = 'Coinbase response "' + bidinformation.message + '"'; } 
+  else if ( Object.keys(bidinformation).length === 1 ) { errormessage = 'the Coinbase response is "' + bidinformation.message + '"'; } 
   else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( bidinformation.id.length === 36 ) { successmessage = 'submitting bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = 'unexpected error encountered submitting bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 

@@ -343,8 +343,9 @@ async function makebid(askprice,askquantity) {
         bidstatus = bid.status;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;
-        if ( errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
-        if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
+        messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage);
+        if ( errormessage !== null ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
+        if ( successmessage !== null ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
       } // made bid.
     } // handled level2 snapshot message.
 

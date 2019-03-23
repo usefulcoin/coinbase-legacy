@@ -334,12 +334,11 @@ async function makebid(askprice,askquantity) {
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
         let bid = await makebid(snapshotprice, snapshotsize);
-        bidid = bid.id;
+        bidid = bid.bidid;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;
         if ( errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
         if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
-        console.log(bidid);
       } // made bid.
     } // handled level2 snapshot message.
 

@@ -351,6 +351,8 @@ async function makebid(askprice,askquantity,configurationinformation) {
 
   let bidsubmission = {
     'bidid': bidinformation.id,
+    'bidprice': bidinformation.price,
+    'bidquantity': bidinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
   }

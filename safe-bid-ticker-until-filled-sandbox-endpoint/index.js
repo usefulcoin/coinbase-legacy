@@ -304,6 +304,8 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
 
   let asksubmission = {
     'askid': askinformation.id,
+    'askprice': askinformation.price,
+    'askquantity': askinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
   }

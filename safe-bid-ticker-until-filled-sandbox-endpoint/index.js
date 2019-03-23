@@ -411,24 +411,21 @@ async function makebid(askprice,askquantity,configurationinformation) {
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
 
-  // retrieve REST API parameters.
-  orderconfiguration = await configureorder(productid);
-  // retrieved REST API parameters.
+        // retrieve REST API parameters.
+        orderconfiguration = await configureorder(productid);
+        // retrieved REST API parameters.
 
         let bid = await makebid(snapshotprice, snapshotsize, orderconfiguration);
         bidid = bid.bidid;
         bidsuccess = bid.successmessage;
         biderror = bid.errormessage;
-        bidprice = bid.price;
-        bidquantity = bid.quantity;
-
-        console.log('bidprice : ' + bidprice);
-        console.log('bidquantity : ' + bidquantity);
-
+        bidprice = bid.bidprice;
+        bidquantity = bid.bidquantity;
         if ( biderror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,biderror); }
         if ( bidsuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidsuccess); }
       } // made bid.
     } // handled level2 snapshot message.
+
 
     if ( jsondata.type === 'done' ) { // handle done message from the full channel.
       let id = jsondata.order_id;
@@ -440,9 +437,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
       if ( id === bidid ) { 
         messagehandlerinfo('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
         if ( reason === 'canceled' ) {
-          console.log(bidprice, bidquantity, orderconfiguration);
           let ask = await makeask(bidprice, bidquantity, orderconfiguration); /* this function takes the bid price and bid quantity as inputs */
           askid = ask.askid;
+          askprice = ask.askprice;
+          askquantity = ask.askquantity;
           asksuccess = ask.successmessage;
           askerror = ask.errormessage;
           if ( askerror ) { messagehandlerexit('done',askquantity + ' @ ' + askprice,askerror); }

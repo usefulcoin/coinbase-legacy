@@ -365,6 +365,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
   let bidsuccess;
   let asksuccess;
   let subscribed;
+  let orderconfiguration;
   // declared persistent websocket variables.
 
   ws.on('message', async function incoming(data) { // start handling websocket messages.

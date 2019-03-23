@@ -47,6 +47,19 @@ const passphrase = process.env.apipassphrase;
 
 
 
+// declare quasi-persistent websocket variables...
+let askid;
+let bidid;
+let askprice;
+let bidprice;
+let askquantity;
+let bidquantity;
+let asksuccess;
+let bidsuccess;
+let subscribed;
+let orderconfiguration = new Object();
+// declared quasi-persistent websocket variables.
+
 // filter an array of objects...
 function filter(array, filters) {
   let itemstoinclude = Object.keys(filters);
@@ -356,17 +369,6 @@ async function makebid(askprice,askquantity,configurationinformation) {
   });
   // opened connection and sent subscribe request.
 
-  // declare persistent websocket variables...
-  let askid;
-  let bidid;
-  let bidprice;
-  let bidquantity;
-  let bidsuccess;
-  let asksuccess;
-  let subscribed;
-  let orderconfiguration = new Object();
-  // declared persistent websocket variables.
-
   ws.on('message', async function incoming(data) { // start handling websocket messages.
     let jsondata = JSON.parse(data);
 
@@ -416,13 +418,15 @@ async function makebid(askprice,askquantity,configurationinformation) {
       let reason = jsondata.reason;
       let remaining = jsondata.remaining_size;
       if ( id === bidid ) { 
-        messagehandlerinfo('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
-        let ask = await makeask(bidprice, bidquantity, orderconfiguration);
-        askid = ask.askid;
-        asksuccess = ask.successmessage;
-        askerror = ask.errormessage;
-        if ( askerror ) { messagehandlerexit('done',bidquantity + ' @ ' + bidprice,askerror); }
-        if ( asksuccess ) { messagehandlerinfo('done',bidquantity + ' @ ' + bidprice,asksuccess); }
+        messagehandlerinfo('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
+        if ( reason === 'canceled' ) {
+          let ask = await makeask(bidprice, bidquantity, orderconfiguration); /* this function takes the bid price and bid quantity as inputs */
+          askid = ask.askid;
+          asksuccess = ask.successmessage;
+          askerror = ask.errormessage;
+          if ( askerror ) { messagehandlerexit('done',askquantity + ' @ ' + askprice,askerror); }
+          if ( asksuccess ) { messagehandlerinfo('done',askquantity + ' @ ' + askprice,asksuccess); }
+        }
       }
       if ( id === askid ) { 
         messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');

@@ -349,7 +349,6 @@ async function makebid(askprice,askquantity) {
       let price = jsondata.price;
       let reason = jsondata.reason;
       let remaining = jsondata.remaining_size;
-      console.log(id + ' : ' + bidid);
       if ( id === bidid ) { messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); }
     } // handled done message from the full channel.
   }); // end handling websocket messages.

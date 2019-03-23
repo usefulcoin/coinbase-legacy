@@ -337,7 +337,7 @@ async function makebid(askprice,askquantity) {
         bidid = bid.id;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;
-        if ( errormessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
+        if ( errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
         if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
       } // made bid.
     } // handled level2 snapshot message.
@@ -349,6 +349,7 @@ async function makebid(askprice,askquantity) {
       let price = jsondata.price;
       let reason = jsondata.reason;
       let remaining = jsondata.remaining_size;
+      console.log(id + ' : ' + bidid);
       if ( id === bidid ) { messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); }
     } // handled done message from the full channel.
   }); // end handling websocket messages.

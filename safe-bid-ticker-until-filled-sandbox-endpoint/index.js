@@ -27,7 +27,7 @@ const fetch = require('node-fetch');
 
 
 // define consts...
-const channel = 'level2';
+const channels = ['heartbeat','full','level2'];
 const riskratio = 0.00001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
@@ -163,11 +163,11 @@ function signrequest(method,requestpath,body){
 
 
 // create or discontinue subscription request...
-function channelsubscription(type, productid, channel, signature, key, passphrase) {
+function channelsubscription(type, productid, channels, signature, key, passphrase) {
   let subscriptionrequest = {
       'type': type,
       'product_ids': [productid],
-      'channels': [channel],
+      'channels': channels,
       'signature': signature.signedmessage,
       'key': key,
       'passphrase': passphrase,
@@ -220,7 +220,7 @@ async function sendmessage(message, phonenumber) {
   // on open connection and send subscribe request...
   ws.on('open', function open() {
     console.log('connected');
-    let subscriptionrequest = channelsubscription('subscribe', productid, channel, signature, key, passphrase);
+    let subscriptionrequest = channelsubscription('subscribe', productid, channels, signature, key, passphrase);
     try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); }
   });
   // opened connection and sent subscribe request.
@@ -255,7 +255,7 @@ async function sendmessage(message, phonenumber) {
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.
       console.log(messagetype.padStart(10) + ' message    :  ' + exitmessage + ' [' + additionalinformation + ']');
-      let subscriptionrequest = channelsubscription('unsubscribe', productid, channel, signature, key, passphrase);
+      let subscriptionrequest = channelsubscription('unsubscribe', productid, channels, signature, key, passphrase);
       try { ws.send(JSON.stringify(subscriptionrequest)); } catch (e) { console.error(e); } 
     }; // gracefully unsubscribe.
    

@@ -207,14 +207,7 @@ async function sendmessage(message, phonenumber) {
 
 
 
-async function makebid(askprice,askquantity) {
-  // declare variables.
-  let snapshotprice = askprice; /* capture best ask price from the orderbook. */
-  let snapshotsize = askquantity; /* capture best ask quantity from the orderbook. */
-  let successmessage;
-  let errormessage;
-  // declared variables.
-
+async function configureorder(productid) {
   // retrieve product information...
   let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
@@ -235,6 +228,37 @@ async function makebid(askprice,askquantity) {
   let quoteavailablebalance = quoteaccountinformation[0].available;
   let quoteriskablebalance = quoteavailablebalance*riskratio;
   // retrieved account balance information.
+
+  let configurationinformation = { // make configuration information object.
+    'baseminimum': baseminimum,
+    'basemaximum': basemaximum,
+    'basecurrency': basecurrency,
+    'quotecurrency': quotecurrency,
+    'quoteincrement': quoteincrement,
+    'quoteavailablebalance': quoteavailablebalance,
+    'quoteriskablebalance': quoteriskablebalance,
+  } // made configuration information object.
+
+  return configurationinformation;
+}
+
+
+
+
+async function makebid(askprice,askquantity,configurationinformation) {
+  // declare variables.
+  let snapshotprice = askprice; /* capture best ask price from the orderbook. */
+  let snapshotsize = askquantity; /* capture best ask quantity from the orderbook. */
+  let baseminimum = configurationinformation.baseminimum;
+  let basemaximum = configurationinformation.basemaximum;
+  let basecurrency = configurationinformation.basecurrency;
+  let quotecurrency = configurationinformation.quotecurrency;
+  let quoteincrement = configurationinformation.quoteincrement;
+  let quoteavailablebalance = configurationinformation.quoteavailablebalance;
+  let quoteriskablebalance = configurationinformation.quoteriskablebalance;
+  let successmessage;
+  let errormessage;
+  // declared variables.
 
   // validate and format bid price and quantity.
   let bidprice = Math.round( ( snapshotprice - Number(quoteincrement) ) / quoteincrement ) * quoteincrement; /* always subtract the quote increment to ensure that the bid is never rejected */
@@ -261,13 +285,6 @@ async function makebid(askprice,askquantity) {
     'bidprice': bidprice,
     'bidquantity': bidquantity,
     'bidfilled': bidfilled,
-    'baseminimum': baseminimum,
-    'basemaximum': basemaximum,
-    'basecurrency': basecurrency,
-    'quotecurrency': quotecurrency,
-    'quoteincrement': quoteincrement,
-    'quoteavailablebalance': quoteavailablebalance,
-    'quoteriskablebalance': quoteriskablebalance,
     'bidstatus': bidstatus,
     'successmessage': successmessage,
     'errormessage': errormessage
@@ -333,7 +350,8 @@ async function makebid(askprice,askquantity) {
       else { // make bid.
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
-        let bid = await makebid(snapshotprice, snapshotsize);
+        let orderconfiguration = await configureorder(productid);
+        let bid = await makebid(snapshotprice, snapshotsize, orderconfiguration);
         bidid = bid.bidid;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;

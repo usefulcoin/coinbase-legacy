@@ -323,7 +323,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
   else if ( Object.keys(bidinformation).length === 1 ) { errormessage = bidinformation.message; } 
   else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( bidinformation.id.length === 35 ) { successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else { console.log("test"); errormessage = '[unexpected error] bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else { errormessage = '[unexpected error] bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
   let bidsubmission = {

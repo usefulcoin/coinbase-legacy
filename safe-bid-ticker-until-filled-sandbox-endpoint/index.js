@@ -245,6 +245,57 @@ async function configureorder(productid) {
 
 
 
+async function makeask(bidprice,bidquantity,configurationinformation) {
+  // declare variables.
+  let baseminimum = configurationinformation.baseminimum;
+  let basemaximum = configurationinformation.basemaximum;
+  let basecurrency = configurationinformation.basecurrency;
+  let quotecurrency = configurationinformation.quotecurrency;
+  let quoteincrement = configurationinformation.quoteincrement;
+  let quoteavailablebalance = configurationinformation.quoteavailablebalance;
+  let quoteriskablebalance = configurationinformation.quoteriskablebalance;
+  let successmessage;
+  let errormessage;
+  // declared variables.
+
+  // validate and format ask price and quantity.
+  let askprice = Math.round( Number(quoteincrement) + bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+  let askquantity = bidquantity;
+  let askquantity = Math.round( (quoteriskablebalance/askprice) / baseminimum ) * baseminimum; /* defined safe (riskable) ask quantity */
+  askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
+  askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
+  // validated and formatted ask price and quantity.
+
+  // submit bid.
+  let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+  // submitted bid.
+
+  // analyze response.
+  if ( Object.keys(askinformation) === 'message' ) { errormessage = askinformation.message; } 
+  if ( Object.keys(askinformation).length === 0 ) { 
+    errormessage = 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency;
+  } else {
+    if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+    if ( askinformation.id.length === 36 ) {
+    let askid = askinformation.id;
+    successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency;
+      // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
+      //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
+    } 
+  } // analyze response.
+
+  let asksubmission = {
+    'askid': askid,
+    'successmessage': successmessage,
+    'errormessage': errormessage
+  }
+
+  return asksubmission;
+}
+
+
+
+
 async function makebid(askprice,askquantity,configurationinformation) {
   // declare variables.
   let snapshotprice = askprice; /* capture best ask price from the orderbook. */
@@ -274,18 +325,12 @@ async function makebid(askprice,askquantity,configurationinformation) {
   // submitted bid.
 
   // analyze response.
-    let bidid = bidinformation.id;
-    let bidfilled = bidinformation.filled_size;
-    let bidstatus = bidinformation.status;
-    successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
+  let bidid = bidinformation.id;
+  successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
   // analyze response.
 
   let bidsubmission = {
     'bidid': bidid,
-    'bidprice': bidprice,
-    'bidquantity': bidquantity,
-    'bidfilled': bidfilled,
-    'bidstatus': bidstatus,
     'successmessage': successmessage,
     'errormessage': errormessage
   }
@@ -315,7 +360,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
   // opened connection and sent subscribe request.
 
   // declare persistent websocket variables...
+  let askid;
   let bidid;
+  let bidprice;
+  let bidquantity;
   let subscribed;
   // declared persistent websocket variables.
 
@@ -367,7 +415,11 @@ async function makebid(askprice,askquantity,configurationinformation) {
       let price = jsondata.price;
       let reason = jsondata.reason;
       let remaining = jsondata.remaining_size;
-      if ( id === bidid ) { messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); }
+      if ( id === bidid ) { 
+        messagehandlerinfo('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
+        let ask = await makeask(bidprice, bidquantity, orderconfiguration);
+      }
+      if ( id === askid ) { messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); sendmessage()}
     } // handled done message from the full channel.
   }); // end handling websocket messages.
 }());

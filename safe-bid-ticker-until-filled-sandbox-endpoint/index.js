@@ -430,7 +430,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
       if ( id === bidid ) { 
         messagehandlerinfo('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
         if ( reason === 'canceled' ) {
-          let ask = await makeask(bidprice, bidquantity, orderconfiguration); /* this function takes the bid price and bid quantity as inputs */
+          let ask = await makeask(price, remaining, orderconfiguration); /* this function takes the bid price and bid quantity as inputs */
           askid = ask.askid;
           asksuccess = ask.successmessage;
           askerror = ask.errormessage;

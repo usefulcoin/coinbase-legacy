@@ -251,7 +251,7 @@ async function makebid(askprice,askquantity) {
 
   // analyze response.
     successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
-  } // analyze response.
+  // analyze response.
 
   let bidsubmission = {
     'bidid': bidid,
@@ -295,8 +295,8 @@ async function makebid(askprice,askquantity) {
   // opened connection and sent subscribe request.
 
   // declare persistent websocket variables...
+  let bidid;
   let subscribed;
-  let orderstatus;
   // declared persistent websocket variables.
 
   ws.on('message', async function incoming(data) { // start handling websocket messages.

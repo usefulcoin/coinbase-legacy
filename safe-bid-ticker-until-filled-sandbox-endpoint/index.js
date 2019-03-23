@@ -272,9 +272,9 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
 
   // analyze response.
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( Object.keys(askinformation).length === 1 ) { console.log(askinformation.message); errormessage = askinformation.message; } 
+  else if ( Object.keys(askinformation).length === 1 ) { errormessage = askinformation.message; } 
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( askinformation.id.length === 36 ) { successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
@@ -322,12 +322,12 @@ async function makebid(askprice,askquantity,configurationinformation) {
   if ( Object.keys(bidinformation).length === 0 ) { errormessage = 'bad bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( Object.keys(bidinformation).length === 1 ) { errormessage = bidinformation.message; } 
   else if ( bidinformation.status === 'rejected' ) { errormessage = 'rejected bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else if ( bidinformation.id.length === 36 ) { bidid = bidinformation.id; successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else { errormessage = '[unexpected error] bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( bidinformation.id.length === 35 ) { successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else { console.log("test"); errormessage = '[unexpected error] bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
   let bidsubmission = {
-    'bidid': bidid,
+    'bidid': bidinformation.id,
     'successmessage': successmessage,
     'errormessage': errormessage
   }

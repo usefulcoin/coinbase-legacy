@@ -273,7 +273,7 @@ async function makebid(askprice,askquantity) {
     'quoteavailablebalance': quoteavailablebalance,
     'quoteriskablebalance': quoteriskablebalance,
     'bidstatus': bidstatus,
-    'successmessage': successmessage
+    'successmessage': successmessage,
     'errormessage': errormessage
   }
 

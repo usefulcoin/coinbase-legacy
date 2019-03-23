@@ -279,8 +279,6 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
     if ( askinformation.id.length === 36 ) {
     let askid = askinformation.id;
     successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency;
-      // sendmessage(productid + '\nbid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency
-      //                      + ' ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency, recipient);
     } 
   } // analyze response.
 
@@ -364,6 +362,8 @@ async function makebid(askprice,askquantity,configurationinformation) {
   let bidid;
   let bidprice;
   let bidquantity;
+  let bidsuccess;
+  let asksuccess;
   let subscribed;
   // declared persistent websocket variables.
 
@@ -401,10 +401,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
         let orderconfiguration = await configureorder(productid);
         let bid = await makebid(snapshotprice, snapshotsize, orderconfiguration);
         bidid = bid.bidid;
-        successmessage = bid.successmessage;
-        errormessage = bid.errormessage;
-        if ( errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
-        if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
+        bidsuccess = bid.successmessage;
+        biderror = bid.errormessage;
+        if ( biderror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,biderror); }
+        if ( bidsuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidsuccess); }
       } // made bid.
     } // handled level2 snapshot message.
 
@@ -418,8 +418,13 @@ async function makebid(askprice,askquantity,configurationinformation) {
       if ( id === bidid ) { 
         messagehandlerinfo('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
         let ask = await makeask(bidprice, bidquantity, orderconfiguration);
+        askid = ask.askid;
+        asksuccess = ask.successmessage;
       }
-      if ( id === askid ) { messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); sendmessage()}
+      if ( id === askid ) { 
+        messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');
+        sendmessage(productid + ' bid: ' + bidsuccess + ' ask: ' + asksuccess, recipient);
+      }
     } // handled done message from the full channel.
   }); // end handling websocket messages.
 }());

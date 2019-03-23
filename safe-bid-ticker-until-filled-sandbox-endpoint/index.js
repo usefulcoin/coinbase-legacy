@@ -421,6 +421,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
         biderror = bid.errormessage;
         bidprice = bid.price;
         bidquantity = bid.quantity;
+
+        console.log('bidprice : ' + bidprice);
+        console.log('bidquantity : ' + bidquantity);
+
         if ( biderror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,biderror); }
         if ( bidsuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidsuccess); }
       } // made bid.

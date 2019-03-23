@@ -255,6 +255,7 @@ async function makebid(askprice,askquantity) {
             bidstatus = bidinformation.status;
             messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency);
           } // valid order submitted. updated state variables.
+        }
 }
 
 

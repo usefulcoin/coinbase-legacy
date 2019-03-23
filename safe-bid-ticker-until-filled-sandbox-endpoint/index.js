@@ -343,9 +343,19 @@ async function makebid(askprice,askquantity) {
         bidstatus = bid.status;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;
-        if ( errormessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
+        if ( errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,errormessage); }
         if ( successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,successmessage); }
       } // made bid.
     } // handled level2 snapshot message.
+
+    if ( jsondata.type === 'done' ) { // handle done message from the full channel.
+      let id = jsondata.order_id;
+      let pair = jsondata.product_id;
+      let side = jsondata.side;
+      let price = jsondata.price;
+      let reason = jsondata.reason;
+      let remaining = jsondata.remaining_size;
+      messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
+    } // handled done message from the full channel.
   }); // end handling websocket messages.
 }());

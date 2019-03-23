@@ -301,16 +301,9 @@ async function makebid(askprice,askquantity) {
   });
   // opened connection and sent subscribe request.
 
-  // declare websocket variables...
-  let bidid;
-  let bidprice;
-  let bidstatus;
-  let bidfilled;
-  let bidquantity;
-  let subscribed;
-  let orderedatprice;
-  let priceshift = false;
-  // declared websocket variables.
+  // declare persistent websocket variables...
+  let orderstatus;
+  // declared persistent websocket variables.
 
   ws.on('message', async function incoming(data) { // start handling websocket messages.
     let jsondata = JSON.parse(data);

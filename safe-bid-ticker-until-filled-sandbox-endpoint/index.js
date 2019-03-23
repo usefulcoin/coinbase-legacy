@@ -334,6 +334,7 @@ async function makebid(askprice,askquantity) {
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
         let bid = await makebid(snapshotprice, snapshotsize);
+        console.log(bid);
         bidid = bid.id;
         successmessage = bid.successmessage;
         errormessage = bid.errormessage;

@@ -387,7 +387,7 @@ async function makebid(askprice,askquantity,configurationinformation) {
     let jsondata = JSON.parse(data);
 
     function messagehandlerinfo(messagetype,infomessage,additionalinformation) {
-      console.log(messagetype.padStart(8) + ' message : ' + infomessage + ' [' + additionalinformation + ']');
+      console.log(messagetype.padStart(8) + ' subscription message : ' + infomessage + ' [' + additionalinformation + ']');
     }
 
     async function messagehandlerexit(messagetype,exitmessage,additionalinformation) { // gracefully unsubscribe.

@@ -230,7 +230,7 @@ async function makebid(askprice,askquantity) {
   let quotecurrencyfilter = { currency: [quotecurrency] };
   let accountinformation; try { accountinformation = await restapirequest('GET','/accounts'); } catch (e) { console.error(e); }
   if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'; }
-  if ( Object.keys(accountinformation) === 'message' ) { errormessage = accountinformation.message); }
+  if ( Object.keys(accountinformation) === 'message' ) { errormessage = accountinformation.message; }
   let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
   let quoteavailablebalance = quoteaccountinformation[0].available;
   let quoteriskablebalance = quoteavailablebalance*riskratio;

@@ -221,16 +221,25 @@ async function sendmessage(message, phonenumber) {
 
 
 async function configureorder(productid) {
+  // declare variables.
+  let baseminimum;
+  let basemaximum;
+  let basecurrency;
+  let quotecurrency;
+  let quoteincrement;
+  let quoteriskablebalance;
+  // declared variables.
+
   // retrieve product information...
   let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
   else if ( Object.keys(productinformation).length === 1 ) { errormessage = 'Coinbase response "' + productinformation.message + '"'; }
   else {
-    const baseminimum = productinformation.base_min_size;
-    const basemaximum = productinformation.base_max_size;
-    const basecurrency = productinformation.base_currency;
-    const quotecurrency = productinformation.quote_currency;
-    const quoteincrement = productinformation.quote_increment;
+    baseminimum = productinformation.base_min_size;
+    basemaximum = productinformation.base_max_size;
+    basecurrency = productinformation.base_currency;
+    quotecurrency = productinformation.quote_currency;
+    quoteincrement = productinformation.quote_increment;
   }
   // retrieved product information.
 
@@ -240,9 +249,9 @@ async function configureorder(productid) {
   if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'; }
   else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'Coinbase response "' + accountinformation.message + '"'; }
   else {
-    const quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-    const quoteavailablebalance = quoteaccountinformation[0].available;
-    const quoteriskablebalance = quoteavailablebalance*riskratio;
+    let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+    let quoteavailablebalance = quoteaccountinformation[0].available;
+    quoteriskablebalance = quoteavailablebalance*riskratio;
   }
   // retrieved account balance information.
 
@@ -252,7 +261,6 @@ async function configureorder(productid) {
     'basecurrency': basecurrency,
     'quotecurrency': quotecurrency,
     'quoteincrement': quoteincrement,
-    'quoteavailablebalance': quoteavailablebalance,
     'quoteriskablebalance': quoteriskablebalance,
   } // made configuration information object.
 
@@ -269,7 +277,6 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
   let basecurrency = configurationinformation.basecurrency;
   let quotecurrency = configurationinformation.quotecurrency;
   let quoteincrement = configurationinformation.quoteincrement;
-  let quoteavailablebalance = configurationinformation.quoteavailablebalance;
   let quoteriskablebalance = configurationinformation.quoteriskablebalance;
   let successmessage;
   let errormessage;
@@ -316,7 +323,6 @@ async function makebid(askprice,askquantity,configurationinformation) {
   let basecurrency = configurationinformation.basecurrency;
   let quotecurrency = configurationinformation.quotecurrency;
   let quoteincrement = configurationinformation.quoteincrement;
-  let quoteavailablebalance = configurationinformation.quoteavailablebalance;
   let quoteriskablebalance = configurationinformation.quoteriskablebalance;
   let successmessage;
   let errormessage;

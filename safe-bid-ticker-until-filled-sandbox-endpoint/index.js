@@ -274,9 +274,8 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
   if ( Object.keys(askinformation).length === 0 ) { errormessage = 'bad ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   else if ( Object.keys(askinformation).length === 1 ) { errormessage = askinformation.message; } 
   else if ( askinformation.status === 'rejected' ) { errormessage = 'rejected ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  else { console.log(askinformation); }
-  // else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
-  // else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else if ( askinformation.id.length === 36 ) { askid = askinformation.id; successmessage = 'ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
+  else { errormessage = '[unexpected error] ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
   let asksubmission = {

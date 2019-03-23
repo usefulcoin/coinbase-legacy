@@ -226,11 +226,11 @@ async function configureorder(productid) {
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
   else if ( Object.keys(productinformation).length === 1 ) { errormessage = 'Coinbase response "' + productinformation.message + '"'; }
   else {
-    let baseminimum = productinformation.base_min_size;
-    let basemaximum = productinformation.base_max_size;
-    let basecurrency = productinformation.base_currency;
-    let quotecurrency = productinformation.quote_currency;
-    let quoteincrement = productinformation.quote_increment;
+    const baseminimum = productinformation.base_min_size;
+    const basemaximum = productinformation.base_max_size;
+    const basecurrency = productinformation.base_currency;
+    const quotecurrency = productinformation.quote_currency;
+    const quoteincrement = productinformation.quote_increment;
   }
   // retrieved product information.
 
@@ -240,9 +240,9 @@ async function configureorder(productid) {
   if ( Object.keys(accountinformation).length === 0 ) { errormessage = 'unable to retrieve account information'; }
   else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'Coinbase response "' + accountinformation.message + '"'; }
   else {
-    let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-    let quoteavailablebalance = quoteaccountinformation[0].available;
-    let quoteriskablebalance = quoteavailablebalance*riskratio;
+    const quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
+    const quoteavailablebalance = quoteaccountinformation[0].available;
+    const quoteriskablebalance = quoteavailablebalance*riskratio;
   }
   // retrieved account balance information.
 

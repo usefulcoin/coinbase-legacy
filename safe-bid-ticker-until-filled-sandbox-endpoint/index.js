@@ -218,7 +218,7 @@ async function makebid(askprice,askquantity) {
   // retrieve product information...
   let productinformation; try { productinformation = await restapirequest('GET','/products/' + productid); } catch (e) { console.error(e); }
   if ( Object.keys(productinformation).length === 0 ) { errormessage = 'unable to retrieve ' + productid + ' product information'; }
-  if ( Object.keys(productinformation) === 'message' ) { errormessage = productinformation.message); }
+  if ( Object.keys(productinformation) === 'message' ) { errormessage = productinformation.message; }
   let baseminimum = productinformation.base_min_size;
   let basemaximum = productinformation.base_max_size;
   let basecurrency = productinformation.base_currency;

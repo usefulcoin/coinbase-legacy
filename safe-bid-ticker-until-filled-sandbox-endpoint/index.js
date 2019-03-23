@@ -302,6 +302,7 @@ async function makebid(askprice,askquantity) {
   // opened connection and sent subscribe request.
 
   // declare persistent websocket variables...
+  let subscribed;
   let orderstatus;
   // declared persistent websocket variables.
 

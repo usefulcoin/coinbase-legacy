@@ -437,9 +437,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
           if ( askerror ) { messagehandlerexit('done',askquantity + ' @ ' + askprice,askerror); }
           if ( asksuccess ) { messagehandlerinfo('done',askquantity + ' @ ' + askprice,asksuccess); }
         }
+        else { messagehandlerexit('done','bid order was ' + reason + ' so there is no need to submit an ask. exiting... '); }
       }
       if ( id === askid ) { 
-        messagehandlerexit('done','order id: ' + id + ' ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');
+        messagehandlerexit('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');
         sendmessage(productid + ' bid: ' + bidsuccess + ' ask: ' + asksuccess, recipient);
       }
     } // handled done message from the full channel.

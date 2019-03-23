@@ -250,6 +250,9 @@ async function makebid(askprice,askquantity) {
   // submitted bid.
 
   // analyze response.
+    let bidid = bidinformation.id;
+    let bidfilled = bidinformation.filled_size;
+    let bidstatus = bidinformation.status;
     successmessage = 'bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency;
   // analyze response.
 

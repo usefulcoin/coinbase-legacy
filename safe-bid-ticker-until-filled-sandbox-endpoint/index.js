@@ -261,7 +261,7 @@ async function makeask(bidprice,bidquantity,configurationinformation) {
   // validate and format ask price and quantity.
   let askprice = Math.round( Number(quoteincrement) + bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
   let askquantity = bidquantity;
-  let askquantity = Math.round( (quoteriskablebalance/askprice) / baseminimum ) * baseminimum; /* defined safe (riskable) ask quantity */
+  askquantity = Math.round( (quoteriskablebalance/askprice) / baseminimum ) * baseminimum; /* defined safe (riskable) ask quantity */
   askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
   askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
   // validated and formatted ask price and quantity.

@@ -363,6 +363,10 @@ async function makebid(askprice,askquantity,configurationinformation) {
 
 (async function main() {
 
+  // retrieve REST API parameters.
+  let orderconfiguration = await configureorder(productid);
+  // retrieved REST API parameters.
+
   // create signature required to subscribe to a channel...
   let signature = signrequest('GET','/users/self/verify');
   // created signature required to subscribe to a channel.
@@ -410,11 +414,12 @@ async function makebid(askprice,askquantity,configurationinformation) {
       else { // make bid.
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
-        let orderconfiguration = await configureorder(productid);
         let bid = await makebid(snapshotprice, snapshotsize, orderconfiguration);
         bidid = bid.bidid;
         bidsuccess = bid.successmessage;
         biderror = bid.errormessage;
+        bidprice = bid.price;
+        bidquantity = bid.quantity;
         if ( biderror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,biderror); }
         if ( bidsuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidsuccess); }
       } // made bid.

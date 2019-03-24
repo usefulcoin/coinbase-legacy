@@ -306,7 +306,7 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   let asksubmission = { // make output object.
     'id': askinformation.id,
     'price': askinformation.price,
-    'quantity': askinformation.quantity,
+    'quantity': askinformation.size,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.
@@ -357,7 +357,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   let bidsubmission = { // make output object.
     'id': bidinformation.id,
     'price': bidinformation.price,
-    'quantity': bidinformation.quantity,
+    'quantity': bidinformation.size,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.

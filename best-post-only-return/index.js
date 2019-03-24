@@ -48,15 +48,9 @@ const passphrase = process.env.apipassphrase;
 
 
 // declare quasi-persistent websocket variables.
-let askid;
-let bidid;
-let askprice;
-let bidprice;
-let askquantity;
-let bidquantity;
-let asksuccess;
-let bidsuccess;
 let subscribed;
+let askorder = new Object();
+let bidorder = new Object();
 let orderscope = new Object();
 // declared quasi-persistent websocket variables.
 
@@ -306,9 +300,9 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   // analyze response.
 
   let asksubmission = { // make output object.
-    'askid': askinformation.id,
-    'askprice': askinformation.price,
-    'askquantity': askinformation.quantity,
+    'id': askinformation.id,
+    'price': askinformation.price,
+    'quantity': askinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.
@@ -357,9 +351,9 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   // analyze response.
 
   let bidsubmission = { // make output object.
-    'bidid': bidinformation.id,
-    'bidprice': bidinformation.price,
-    'bidquantity': bidinformation.quantity,
+    'id': bidinformation.id,
+    'price': bidinformation.price,
+    'quantity': bidinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.
@@ -429,7 +423,8 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
 
     if ( jsondata.type === 'snapshot' ) { // handle level2 snapshot message.
       if ( Object.keys(jsondata.asks).length === 0 ) { messagehandlerexit('snapshot','there are no asks in the orderbook snapshot',''); } 
-      else { // make bid.
+      else { // capture the first ask from the pile of asks in the snapshot.
+
         let snapshotprice = jsondata.asks[0][0]; /* capture best ask price from the orderbook. */
         let snapshotsize = jsondata.asks[0][1]; /* capture best ask quantity from the orderbook. */
 
@@ -437,42 +432,49 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         orderscope = await scopeorder(productid);
         // retrieved REST API parameters.
 
-        let bid = await makebid(snapshotprice, snapshotsize, orderscope);
-        bidid = bid.bidid;
-        bidsuccess = bid.successmessage;
-        biderror = bid.errormessage;
-        bidprice = bid.bidprice;
-        bidquantity = bid.bidquantity;
-        if ( biderror ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,biderror); }
-        if ( bidsuccess ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidsuccess); }
-      } // made bid.
+        // make bid.
+        bidorder = await makebid(snapshotprice, snapshotsize, orderscope);
+        // made bid.
+
+        // check bid response.
+        if ( bidorder.errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.errormessage); }
+        if ( bidorder.successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.successmessage); }
+        // checked bid response.
+
+      } // captured the first ask from the pile of asks in the snapshot.
     } // handled level2 snapshot message.
 
     if ( jsondata.type === 'done' ) { // handle done message from the full channel.
+
+      // define variables.
       let id = jsondata.order_id;
       let pair = jsondata.product_id;
       let side = jsondata.side;
       let price = jsondata.price;
       let reason = jsondata.reason;
       let remaining = jsondata.remaining_size;
-      if ( id === bidid ) { 
+      // defined variables.
+
+      if ( id === bidorder.id ) { 
         messagehandlerinfo('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
-        if ( reason === 'canceled' ) {
-          let ask = await makeask(bidprice, bidquantity, orderscope); /* this function takes the bid price and bid quantity as inputs */
-          askid = ask.askid;
-          askprice = ask.askprice;
-          askquantity = ask.askquantity;
-          asksuccess = ask.successmessage;
-          askerror = ask.errormessage;
-          if ( askerror ) { messagehandlerexit('done',askquantity + ' @ ' + askprice,askerror); }
-          if ( asksuccess ) { messagehandlerinfo('done',askquantity + ' @ ' + askprice,asksuccess); }
-        }
-        else { messagehandlerexit('done','bid order was ' + reason + ' so there is no need to submit an ask. exiting... '); }
+        if ( reason === 'filled' ) { // act on filled bid order.
+
+          // make ask.
+          askorder = await makeask ( bidorder.price, bidorder.quantity, orderscope ); /* this function takes the bid price and bid quantity as inputs */
+          // made ask.
+
+          // check ask response.
+          if ( askorder.errormessage ) { messagehandlerexit ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.errormessage ); }
+          if ( askorder.successmessage ) { messagehandlerinfo ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.successmessage ); }
+          // checked ask response.
+
+        } // acted on filled bid order.
+        else { messagehandlerexit ( 'done', 'bid order was ' + reason + ' so there is no need to submit an ask. exiting... ' ); } /* exit connection if there is a 'canceled' bid */
       }
-      if ( id === askid ) { 
-        messagehandlerexit('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']');
-        sendmessage(productid + ' bid: ' + bidsuccess + ' ask: ' + asksuccess, recipient);
-      }
+      if ( id === askorder.id ) { // act on filled ask order.
+        messagehandlerexit ( 'done', 'order (id: ' + id + ') ' + reason, remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']' );
+        sendmessage ( productid + ' bid: ' + bidsuccess + ' ask: ' + asksuccess, recipient );
+      }// acted on filled ask order.
     } // handled done message from the full channel.
   }); // end handling websocket messages.
 

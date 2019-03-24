@@ -457,7 +457,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
       let remaining = jsondata.remaining_size;
       if ( id === bidid ) { 
         messagehandlerinfo('done','order (id: ' + id + ') ' + reason,remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']'); 
-        if ( reason === 'filled' ) {
+        if ( reason === 'canceled' ) {
           let ask = await makeask(bidprice, bidquantity, orderscope); /* this function takes the bid price and bid quantity as inputs */
           askid = ask.askid;
           askprice = ask.askprice;

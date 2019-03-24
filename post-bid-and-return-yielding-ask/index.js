@@ -285,6 +285,8 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   let roeprice = Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement; /* rounding off... but could just as easily truncate */
   let askprice = Math.round( Number(quoteincrement) + Number(roeprice) ); /* make sure that the ask prices is at least the quote increment */
   let askquantity = bidquantity;
+  console.log('askprice: ' + askprice);
+  console.log('askquantity: ' + askquantity);
   askprice = Number( askprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) );
   askquantity = Number( askquantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) );
   // validated and formatted ask price and quantity.

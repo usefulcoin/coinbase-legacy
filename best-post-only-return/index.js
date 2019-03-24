@@ -27,12 +27,14 @@ const fetch = require('node-fetch');
 
 
 // define consts.
+const websocketserver = (process.argv[2]) ? process.argv[2] : 'wss://ws-feed-public.sandbox.prime.coinbase.com';
+const restapiserver = (process.argv[3]) ? process.argv[3] : 'https://api-public.sandbox.prime.coinbase.com';
+const riskratio = (process.argv[4]) ? process.argv[4] : 0.00001;
+const percentreturn = (process.argv[5]) ? process.argv[5] : 0.01;
+const productid = (process.argv[6]) ? process.argv[6] : 'BTC-USD';
+const recipient = (process.argv[7]) ? process.argv[7] : '+12062270634';
+const ws = new websocket(websocketserver);
 const channels = ['heartbeat','full','level2'];
-const riskratio = 0.00001;
-const percentreturn = 0.01;
-const productid = 'BTC-USD';
-const recipient = '+12062270634';
-const ws = new websocket('wss://ws-feed-public.sandbox.prime.coinbase.com');
 // defined key static (const) variables.
 
 
@@ -103,7 +105,7 @@ async function restapirequest ( method, requestpath, body ) { // make rest api r
   // defined request options for http request.
 
   // define url and send request.
-  let url = 'https://api-public.sandbox.prime.coinbase.com' + requestpath;
+  let url = restapiserver + requestpath;
   let response = await fetch(url,requestoptions);
   let json = await response.json();
   // defined url and sent request.
@@ -473,7 +475,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
       }
       if ( id === askorder.id ) { // act on filled ask order.
         messagehandlerexit ( 'done', 'order (id: ' + id + ') ' + reason, remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']' );
-        sendmessage ( productid + ' bid: ' + bidsuccess + ' ask: ' + asksuccess, recipient );
+        sendmessage ( productid + ' bid: ' + bidorder.successmessage + ' ask: ' + askorder.successmessage, recipient );
       }// acted on filled ask order.
     } // handled done message from the full channel.
   }); // end handling websocket messages.

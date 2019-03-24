@@ -47,12 +47,33 @@ errorexit()
 
 ### main script ###
 #
-# step 1: check for required node modules in the node_modules directory. if not found run yarn install.
-# step 2: run node on index.js (arguments optional):
+# step 1: use arguments passed to the script, otherwise use default values for server, riskratio, percentage return on equity, currency pair, and message recipient.
+# step 2: check for required node modules in the node_modules directory. if not found run yarn install.
+# step 3: run node on index.js (arguments optional):
 # 
 # 
 
-# step 1: check for required node modules in the node_modules directory. if not found run yarn install.
+# step 1: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
+
+if [ $# -eq 4 ]; then
+	echo [ $(date) ] executing with the arguments passed on the command line...
+	websocketserver=$1 && echo [ $(date) ] setting websocketserver = $websocketserver
+	restapiserver=$2 && echo [ $(date) ] setting restapiserver = $restapiserver
+	riskratio=$3 && echo [ $(date) ] setting riskratio = $riskratio
+	return=$4 && echo [ $(date) ] setting return = $return
+	product=$5 && echo [ $(date) ] setting product = $product
+	recipient=$6 && echo [ $(date) ] setting recipient = $recipient
+else
+	echo [ $(date) ] executing with default values for servers, riskratio, percentage return on equity, currency pair, and message recipient... 
+	websocketserver='wss://ws-feed-public.sandbox.prime.coinbase.com' && echo [ $(date) ] setting websocketserver = $websocketserver
+	restapiserver='https://api-public.sandbox.prime.coinbase.com' && echo [ $(date) ] setting restapiserver = $restapiserver
+	riskratio=0.00001 && echo [ $(date) ] setting riskratio = $riskratio
+	return=0.01 && echo [ $(date) ] setting return = $return
+	product='BTC-USD' && echo [ $(date) ] setting product = $product
+	recipient='+15104594120' && echo [ $(date) ] setting recipient = $recipient
+fi
+
+# step 2: check for required node modules in the node_modules directory. if not found run yarn install.
 if [ -d ${PWD}/node_modules ]; then
 	echo [ $(date) ] required node modules in the node_modules directory.
 	echo [ $(date) ] skipping step 1...
@@ -74,9 +95,9 @@ else
 	echo [ $(date) ] node modules successfully installed.
 fi
 
-# step 2: run index.js.
+# step 3: run index.js.
 echo [ $(date) ] starting step 2...
-node index.js
+node index.js $websocketserver $restapiserver $riskratio $return $product $recipient
 errorexit $? "critical error encountered trying to execute node script." 2
 echo [ $(date) ] node code successfully executed.
 

@@ -28,7 +28,7 @@ const fetch = require('node-fetch');
 
 // define consts.
 const channels = ['heartbeat','full','level2'];
-const riskratio = 0.01;
+const riskratio = 0.00001;
 const percentreturn = 0.01;
 const productid = 'BTC-USD';
 const recipient = '+12062270634';
@@ -305,13 +305,13 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   else { errormessage = 'unexpected error encountered submitting ask: ' + askquantity + ' ' + basecurrency + ' @ ' + askprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
-  let asksubmission = { make output object.
+  let asksubmission = { // make output object.
     'askid': askinformation.id,
     'askprice': askinformation.price,
     'askquantity': askinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
-  } made output object.
+  } // made output object.
 
   return asksubmission;
 
@@ -356,13 +356,13 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   else { errormessage = 'unexpected error encountered submitting bid: ' + bidquantity + ' ' + basecurrency + ' @ ' + bidprice + ' ' + basecurrency + '/' + quotecurrency; } 
   // analyze response.
 
-  let bidsubmission = { make output object.
+  let bidsubmission = { // make output object.
     'bidid': bidinformation.id,
     'bidprice': bidinformation.price,
     'bidquantity': bidinformation.quantity,
     'successmessage': successmessage,
     'errormessage': errormessage
-  } made output object.
+  } // made output object.
 
   return bidsubmission;
 

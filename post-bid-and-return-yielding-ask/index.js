@@ -282,15 +282,15 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   // declared variables.
 
   // validate and format ask price and quantity.
-  let askprice = Math.round( Number(quoteincrement) + bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+  let roeprice = Math.round( bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement; /* rounding off... but could just as easily truncate */
+  let askprice = Math.round( Number(quoteincrement) + Number(roeprice) ); /* make sure that the ask prices is at least the quote increment */
   let askquantity = bidquantity;
-  askquantity = Math.round( (quoteriskablebalance/askprice) / baseminimum ) * baseminimum; /* defined safe (riskable) ask quantity */
-  askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
-  askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
+  askprice = Number( askprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) );
+  askquantity = Number( askquantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) );
   // validated and formatted ask price and quantity.
 
   // submit ask.
-  let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+  let askinformation; try { askinformation = await postorder ( askprice, askquantity, 'sell', true, productid ); } catch (e) { console.error(e); }
   // submitted ask.
 
   // analyze response.

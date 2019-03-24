@@ -2,11 +2,11 @@
 
 This repository contains scripts used for trading on Coinbase Prime.
 
-# Websocket Usage
+### Websocket Usage
 
 Websocket connections to Coinbase are used as much as possible so that REST API rate limits are avoided.
 
-# Sample Usage Script
+### Sample Usage Script
 
 ```sh
 #/bin/bash

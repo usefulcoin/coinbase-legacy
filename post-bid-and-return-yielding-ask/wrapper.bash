@@ -97,7 +97,7 @@ fi
 
 # step 3: run index.js.
 echo [ $(date) ] starting step 2...
-node index.js $websocketserver $restapiserver $riskratio $return $product $recipient
+node index.js "$websocketserver" "$restapiserver" "$riskratio" "$return" "$product" "$recipient"
 errorexit $? "critical error encountered trying to execute node script." 2
 echo [ $(date) ] node code successfully executed.
 

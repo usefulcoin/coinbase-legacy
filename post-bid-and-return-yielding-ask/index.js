@@ -464,6 +464,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         if ( reason === 'filled' ) { // act on filled bid order.
 
           // make ask.
+          console.log( bidorder.price, bidorder.quantity, orderscope );
           askorder = await makeask ( bidorder.price, bidorder.quantity, orderscope ); /* this function takes the bid price and bid quantity as inputs */
           // made ask.
 

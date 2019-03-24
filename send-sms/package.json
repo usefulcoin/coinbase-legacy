@@ -1,0 +1,13 @@
+{
+  "name": "send-sms",
+  "version": "1.0.0",
+  "description": "Send SMS using Amazon SNS.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "aws-sdk": "latest"
+  }
+}

@@ -58,5 +58,5 @@ async function sendmessage(message, phonenumber) {
 
 
 (async function main() {
-  try { sendmessage('it is bedtime son.', recipient); } catch(e) { console.error(e); }
+  try { sendmessage('rise and shine!', recipient); } catch(e) { console.error(e); }
 }());

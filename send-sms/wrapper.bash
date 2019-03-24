@@ -62,7 +62,7 @@ if [ $# -eq 2 ]; then
 else
 	echo [ $(date) ] executing with default values for servers, riskratio, percentage return on equity, currency pair, and message recipient... 
 	recipient='+15104594120' && echo [ $(date) ] setting recipient = $recipient
-	message='default message. think of something creative to send."  && echo [ $(date) ] setting message = $message
+	message='default message. think of something creative to send.'  && echo [ $(date) ] setting message = $message
 fi
 
 # step 2: check for required node modules in the node_modules directory. if not found run yarn install.

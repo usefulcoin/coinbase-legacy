@@ -433,6 +433,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
 
         // retrieve REST API parameters.
         orderscope = await scopeorder(productid);
+        console.log(orderscope);
         // retrieved REST API parameters.
 
         // make bid.

@@ -158,13 +158,13 @@ async function restapirequest ( method, requestpath, body ) { // make rest api r
 
 (async function main() {
 
-// make request.
-let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stats' );
-// made request.
-
 // retrieve REST API parameters.
 let orderscope = await scopeorder(productid);
 // retrieved REST API parameters.
+
+// make request.
+let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stats' );
+// made request.
 
 // handle response.
 if ( Object.keys(statistics).length === 0 ) { console.log('unable to retrieve information'); }

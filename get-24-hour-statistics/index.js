@@ -173,8 +173,8 @@ else {
 
   // report.
   let price = Number ( statistics.last );
-  let volume = Number ( statistics.volume );
-  let averagevolume = Number ( statistics.volume_30day ) / 30;
+  let volume = Number ( statistics.volume ) * Number ( price );
+  let averagevolume = Number ( statistics.volume_30day ) * Number ( price ) / 30;
   let range = Number ( statistics.high ) - Number ( statistics.low );
   let offhigh = Number ( statistics.high ) - Number ( statistics.last );
   let offlow = Number ( statistics.last ) - Number ( statistics.low );

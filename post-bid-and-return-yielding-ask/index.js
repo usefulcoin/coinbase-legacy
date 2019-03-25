@@ -476,7 +476,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
       if ( id === askorder.id ) { // act on filled ask order.
         messagehandlerexit ( 'done', 'order (id: ' + id + ') ' + reason, remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']' );
         if ( reason === 'filled' ) { sendmessage ( productid + ' bid: ' + bidorder.successmessage + ' ask: ' + askorder.successmessage, recipient ); }
-        else { sendmessage ('unfilled ' + productid + ' ask. however, the bid [' + bidorder.successmessage + '] was filled.'); }
+        else { sendmessage ('unfilled ' + productid + ' ask. however, the bid [' + bidorder.successmessage + '] was filled.', recipient ); }
       }// acted on filled ask order.
     } // handled done message from the full channel.
   }); // end handling websocket messages.

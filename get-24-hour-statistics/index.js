@@ -162,42 +162,46 @@ async function restapirequest ( method, requestpath, body ) { // make rest api r
 let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stats' );
 // made request.
 
-// handle response.
-if ( Object.keys(statistics).length === 0 ) { console.log('unable to retrieve information'); }
-else if ( Object.keys(statistics).length === 1 ) { console.log('the Coinbase response is "' + statistics.message + '"'); }
-// handled response.
-
 // retrieve REST API parameters.
 let orderscope = await scopeorder(productid);
 // retrieved REST API parameters.
 
-// report.
-let price = Number ( statistics.last );
-let volume = Number ( statistics.volume );
-let averagevolume = Number ( statistics.volume_30day ) / 30;
-let range = Number ( statistics.high ) - Number ( statistics.low );
-let offhigh = Number ( statistics.high ) - Number ( statistics.last );
-let offlow = Number ( statistics.last ) - Number ( statistics.low );
-let high = Number ( statistics.high );
-let low = Number ( statistics.low );
+// handle response.
+if ( Object.keys(statistics).length === 0 ) { console.log('unable to retrieve information'); }
+else if ( Object.keys(statistics).length === 1 ) { console.log('the Coinbase response is "' + statistics.message + '"'); }
+else {
 
-console.log( '' );
-console.log( ('-').padStart(44,'-') );
-console.log(orderscope.basecurrency.padStart(37) + ' REPORT' );
-console.log( ('-').padStart(44,'-') );
-console.log( ('price: ').padStart(20) + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('volume: ').padStart(20) + volume + ' ' + orderscope.quotecurrency );
-console.log( ('averagevolume: ').padStart(20) + averagevolume + ' ' + orderscope.quotecurrency );
-console.log( ('range: ').padStart(20) + range + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('offhigh: ').padStart(20) + offhigh + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('offlow: ').padStart(20) + offlow + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('high: ').padStart(20) + high + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('low: ').padStart(20) + low + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
-console.log( ('quoteincrement: ').padStart(20) + orderscope.quoteincrement + ' ' + orderscope.quotecurrency );
-console.log( ('baseminimum: ').padStart(20) + orderscope.baseminimum + ' ' + orderscope.basecurrency );
-console.log( ('basemaximum: ').padStart(20) + orderscope.basemaximum + ' ' + orderscope.basecurrency );
-console.log( ('riskablebalance: ').padStart(20) + orderscope.quoteincrement + ' ' + orderscope.quotecurrency );
-console.log( ('-').padStart(44,'-') );
-console.log( '' );
+  // report.
+  let price = Number ( statistics.last );
+  let volume = Number ( statistics.volume );
+  let averagevolume = Number ( statistics.volume_30day ) / 30;
+  let range = Number ( statistics.high ) - Number ( statistics.low );
+  let offhigh = Number ( statistics.high ) - Number ( statistics.last );
+  let offlow = Number ( statistics.last ) - Number ( statistics.low );
+  let high = Number ( statistics.high );
+  let low = Number ( statistics.low );
+  
+  console.log( '' );
+  console.log( ('-').padStart(44,'-') );
+  console.log(orderscope.basecurrency.padStart(37) + ' REPORT' );
+  console.log( ('-').padStart(44,'-') );
+  console.log( ('price: ').padStart(20) + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('volume: ').padStart(20) + volume + ' ' + orderscope.quotecurrency );
+  console.log( ('averagevolume: ').padStart(20) + averagevolume + ' ' + orderscope.quotecurrency );
+  console.log( ('range: ').padStart(20) + range + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('offhigh: ').padStart(20) + offhigh + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('offlow: ').padStart(20) + offlow + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('high: ').padStart(20) + high + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('low: ').padStart(20) + low + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency );
+  console.log( ('quoteincrement: ').padStart(20) + orderscope.quoteincrement + ' ' + orderscope.quotecurrency );
+  console.log( ('baseminimum: ').padStart(20) + orderscope.baseminimum + ' ' + orderscope.basecurrency );
+  console.log( ('basemaximum: ').padStart(20) + orderscope.basemaximum + ' ' + orderscope.basecurrency );
+  console.log( ('riskablebalance: ').padStart(20) + orderscope.quoteincrement + ' ' + orderscope.quotecurrency );
+  console.log( ('-').padStart(44,'-') );
+  console.log( '' );
+  // reported.
+
+}
+// handled response.
 
 }());

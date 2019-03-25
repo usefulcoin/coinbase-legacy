@@ -183,15 +183,15 @@ let offlow = statistics.last - statistics.low;
 let high = statistics.high;
 let low = statistics.low;
 
-console.log(orderscope.basecurrency.padStart(6) + ' REPORT');
-console.log(('-').padStart(12));
-console.log('price: ' + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
-console.log('volume: ' + volume + ' ' + orderscope.quotecurrency);
-console.log('averagevolume: ' + averagevolume + ' ' + orderscope.quotecurrency);
-console.log('range: ' + range + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
-console.log('offhigh: ' + offhigh + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
-console.log('offlow: ' + offlow + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
-console.log('high: ' + high + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
-console.log('low: ' + low + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log(orderscope.basecurrency.padStart(9) + ' REPORT');
+console.log( ('-').padStart(15,'-'));
+console.log( ('price: ').padStart(15) + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log( ('volume: ').padStart(15) + volume + ' ' + orderscope.quotecurrency);
+console.log( ('averagevolume: ').padStart(15) + averagevolume + ' ' + orderscope.quotecurrency);
+console.log( ('range: ').padStart(15) + range + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log( ('offhigh: ').padStart(15) + offhigh + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log( ('offlow: ').padStart(15) + offlow + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log( ('high: ').padStart(15) + high + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log( ('low: ').padStart(15) + low + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
 
 }());

@@ -282,15 +282,15 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   // declared variables.
 
   // validate and format ask price and quantity.
-  let askprice = Math.round( Number(quoteincrement) + bidprice * ( 1 + percentreturn ) / quoteincrement ) * quoteincrement;
+  let roeprice = bidprice * ( 1 + Number(percentreturn) );
+  let askprice = Number(quoteincrement) + Number(roeprice); /* make sure that the ask prices is at least the quote increment */
   let askquantity = bidquantity;
-  askquantity = Math.round( (quoteriskablebalance/askprice) / baseminimum ) * baseminimum; /* defined safe (riskable) ask quantity */
-  askprice = Number(askprice).toFixed(Math.abs(Math.log10(quoteincrement)));
-  askquantity = Number(askquantity).toFixed(Math.abs(Math.log10(baseminimum)));
+  askprice = Number( askprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) );
+  askquantity = Number( askquantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) );
   // validated and formatted ask price and quantity.
 
   // submit ask.
-  let askinformation; try { askinformation = await postorder(askprice,askquantity,'sell',true,productid); } catch (e) { console.error(e); }
+  let askinformation; try { askinformation = await postorder ( askprice, askquantity, 'sell', true, productid ); } catch (e) { console.error(e); }
   // submitted ask.
 
   // analyze response.
@@ -304,7 +304,7 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   let asksubmission = { // make output object.
     'id': askinformation.id,
     'price': askinformation.price,
-    'quantity': askinformation.quantity,
+    'quantity': askinformation.size,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.
@@ -355,7 +355,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   let bidsubmission = { // make output object.
     'id': bidinformation.id,
     'price': bidinformation.price,
-    'quantity': bidinformation.quantity,
+    'quantity': bidinformation.size,
     'successmessage': successmessage,
     'errormessage': errormessage
   } // made output object.
@@ -439,8 +439,10 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         // made bid.
 
         // check bid response.
-        if ( bidorder.errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.errormessage); }
-        if ( bidorder.successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.successmessage); }
+        if ( bidorder.errormessage ) { messagehandlerexit ( 'snapshot', Number( snapshotsize ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                      + Number( snapshotprice ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.errormessage ); }
+        if ( bidorder.successmessage ) { messagehandlerinfo ( 'snapshot', Number( snapshotsize ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                      + Number( snapshotprice ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.successmessage ); }
         // checked bid response.
 
       } // captured the first ask from the pile of asks in the snapshot.
@@ -466,8 +468,10 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
           // made ask.
 
           // check ask response.
-          if ( askorder.errormessage ) { messagehandlerexit ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.errormessage ); }
-          if ( askorder.successmessage ) { messagehandlerinfo ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.successmessage ); }
+          if ( askorder.errormessage ) { messagehandlerexit ( 'snapshot', Number( askorder.quantity ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                        + Number( askorder.price ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), askorder.errormessage ); }
+          if ( askorder.successmessage ) { messagehandlerinfo ( 'snapshot', Number( askorder.quantity ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                        + Number( askorder.price ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), askorder.successmessage ); }
           // checked ask response.
 
         } // acted on filled bid order.
@@ -475,7 +479,9 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
       }
       if ( id === askorder.id ) { // act on filled ask order.
         messagehandlerexit ( 'done', 'order (id: ' + id + ') ' + reason, remaining + ' remaining to ' + side + ' at ' + price + ' [' + pair + ']' );
-        sendmessage ( productid + ' bid: ' + bidorder.successmessage + ' ask: ' + askorder.successmessage, recipient );
+        if ( reason === 'filled' ) { sendmessage ( productid + ' bid: ' + bidorder.successmessage + ' ask: ' + askorder.successmessage, recipient ); }
+        else { sendmessage ('unfilled ' + productid + ' ask. however, the bid [' + Number( bidorder.quantity ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) )
+                                        + '@' + Number( bidorder.price ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ) + '] was filled.', recipient ); }
       }// acted on filled ask order.
     } // handled done message from the full channel.
   }); // end handling websocket messages.

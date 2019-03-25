@@ -27,6 +27,7 @@ const fetch = require('node-fetch');
 // define consts.
 const restapiserver = (process.argv[2]) ? process.argv[2] : 'https://api-public.sandbox.prime.coinbase.com';
 const productid = (process.argv[3]) ? process.argv[3] : 'BTC-USD';
+const riskratio = (process.argv[4]) ? process.argv[3] : 0.01;
 // defined key static (const) variables.
 
 

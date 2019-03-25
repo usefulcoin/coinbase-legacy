@@ -341,6 +341,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   // validated and formatted bid price and quantity.
 
   // submit bid.
+  console.log(bidprice,bidquantity,'buy',true,productid);
   let bidinformation; try { bidinformation = await postorder(bidprice,bidquantity,'buy',true,productid); } catch (e) { console.error(e); }
   // submitted bid.
 

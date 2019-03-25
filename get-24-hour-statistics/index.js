@@ -183,8 +183,8 @@ let offlow = statistics.last - statistics.low;
 let high = statistics.high;
 let low = statistics.low;
 
-console.log(orderscope.basecurrency.padStart(9) + ' REPORT');
-console.log( ('-').padStart(15,'-'));
+console.log(orderscope.basecurrency.padStart(33) + ' REPORT');
+console.log( ('-').padStart(39,'-'));
 console.log( ('price: ').padStart(15) + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
 console.log( ('volume: ').padStart(15) + volume + ' ' + orderscope.quotecurrency);
 console.log( ('averagevolume: ').padStart(15) + averagevolume + ' ' + orderscope.quotecurrency);

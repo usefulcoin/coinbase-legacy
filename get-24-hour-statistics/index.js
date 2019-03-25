@@ -173,4 +173,25 @@ let orderscope = await scopeorder(productid);
 console.log(orderscope);
 // retrieved REST API parameters.
 
+// report.
+let price = statistics.last;
+let volume = statistics.volume;
+let averagevolume = statistics.volume / 30;
+let range = statistics.high - statistics.low;
+let offhigh = statistics.high - statistics.last;
+let offlow = statistics.last - statistics.low;
+let high = statistics.high;
+let low = statistics.low;
+
+console.log(orderscope.basecurrency.padStart(6) + ' REPORT');
+console.log(('-').padStart(12));
+console.log('price: ' + price + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log('volume: ' + volume + ' ' + orderscope.quotecurrency);
+console.log('averagevolume: ' + averagevolume + ' ' + orderscope.quotecurrency);
+console.log('range: ' + range + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log('offhigh: ' + offhigh + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log('offlow: ' + offlow + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log('high: ' + high + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+console.log('low: ' + low + ' ' + orderscope.quotecurrency + '/' + orderscope.basecurrency);
+
 }());

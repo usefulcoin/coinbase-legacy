@@ -165,23 +165,21 @@ let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stat
 // handle response.
 if ( Object.keys(statistics).length === 0 ) { console.log('unable to retrieve information'); }
 else if ( Object.keys(statistics).length === 1 ) { console.log('the Coinbase response is "' + statistics.message + '"'); }
-else { console.log(statistics); }
 // handled response.
 
 // retrieve REST API parameters.
 let orderscope = await scopeorder(productid);
-console.log(orderscope);
 // retrieved REST API parameters.
 
 // report.
-let price = statistics.last;
-let volume = statistics.volume;
-let averagevolume = statistics.volume / 30;
-let range = statistics.high - statistics.low;
-let offhigh = statistics.high - statistics.last;
-let offlow = statistics.last - statistics.low;
-let high = statistics.high;
-let low = statistics.low;
+let price = Number ( statistics.last );
+let volume = Number ( statistics.volume );
+let averagevolume = Number ( statistics.volume ) / 30;
+let range = Number ( statistics.high ) - Number ( statistics.low );
+let offhigh = Number ( statistics.high ) - Number ( statistics.last );
+let offlow = Number ( statistics.last - Number ( statistics.low );
+let high = Number ( statistics.high );
+let low = Number ( statistics.low );
 
 console.log( '' );
 console.log( ('-').padStart(44,'-') );
@@ -199,7 +197,7 @@ console.log( ('quoteincrement: ').padStart(20) + orderscope.quoteincrement + ' '
 console.log( ('baseminimum: ').padStart(20) + orderscope.baseminimum + ' ' + orderscope.basecurrency );
 console.log( ('basemaximum: ').padStart(20) + orderscope.basemaximum + ' ' + orderscope.basecurrency );
 console.log( ('riskablebalance: ').padStart(20) + orderscope.quoteincrement + ' ' + orderscope.quotecurrency );
-console.log( ('-').padStart(39,'-') );
+console.log( ('-').padStart(44,'-') );
 console.log( '' );
 
 }());

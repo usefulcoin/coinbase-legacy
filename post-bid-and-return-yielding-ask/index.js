@@ -283,7 +283,7 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
 
   // validate and format ask price and quantity.
   let roeprice = bidprice * ( 1 + percentreturn );
-  let askprice = Math.round( ( Number(quoteincrement) + Number(roeprice) ) / quoteincrement ) * quoteincrement; /* make sure that the ask prices is at least the quote increment */
+  let askprice = quoteincrement + roeprice; /* make sure that the ask prices is at least the quote increment */
   console.log('bidprice: ' + bidprice);
   console.log('percentreturn: ' + percentreturn);
   console.log('quoteincrement: ' + Number(quoteincrement));

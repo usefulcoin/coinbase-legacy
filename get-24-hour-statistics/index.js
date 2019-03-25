@@ -177,7 +177,7 @@ let volume = Number ( statistics.volume );
 let averagevolume = Number ( statistics.volume ) / 30;
 let range = Number ( statistics.high ) - Number ( statistics.low );
 let offhigh = Number ( statistics.high ) - Number ( statistics.last );
-let offlow = Number ( statistics.last - Number ( statistics.low );
+let offlow = Number ( statistics.last ) - Number ( statistics.low );
 let high = Number ( statistics.high );
 let low = Number ( statistics.low );
 

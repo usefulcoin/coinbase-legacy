@@ -439,8 +439,10 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         // made bid.
 
         // check bid response.
-        if ( bidorder.errormessage ) { messagehandlerexit('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.errormessage); }
-        if ( bidorder.successmessage ) { messagehandlerinfo('snapshot',snapshotsize + ' @ ' + snapshotprice,bidorder.successmessage); }
+        if ( bidorder.errormessage ) { messagehandlerexit ( 'snapshot', Number( snapshotsize ).toFixed( Math.abs( Math.log10( baseminimum ) ) ) + ' @ ' 
+                                                                      + Number( snapshotprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) ), bidorder.errormessage ); }
+        if ( bidorder.successmessage ) { messagehandlerinfo ( 'snapshot', Number( snapshotsize ).toFixed( Math.abs( Math.log10( baseminimum ) ) ) + ' @ ' 
+                                                                      + Number( snapshotprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) ), bidorder.successmessage ); }
         // checked bid response.
 
       } // captured the first ask from the pile of asks in the snapshot.
@@ -466,8 +468,10 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
           // made ask.
 
           // check ask response.
-          if ( askorder.errormessage ) { messagehandlerexit ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.errormessage ); }
-          if ( askorder.successmessage ) { messagehandlerinfo ( 'done', askorder.quantity + ' @ ' + askorder.price, askorder.successmessage ); }
+          if ( askorder.errormessage ) { messagehandlerexit ( 'snapshot', Number( askorder.quantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) ) + ' @ ' 
+                                                                        + Number( askorder.price ).toFixed( Math.abs( Math.log10( quoteincrement ) ) ), askorder.errormessage ); }
+          if ( askorder.successmessage ) { messagehandlerinfo ( 'snapshot', Number( askorder.quantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) ) + ' @ ' 
+                                                                        + Number( askorder.price ).toFixed( Math.abs( Math.log10( quoteincrement ) ) ), askorder.successmessage ); }
           // checked ask response.
 
         } // acted on filled bid order.

@@ -42,6 +42,14 @@ const passphrase = process.env.apipassphrase;
 
 
 
+function filter (array, filters) { // filter an array of objects.
+  let itemstoinclude = Object.keys(filters);
+  return array.filter((item) => itemstoinclude.every((key) => (filters[key].indexOf(item[key]) !== -1)));
+} // filtered array.
+
+
+
+
 async function scopeorder ( productid ) { // scope order.
 
   // declare variables.

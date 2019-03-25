@@ -51,6 +51,7 @@ const passphrase = process.env.apipassphrase;
 
 // declare quasi-persistent websocket variables.
 let subscribed;
+let bidding = false;
 let askorder = new Object();
 let bidorder = new Object();
 let orderscope = new Object();
@@ -341,7 +342,6 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
   // validated and formatted bid price and quantity.
 
   // submit bid.
-  console.log( bidprice, bidquantity, 'buy', true, productid );
   let bidinformation; try { bidinformation = await postorder( bidprice, bidquantity, 'buy', true, productid ); } catch (e) { console.error(e); }
   // submitted bid.
 
@@ -436,7 +436,7 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         // retrieved REST API parameters.
 
         // make bid.
-        bidorder = await makebid(snapshotprice, snapshotsize, orderscope);
+        if ( !bidding ) { bidding = true; bidorder = await makebid(snapshotprice, snapshotsize, orderscope); }
         // made bid.
 
         // check bid response.

@@ -151,7 +151,7 @@ async function restapirequest ( method, requestpath, body ) { // make rest api r
 (async function main() {
 
 // make request.
-let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stats' ); }
+let statistics = await restapirequest ( 'GET', '/products/' + productid + '/stats' );
 // made request.
 
 // handle response.

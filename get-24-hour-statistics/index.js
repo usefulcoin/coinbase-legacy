@@ -86,8 +86,8 @@ async function scopeorder ( productid ) { // scope order.
   else if ( Object.keys(accountinformation).length === 1 ) { errormessage = 'the Coinbase response is "' + accountinformation.message + '"'; }
   else {
     let quoteaccountinformation = filter(accountinformation, quotecurrencyfilter);
-    let quoteavailablebalance = quoteaccountinformation[0].available;
-    quoteriskablebalance = quoteavailablebalance*riskratio;
+    if ( quoteaccountinformation[0].available ) { let quoteavailablebalance = quoteaccountinformation[0].available; }
+    if ( quoteaccountinformation[0].available ) { quoteriskablebalance = quoteavailablebalance*riskratio; }
   } // verified response.
 
   let configurationinformation = { // make configuration information object.

@@ -1,0 +1,13 @@
+{
+  "name": "get-24-hour-statistics",
+  "version": "0.0.1",
+  "description": "Get 24 hour statistics for a product on Coinbase Prime.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "node-fetch": "latest"
+  }
+}

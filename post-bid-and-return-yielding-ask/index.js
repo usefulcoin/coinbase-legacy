@@ -284,11 +284,6 @@ async function makeask ( bidprice, bidquantity, configurationinformation ) {
   // validate and format ask price and quantity.
   let roeprice = bidprice * ( 1 + Number(percentreturn) );
   let askprice = Number(quoteincrement) + Number(roeprice); /* make sure that the ask prices is at least the quote increment */
-  console.log('bidprice: ' + bidprice);
-  console.log('percentreturn: ' + percentreturn);
-  console.log('quoteincrement: ' + Number(quoteincrement));
-  console.log('roeprice: ' + Number(roeprice));
-  console.log('askprice: ' + askprice);
   let askquantity = bidquantity;
   askprice = Number( askprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) );
   askquantity = Number( askquantity ).toFixed( Math.abs( Math.log10( baseminimum ) ) );
@@ -467,7 +462,6 @@ async function makebid ( askprice, askquantity, configurationinformation ) {
         if ( reason === 'filled' ) { // act on filled bid order.
 
           // make ask.
-          console.log( bidorder.price, bidorder.quantity, orderscope );
           askorder = await makeask ( bidorder.price, bidorder.quantity, orderscope ); /* this function takes the bid price and bid quantity as inputs */
           // made ask.
 

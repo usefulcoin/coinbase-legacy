@@ -55,14 +55,14 @@ errorexit()
 
 # step 1: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
 
-if [ $# -eq 3 ]; then
+if [ $# -eq 2 ]; then
 	echo [ $(date) ] executing with the arguments passed on the command line...
 	restapiserver=$1 && echo [ $(date) ] setting restapiserver = $restapiserver
-	product=$2 && echo [ $(date) ] setting product = $product
+	quotecurrencies=$2 && echo [ $(date) ] setting quotecurrencies = $quotecurrencies
 else
 	echo [ $(date) ] executing with default values for servers, riskratio, percentage return on equity, currency pair, and message recipient... 
 	restapiserver='https://api-public.sandbox.prime.coinbase.com' && echo [ $(date) ] setting restapiserver = $restapiserver
-	product='BTC-USD' && echo [ $(date) ] setting product = $product
+	quotecurrencies='["BTC","USD"]' && echo [ $(date) ] setting quotecurrencies = $quotecurrencies
 fi
 
 # step 2: check for required node modules in the node_modules directory. if not found run yarn install.
@@ -89,7 +89,7 @@ fi
 
 # step 3: run index.js.
 echo [ $(date) ] starting step 2...
-node index.js "$restapiserver" "$product"
+node index.js "$restapiserver" "$quotecurrencies"
 errorexit $? "critical error encountered trying to execute node script." 2
 echo [ $(date) ] node code successfully executed.
 

@@ -1,0 +1,13 @@
+{
+  "name": "get-product-id-list",
+  "version": "0.0.1",
+  "description": "Get a list of product IDs from Coinbase.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "node-fetch": "latest"
+  }
+}

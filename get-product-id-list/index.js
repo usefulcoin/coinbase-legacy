@@ -26,7 +26,7 @@ const fetch = require('node-fetch');
 
 // define consts.
 const restapiserver = (process.argv[2]) ? process.argv[2] : 'https://api-public.sandbox.prime.coinbase.com';
-const quotecurrency = (process.argv[3]) ? process.argv[3] : ['USD','USDC'];
+const quotecurrencies = (process.argv[3]) ? process.argv[3] : ['USD','USDC'];
 // defined key static (const) variables.
 
 
@@ -112,8 +112,8 @@ else if ( Object.keys(productinformation).length === 1 ) { console.log('the Coin
 
 // filter product list, if requested.
 let products;
-if ( quotecurrency ) {
-  let quotecurrencyfilter = { currency: quotecurrency };
+if ( quotecurrencies ) {
+  let quotecurrencyfilter = { currency: quotecurrencies };
   products = filter(productinformation, quotecurrencyfilter);
 } else { products = productinformation; }
 // filtered product list.

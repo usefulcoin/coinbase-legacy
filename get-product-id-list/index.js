@@ -113,7 +113,7 @@ else if ( Object.keys(productinformation).length === 1 ) { console.log('the Coin
 // filter product list, if requested.
 let products;
 if ( quotecurrencies ) {
-  let quotecurrencyfilter = { currency: quotecurrencies };
+  let quotecurrencyfilter = { currency: ['USD'] };
   products = filter(productinformation, quotecurrencyfilter);
   console.log(products);
 } else { products = productinformation; }

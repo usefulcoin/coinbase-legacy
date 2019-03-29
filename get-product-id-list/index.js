@@ -115,7 +115,6 @@ let products;
 if ( quotecurrencies ) {
   let quotecurrencyfilter = { quote_currency: quotecurrencies };
   products = filter(productinformation, quotecurrencyfilter);
-  console.log(products);
 } else { products = productinformation; }
 // filtered product list.
 

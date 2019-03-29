@@ -103,6 +103,7 @@ async function restapirequest ( method, requestpath, body ) { // make rest api r
 
 // retrieve product information.
 let productinformation; try { productinformation = await restapirequest('GET','/products/'); } catch (e) { console.error(e); }
+console.log(productinformation);
 // retrieved product information.
 
 // error check.

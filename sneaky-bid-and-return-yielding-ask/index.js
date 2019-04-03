@@ -331,8 +331,8 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
   // declared variables.
 
   // validate and format bid price and quantity.
-  let bidprice = Number( bidprice ) + Number( quoteincrement ); /* always add the quote increment to ensure that the bid is the most competitive bid */
-  let bidquantity = Number( quoteriskablebalance ) / Number( bidprice ); /* defined safe (riskable) bid quantity not exceeding the balance/price amount */
+  bidprice = Number( bidprice ) + Number( quoteincrement ); /* always add the quote increment to ensure that the bid is the most competitive bid */
+  bidquantity = Number( quoteriskablebalance ) / Number( bidprice ); /* defined safe (riskable) bid quantity not exceeding the balance/price amount */
   if ( bidquantity < baseminimum ) { bidquantity = baseminimum } /* make sure bid quantity is within Coinbase bounds... */
   if ( bidquantity > basemaximum ) { bidquantity = basemaximum } /* make sure bid quantity is within Coinbase bounds... */
   bidprice = Number( bidprice ).toFixed( Math.abs( Math.log10( quoteincrement ) ) ); /* make absolutely sure that it is of a fixed number of decimal places. */

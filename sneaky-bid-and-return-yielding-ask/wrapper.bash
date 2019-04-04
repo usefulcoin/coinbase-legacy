@@ -47,17 +47,20 @@ errorexit()
 
 ### main script ###
 #
-# step 1: ensure that the wrapper script's directory is the active directory.
+# step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
 # step 2: use arguments passed to the script, otherwise use default values for server, riskratio, percentage return on equity, currency pair, and message recipient.
 # step 3: check for required node modules in the node_modules directory. if not found run yarn install.
 # step 4: run node on index.js (arguments optional):
 # 
 # 
 
-# step 1: ensure that the wrapper script's directory is the active directory.
+# step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
 
 wrapperscript=$(readlink -f $0) && scriptdirectory=$(dirname $wrapperscript) && cd $scriptdirectory && errorexit $? "unable to set working directory" 1
 echo [ $(date) ] set working directory to $scriptdirectory.
+
+git pull
+echo [ $(date) ] fetched and merged the remote git repository.
 
 # step 2: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
 

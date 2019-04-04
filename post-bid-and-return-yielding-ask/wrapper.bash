@@ -82,6 +82,8 @@ else
 	recipient='+15104594120' && echo [ $(date) ] setting recipient = $recipient
 fi
 
+if echo $websocketserver | grep sandbox ; then git checkout sandbox ; else git checkout production ; fi
+
 # step 3: check for required node modules in the node_modules directory. if not found run yarn install.
 if [ -d ${PWD}/node_modules ]; then
 	echo [ $(date) ] required node modules in the node_modules directory.

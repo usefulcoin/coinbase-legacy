@@ -47,13 +47,22 @@ errorexit()
 
 ### main script ###
 #
-# step 1: use arguments passed to the script, otherwise use default values for server, riskratio, percentage return on equity, currency pair, and message recipient.
-# step 2: check for required node modules in the node_modules directory. if not found run yarn install.
-# step 3: run node on index.js (arguments optional):
+# step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
+# step 2: use arguments passed to the script, otherwise use default values for server, riskratio, percentage return on equity, currency pair, and message recipient.
+# step 3: check for required node modules in the node_modules directory. if not found run yarn install.
+# step 4: run node on index.js (arguments optional):
 # 
 # 
 
-# step 1: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
+# step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
+
+wrapperscript=$(readlink -f $0) && scriptdirectory=$(dirname $wrapperscript) && cd $scriptdirectory && errorexit $? "unable to set working directory" 1
+echo [ $(date) ] set working directory to $scriptdirectory.
+
+git pull
+echo [ $(date) ] fetched and merged the remote git repository.
+
+# step 2: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
 
 if [ $# -eq 6 ]; then
 	echo [ $(date) ] executing with the arguments passed on the command line...
@@ -73,7 +82,7 @@ else
 	recipient='+15104594120' && echo [ $(date) ] setting recipient = $recipient
 fi
 
-# step 2: check for required node modules in the node_modules directory. if not found run yarn install.
+# step 3: check for required node modules in the node_modules directory. if not found run yarn install.
 if [ -d ${PWD}/node_modules ]; then
 	echo [ $(date) ] required node modules in the node_modules directory.
 	echo [ $(date) ] skipping step 1...
@@ -85,20 +94,20 @@ else
 	echo [ $(date) ] checking for yarn...
 	yarnrelease=$(yarn --version 2>/dev/null)
 	if [[ $yarnrelease == '' ]]; then
-		echo [ $(date) ] yarn not found. running yarninstall function to install yarn... && yarninstall && errorexit $? "unable to install yarn" 4
+		echo [ $(date) ] yarn not found. running yarninstall function to install yarn... && yarninstall && errorexit $? "unable to install yarn" 3
 	else
 		echo [ $(date) ] yarn release $yarnrelease found. proceeding...
 	fi
 	echo [ $(date) ] running yarn install...
 	yarn install
-	errorexit $? "unable to successfully run yarn install. critical issue..." 1
+	errorexit $? "unable to successfully run yarn install. critical issue..." 3
 	echo [ $(date) ] node modules successfully installed.
 fi
 
-# step 3: run index.js.
+# step 4: run index.js.
 echo [ $(date) ] starting step 2...
 node index.js "$websocketserver" "$restapiserver" "$riskratio" "$return" "$product" "$recipient"
-errorexit $? "critical error encountered trying to execute node script." 2
+errorexit $? "critical error encountered trying to execute node script." 4
 echo [ $(date) ] node code successfully executed.
 
 # exiting

@@ -88,7 +88,7 @@ fi
 
 # step 3: determine which branch of the repository to checkout.
 
-if echo $websocketserver | grep sandbox ; then git checkout sandbox ; else git checkout production ; fi
+if echo [ $(date) ] determining which branch of the repository to use with $websocketserver | grep sandbox ; then git checkout sandbox 1> /dev/null ; else git checkout production 1> /dev/null ; fi
 
 
 # step 4: check for required node modules in the node_modules directory. if not found run yarn install.

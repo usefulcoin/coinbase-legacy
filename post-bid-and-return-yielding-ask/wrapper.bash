@@ -49,10 +49,12 @@ errorexit()
 #
 # step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
 # step 2: use arguments passed to the script, otherwise use default values for server, riskratio, percentage return on equity, currency pair, and message recipient.
-# step 3: check for required node modules in the node_modules directory. if not found run yarn install.
-# step 4: run node on index.js (arguments optional):
+# step 3: determine which branch of the repository to checkout.
+# step 4: check for required node modules in the node_modules directory. if not found run yarn install.
+# step 5: run node on index.js (arguments optional):
 # 
 # 
+
 
 # step 1: ensure that the wrapper script's directory is the active directory and that it has the latest version of the repository on github.
 
@@ -61,6 +63,7 @@ echo [ $(date) ] set working directory to $scriptdirectory.
 
 git pull
 echo [ $(date) ] fetched and merged the remote git repository.
+
 
 # step 2: use arguments passed to the script, otherwise use default values for servers, riskratio, percentage return on equity, currency pair, and message recipient.
 
@@ -82,9 +85,14 @@ else
 	recipient='+15104594120' && echo [ $(date) ] setting recipient = $recipient
 fi
 
+
+# step 3: determine which branch of the repository to checkout.
+
 if echo $websocketserver | grep sandbox ; then git checkout sandbox ; else git checkout production ; fi
 
-# step 3: check for required node modules in the node_modules directory. if not found run yarn install.
+
+# step 4: check for required node modules in the node_modules directory. if not found run yarn install.
+
 if [ -d ${PWD}/node_modules ]; then
 	echo [ $(date) ] required node modules in the node_modules directory.
 	echo [ $(date) ] skipping step 1...
@@ -96,23 +104,27 @@ else
 	echo [ $(date) ] checking for yarn...
 	yarnrelease=$(yarn --version 2>/dev/null)
 	if [[ $yarnrelease == '' ]]; then
-		echo [ $(date) ] yarn not found. running yarninstall function to install yarn... && yarninstall && errorexit $? "unable to install yarn" 3
+		echo [ $(date) ] yarn not found. running yarninstall function to install yarn... && yarninstall && errorexit $? "unable to install yarn" 4
 	else
 		echo [ $(date) ] yarn release $yarnrelease found. proceeding...
 	fi
 	echo [ $(date) ] running yarn install...
 	yarn install
-	errorexit $? "unable to successfully run yarn install. critical issue..." 3
+	errorexit $? "unable to successfully run yarn install. critical issue..." 4
 	echo [ $(date) ] node modules successfully installed.
 fi
 
-# step 4: run index.js.
-echo [ $(date) ] starting step 2...
+
+# step 5: run index.js.
+
+echo [ $(date) ] starting step 5...
 node index.js "$websocketserver" "$restapiserver" "$riskratio" "$return" "$product" "$recipient"
-errorexit $? "critical error encountered trying to execute node script." 4
+errorexit $? "critical error encountered trying to execute node script." 5
 echo [ $(date) ] node code successfully executed.
 
+
 # exiting
+
 echo [ $(date) ] $0 ending...
 echo [ $(date) ] making a beep to signal the completion of all tasks. && echo -en "\a" 
 echo [ $(date) ] $0 exiting... 

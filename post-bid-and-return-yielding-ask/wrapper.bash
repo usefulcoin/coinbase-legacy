@@ -61,7 +61,7 @@ errorexit()
 wrapperscript=$(readlink -f $0) && scriptdirectory=$(dirname $wrapperscript) && cd $scriptdirectory && errorexit $? "unable to set working directory" 1
 echo [ $(date) ] set working directory to $scriptdirectory.
 
-git pull
+git pull 1> /dev/null
 echo [ $(date) ] fetched and merged the remote git repository.
 
 

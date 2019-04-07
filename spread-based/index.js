@@ -424,14 +424,14 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
     } // handled subscribe and unsubscribe messages. 
 
     if ( jsondata.type === 'ticker' ) { // handle ticker message.
-      if ( Object.keys(jsondata.best_bid).length === 0 ) { messagehandlerexit('ticker','there is no best bid in the orderbook ticker',''); } 
-      else if ( Object.keys(jsondata.best_ask).length === 0 ) { messagehandlerexit('ticker','there is no best ask in the orderbook ticker',''); } 
+      if ( jsondata.best_bid.length === 0 ) { messagehandlerexit('ticker','there is no best bid in the orderbook ticker',''); } 
+      else if ( jsondata.best_ask.length === 0 ) { messagehandlerexit('ticker','there is no best ask in the orderbook ticker',''); } 
       else { // determine ask bid spread.
 
         let bestbid = jsondata.best_bid; /* capture best bid price from the orderbook. */
         let bestask = jsondata.best_ask; /* capture best ask price from the orderbook. */
 
-        if ( bestask - bestbid > spread ) { // bid if spread threshold is exceeded.
+        if ( Number(bestask) - Number(bestbid) > spread ) { // bid if spread threshold is exceeded.
 
           // retrieve REST API parameters.
           orderscope = await scopeorder(productid);

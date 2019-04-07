@@ -430,23 +430,29 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
 
         let bestbid = jsondata.best_bid; /* capture best bid price from the orderbook. */
         let bestask = jsondata.best_ask; /* capture best ask price from the orderbook. */
+        let tickerspread = Number(bestask) - Number(bestbid); /* determine the spread of the ticker message. */
 
-        if ( Number(bestask) - Number(bestbid) > spread ) { // bid if spread threshold is exceeded.
+        if ( tickerspread > spread ) { // bid if spread threshold is exceeded.
 
           // retrieve REST API parameters.
           orderscope = await scopeorder(productid);
           // retrieved REST API parameters.
   
-          // make bid.
-          if ( !bidding ) { bidding = true; bidorder = await makebid(bestbid, jsondata.last_size, orderscope); }
-          // made bid.
-  
-          // check bid response.
-          if ( bidorder.errormessage ) { messagehandlerexit ( 'ticker', Number( jsondata.last_size ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
-                                                                        + Number( bestbid ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.errormessage ); }
-          if ( bidorder.successmessage ) { messagehandlerinfo ( 'ticker', Number( jsondata.last_size ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
-                                                                        + Number( bestbid ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.successmessage ); }
-          // checked bid response.
+          if ( !bidding ) { // make bid.
+
+            bidding = true; 
+            bidorder = await makebid(bestbid, jsondata.last_size, orderscope); 
+
+            // check bid response.
+            if ( bidorder.errormessage ) { messagehandlerexit ( 'ticker', '[ticker spread: ' + tickerspread.toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ) + '] ' 
+                                                                          + Number( jsondata.last_size ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                          + Number( bestbid ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.errormessage ); }
+            if ( bidorder.successmessage ) { messagehandlerinfo ( 'ticker', '[ticker spread: ' + tickerspread.toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ) + '] ' 
+                                                                          + Number( jsondata.last_size ).toFixed( Math.abs( Math.log10( orderscope.baseminimum ) ) ) + ' @ ' 
+                                                                          + Number( bestbid ).toFixed( Math.abs( Math.log10( orderscope.quoteincrement ) ) ), bidorder.successmessage ); }
+            // checked bid response.
+
+          } // made bid.
 
         } // bid since spread threshold was passed.
 

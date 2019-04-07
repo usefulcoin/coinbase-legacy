@@ -1,0 +1,15 @@
+{
+  "name": "spread-based",
+  "version": "0.0.1",
+  "description": "Submit competitive (limit) bid authenticated ticker channel websocket message has a threshold exceeding spread. Post return-yielding ask after Coinbase fills the bid order.",
+  "main": "index.js",
+  "private": true,
+  "author": "usefulcoin",
+  "license": "MIT",
+  "homepage": "http://usefulcoin.com",
+  "dependencies": {
+    "ws": "latest",
+    "aws-sdk": "latest",
+    "node-fetch": "latest"
+  }
+}

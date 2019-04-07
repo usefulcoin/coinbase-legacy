@@ -423,7 +423,7 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
       else { subscribed = true; } 
     } // handled subscribe and unsubscribe messages. 
 
-    if ( jsondata.type === 'ticker' ) { // handle ticker message.
+    if ( jsondata.type === 'ticker' && subscribed ) { // handle ticker message.
       if ( jsondata.best_bid === null ) { messagehandlerexit('ticker','there is no best bid in the orderbook ticker',''); } 
       else if ( jsondata.best_ask === null ) { messagehandlerexit('ticker','there is no best ask in the orderbook ticker',''); } 
       else { // determine ask bid spread.

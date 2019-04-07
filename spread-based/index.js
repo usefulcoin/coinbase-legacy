@@ -432,7 +432,7 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
         let bestask = jsondata.best_ask; /* capture best ask price from the orderbook. */
         let tickerspread = Number(bestask) - Number(bestbid); /* determine the spread of the ticker message. */
 
-        if ( tickerspread > spread ) { // bid if spread threshold is exceeded.
+        if ( tickerspread > spread * bestask ) { // bid if spread threshold ratio is exceeded.
 
           // retrieve REST API parameters.
           orderscope = await scopeorder(productid);
@@ -454,7 +454,7 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
 
           } // made bid.
 
-        } // bid since spread threshold was passed.
+        } // bid since spread threshold ratio was passed.
 
       } // determine ask bid spread.
     } // handled ticker message.

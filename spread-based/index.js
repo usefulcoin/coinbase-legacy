@@ -30,7 +30,7 @@ const fetch = require('node-fetch');
 const websocketserver = (process.argv[2]) ? process.argv[2] : 'wss://ws-feed-public.sandbox.prime.coinbase.com';
 const restapiserver = (process.argv[3]) ? process.argv[3] : 'https://api-public.sandbox.prime.coinbase.com';
 const riskratio = (process.argv[4]) ? process.argv[4] : 0.00001;
-const spread = (process.argv[5]) ? process.argv[5] : 0.01;
+const percentspread = (process.argv[5]) ? process.argv[5] : 0.01;
 const percentreturn = (process.argv[6]) ? process.argv[6] : 0.01;
 const productid = (process.argv[7]) ? process.argv[7] : 'BTC-USD';
 const recipient = (process.argv[8]) ? process.argv[8] : '+15104594120';
@@ -432,7 +432,7 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
         let bestask = jsondata.best_ask; /* capture best ask price from the orderbook. */
         let tickerspread = Number(bestask) - Number(bestbid); /* determine the spread of the ticker message. */
 
-        if ( tickerspread > spread * bestask ) { // bid if spread threshold ratio is exceeded.
+        if ( tickerspread > percentspread * bestask ) { // bid if spread threshold ratio is exceeded.
 
           // retrieve REST API parameters.
           orderscope = await scopeorder(productid);

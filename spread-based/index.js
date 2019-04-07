@@ -428,9 +428,9 @@ async function makebid ( bidprice, bidquantity, configurationinformation ) {
       else if ( jsondata.best_ask === null ) { messagehandlerexit('ticker','there is no best ask in the orderbook ticker',''); } 
       else { // determine ask bid spread.
 
-        let bestbid = jsondata.best_bid; /* capture best bid price from the orderbook. */
-        let bestask = jsondata.best_ask; /* capture best ask price from the orderbook. */
-        let tickerspread = Number(bestask) - Number(bestbid); /* determine the spread of the ticker message. */
+        let bestbid = Number(jsondata.best_bid); /* capture best bid price from the orderbook. */
+        let bestask = Number(jsondata.best_ask); /* capture best ask price from the orderbook. */
+        let tickerspread = bestask - bestbid; /* determine the spread of the ticker message. */
 
         if ( tickerspread > percentspread * bestask ) { // bid if spread threshold ratio is exceeded.
 
